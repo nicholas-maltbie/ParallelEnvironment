@@ -11,7 +11,7 @@ In the Unity Environment use the following sub-menus
 Edit > Preferences > External Tools > External Script Editor
 
 1. Edit (Top left of screen)
-2. Preferences (Lower section of edit menu)
+2. Preferences (Lower section of the edit menu)
 
 ![Edit > Preferences view in Unity](Images/EditPreferences.png)
 

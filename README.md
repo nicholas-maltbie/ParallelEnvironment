@@ -11,7 +11,7 @@ Attempt to create an environment with procedural terrain, boids, and clouds.
 
 ## Development Environment
 
-We are going to use Unity v19.2.11f1. For full information on the development environment see [Development.md](Development.md)
+We are going to use Unity v19.2.11f1. For full information on the development environment and how to setup for contributing, see [Development.md](Development.md)
 
 ## Project Goals
 
