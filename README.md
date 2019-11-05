@@ -13,6 +13,14 @@ Attempt to create an environment with procedural terrain, boids, and clouds.
 
 We are going to use Unity v19.2.11f1. For full information on the development environment and how to setup for contributing, see [Development.md](Development.md)
 
+## Contribution Guidelines
+
+Please see [Contributing.md](Contributing.md) for details about adding to the project.
+
+## Project Proposal
+
+For a detailed description of the project, see [ProjectProposal.md](ProjectProposal.md) for more details. 
+
 ## Project Goals
 
 Our goal is to make a configurable environment with interactive components like boids and clouds. Here are a few images from Sebastian League's GitHub repositories that model what we would look to achieve
