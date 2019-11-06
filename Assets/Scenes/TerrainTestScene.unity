@@ -338,10 +338,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 772608cd988157d4caa4f87602c836b7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mapSize: 255
+  mapSize: 64
   minHeight: 0
   maxHeight: 255
-  terrainShader: {fileID: 4800000, guid: d86c328af692b2e468a1111f86c00722, type: 3}
+  terrainMaterial: {fileID: 2100000, guid: 9eef9a28c76784d4b8c9218515be9037, type: 2}
 --- !u!114 &1427697600
 MonoBehaviour:
   m_ObjectHideFlags: 0
