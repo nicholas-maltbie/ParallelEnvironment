@@ -303,8 +303,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1427697598}
-  - component: {fileID: 1427697599}
   - component: {fileID: 1427697600}
+  - component: {fileID: 1427697599}
   m_Layer: 0
   m_Name: Terrain
   m_TagString: Untagged
@@ -335,13 +335,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 1427697597}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 772608cd988157d4caa4f87602c836b7, type: 3}
+  m_Script: {fileID: 11500000, guid: d1afbd8bb230b114284f667010966c4f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mapSize: 64
+  mapSize: 256
   minHeight: 0
   maxHeight: 255
-  terrainMaterial: {fileID: 2100000, guid: 9eef9a28c76784d4b8c9218515be9037, type: 2}
+  terrainMaterial: {fileID: 0}
 --- !u!114 &1427697600
 MonoBehaviour:
   m_ObjectHideFlags: 0

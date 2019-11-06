@@ -6,7 +6,7 @@ using UnityEngine;
 /// Generates a mesh for an object using its HeightMapGenerator Component.
 /// </summary>
 [RequireComponent(typeof(AbstractHeightMapGenerator))]
-public class MeshCreator : MonoBehaviour
+public class MeshGenerator : MonoBehaviour
 {
     /// <summary>
     /// Size of the map square. This is the number of vertices on an edge of the map.
