@@ -25,7 +25,7 @@ public class MeshGenerator : MonoBehaviour
     /// Maximum height of the map, values in the height map that are one will
     /// be at this height.
     /// </summary>
-    public int maxHeight = 255;
+    public int maxHeight = 256;
     /// <summary>
     /// Range from the lowest pixel to the highest pixel. Calculated as maxHeight - minHeight.
     /// </summary>

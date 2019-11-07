@@ -340,8 +340,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   mapSize: 256
   minHeight: 0
-  maxHeight: 255
-  terrainMaterial: {fileID: 0}
+  maxHeight: 256
+  terrainMaterial: {fileID: 2100000, guid: 9eef9a28c76784d4b8c9218515be9037, type: 2}
 --- !u!114 &1427697600
 MonoBehaviour:
   m_ObjectHideFlags: 0
