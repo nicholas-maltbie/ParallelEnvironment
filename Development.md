@@ -5,6 +5,10 @@
 Using [Unity v19.2.11f1](https://unity3d.com/unity/whats-new/2019.2.11).
 * Including build support for Linux and Windows.
 
+Install this version of Unity from Unity Hub
+* Here are instructions how to install and setup Unity Hub [instructions link](https://docs.unity3d.com/Manual/GettingStartedInstallingHub.html)
+* This should work for linux, if not here is a supplemental article on setting up unity hub in linux. [article link](https://www.linuxdeveloper.space/install-unity-linux/)
+
 ## Coding Environment
 
 ### Languages
