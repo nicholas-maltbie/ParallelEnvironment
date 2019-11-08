@@ -341,7 +341,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   mapSize: 1024
   minHeight: 0
-  maxHeight: 256
+  maxHeight: 512
 --- !u!114 &1427697600
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -356,7 +356,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   octaves: 6
   repeat: 0
-  persistence: 0.4
+  persistence: 0.35
   frequencyGrowth: 2
   seed: 0
   scaleFactor: 200
