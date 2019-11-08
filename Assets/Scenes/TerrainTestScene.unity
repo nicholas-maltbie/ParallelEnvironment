@@ -303,9 +303,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1427697598}
+  - component: {fileID: 1427697601}
   - component: {fileID: 1427697600}
   - component: {fileID: 1427697599}
-  - component: {fileID: 1427697601}
   m_Layer: 0
   m_Name: Terrain
   m_TagString: Untagged
@@ -336,12 +336,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 1427697597}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cfef069b2d6082046b1ec230007c0e3a, type: 3}
+  m_Script: {fileID: 11500000, guid: b30598a712640e147b754cc2feb34116, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mapSize: 512
+  mapSize: 1024
   minHeight: 0
-  maxHeight: 200
+  maxHeight: 256
 --- !u!114 &1427697600
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -351,15 +351,15 @@ MonoBehaviour:
   m_GameObject: {fileID: 1427697597}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e3452c253425e864bbbfd4fa8e4f2827, type: 3}
+  m_Script: {fileID: 11500000, guid: 8ab16dc5712fcf846baa803d848d7c82, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   octaves: 6
   repeat: 0
   persistence: 0.4
   frequencyGrowth: 2
-  seed: 1
-  scaleFactor: 100
+  seed: 0
+  scaleFactor: 200
 --- !u!114 &1427697601
 MonoBehaviour:
   m_ObjectHideFlags: 0

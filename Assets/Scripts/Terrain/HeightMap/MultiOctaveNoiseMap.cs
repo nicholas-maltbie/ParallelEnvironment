@@ -47,7 +47,7 @@ public class MultiOctaveNoiseMap : AbstractHeightMapGenerator
     /// Higher vlaues are smooth, lower values are noisier.
     /// </summary>
     [Range(2f, 1000f)]
-    public float scaleFactor = 20;
+    public float scaleFactor = 200;
 
     public override float[] CreateHeightMap(int mapSize)
     {

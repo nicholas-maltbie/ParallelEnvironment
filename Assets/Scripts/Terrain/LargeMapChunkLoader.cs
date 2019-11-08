@@ -27,6 +27,7 @@ public class LargeMapChunkLoader : MonoBehaviour {
     /// </summary>
     public void Start() {
         heightMap = GetComponent<LargeHeightMap>();
+        heightMap.GenerateHeightMap();
         SetupChunks();
     }
 
@@ -40,7 +41,7 @@ public class LargeMapChunkLoader : MonoBehaviour {
             }
         }
     }
-    
+
     /// <summary>
     /// Creates a chunk at a given offset x and offset y.
     /// </summary>

@@ -26,19 +26,12 @@ public class LargeHeightMap : HeightMap {
     /// Saved height map values.
     /// </summary>
     private float[] heightMap;
-
-    /// <summary>
-    /// Startup to generate a new height map.
-    /// </summary>
-    public void Start() {
-        SetupHeightMap();
-    }
         
 
     /// <summary>
     /// Initialized the heightMap values using the HeightMapGenerator
     /// </summary>
-    private void SetupHeightMap() {
+    public void GenerateHeightMap() {
         AbstractHeightMapGenerator mapGen = GetComponent<AbstractHeightMapGenerator>();
         heightMap = mapGen.CreateHeightMap(mapSize);
         int heightMapRange = maxHeight - minHeight;
