@@ -3,9 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// Generates a mesh for an object using its HeightMapGenerator Component.
+/// Generates a mesh for an object using it a HeightMap object.
 /// </summary>
-[RequireComponent(typeof(AbstractHeightMapGenerator))]
 public class MeshGenerator : MonoBehaviour
 {
     /// <summary>
@@ -13,23 +12,8 @@ public class MeshGenerator : MonoBehaviour
     /// The total number of vertices is mapSize * mapSize. The number of squares will
     /// be (mapSize -1) * (mapSize -1) because a line of vertices is needed for the edge.
     /// </summary>
-    [Range(2, 2048)]
-    public int mapSize = 64;
-
-    /// <summary>
-    /// Minimum height of the map, values in the height map that are zero will 
-    /// be at this height.
-    /// </summary>
-    public int minHeight = 0;
-    /// <summary>
-    /// Maximum height of the map, values in the height map that are one will
-    /// be at this height.
-    /// </summary>
-    public int maxHeight = 256;
-    /// <summary>
-    /// Range from the lowest pixel to the highest pixel. Calculated as maxHeight - minHeight.
-    /// </summary>
-    private int heightRange;
+    [Range(2, 256)]
+    public int mapSize = 16;
 
     /// <summary>
     /// Shader to apply for once the mesh is generated
@@ -37,14 +21,19 @@ public class MeshGenerator : MonoBehaviour
     public Shader terrainShader;
 
     /// <summary>
-    /// Saved values of the height map
+    /// Offset of this component in x axis for reading values from height map.
     /// </summary>
-    private float[] heightMap;
+    public int offsetX = 0;
 
     /// <summary>
-    /// Generator attached to this object to create a height map.
+    /// Offset of this component in y axis for reading values from height map.
     /// </summary>
-    private AbstractHeightMapGenerator mapGenerator;
+    public int offsetY = 0;
+
+    /// <summary>
+    /// Height map component.
+    /// </summary>
+    public HeightMap heightMap;
 
     /// <summary>
     /// Container object for holding this mesh. Should be a child object
@@ -65,38 +54,12 @@ public class MeshGenerator : MonoBehaviour
     private Mesh heightMapMesh;
 
     /// <summary>
-    /// Initialize this mesh and height map.
+    /// Creates mesh from specified height map.
     /// </summary>
-    public void Start() {
-        // Get the map generator component from this object
-        mapGenerator = GetComponent<AbstractHeightMapGenerator>();
-        // Setup the height map for the mesh
-        SetupHeightMap();
-        // Create the mesh based on the height map
-        SetupMesh();
-    }
+    /// <param name="heightMap">Height map to use when creating the mesh.</param>
+    public void SetupMesh(HeightMap heightMap) {
+        this.heightMap = heightMap;
 
-    /// <summary>
-    /// Initializes the height map variable for this instance based on mapGenerator
-    /// </summary>
-    private void SetupHeightMap() {
-        // Find the range of heights from specified fields
-        heightRange = maxHeight - minHeight;
-        // Generate the height map from the mesh
-        heightMap = mapGenerator.CreateHeightMap(mapSize);
-        // Scale height map to be between minHeight and maxHeight
-        for (int x = 0; x < mapSize; x++) {
-            for (int y = 0; y < mapSize; y++) {
-                int mapIndex = y * mapSize + x;
-                heightMap[mapIndex] = heightMap[mapIndex] * heightRange + minHeight;
-            }
-        }
-    }
-
-    /// <summary>
-    /// Creates the mesh initially from the specified height map and settings.
-    /// </summary>
-    private void SetupMesh() {
         // Create the mesh container and add required components
         meshContainer = new GameObject();
         meshContainer.name = "MeshContainer";
@@ -112,22 +75,17 @@ public class MeshGenerator : MonoBehaviour
     }
 
     /// <summary>
-    /// Gets the height at a specified location in the grid. If the 
-    /// location is out of bounds of the map, it will bound it 
-    /// to the closest location.
+    /// Gets the height at a specified location in the grid. Will translate coordinates from local 
+    /// space to world space.
     /// </summary>
-    /// <param name="x">X location in grid (column)</param>
-    /// <param name="y">Y location in grid (row)</param>
+    /// <param name="localX">local X location in grid (column)</param>
+    /// <param name="localY">local Y location in grid (row)</param>
     /// <returns>
-    /// Height at specified location in grid
-    /// (bounded between min and max heights by noise value)
+    /// Height at specified location in grid.
     /// </returns>
-    private float GetHeight(int x, int y) {
-        // Bound x and y by map size
-        x = Mathf.Min(Mathf.Max(0, x), mapSize - 1);
-        y = Mathf.Min(Mathf.Max(0, y), mapSize - 1);
-        // Return the closest value at the height map for that given location
-        return heightMap[GetMapIndex(x, y)];
+    private float GetLocalHeight(int localX, int localY) {
+        // Return the value at the height map for that given location
+        return heightMap.GetHeight(localX + offsetX, localY + offsetY);
     }
 
     /// <summary>
@@ -139,17 +97,54 @@ public class MeshGenerator : MonoBehaviour
     private Vector3 CalculateNormal(int x, int y) {
         // Read the nearest neighbor's heights
         int offset = 1;
-        float hL = GetHeight(x - offset, y);
-        float hR = GetHeight(x + offset, y);
-        float hD = GetHeight(x, y - offset);
-        float hU = GetHeight(x, y + offset);
+        float hL = GetLocalHeight(x - offset, y);
+        float hR = GetLocalHeight(x + offset, y);
+        float hD = GetLocalHeight(x, y - offset);
+        float hU = GetLocalHeight(x, y + offset);
         // compute terrain normal
         Vector3 norm = new Vector3(hL - hR, 2.0f, hD - hU);
         return norm.normalized;
     }
 
+    /// <summary>
+    /// Gets the local index of a x and y position in the grid.
+    /// </summary>
+    /// <param name="x">Local X coordinate in grid</param>
+    /// <param name="y">Local Y coordinate in grid</param>
+    /// <returns>Index in mesh vertices for a given x and y position</returns>
     private int GetMapIndex(int x, int y) {
         return x + y * mapSize;
+    }
+
+    /// <summary>
+    /// Updates the geometry for this mesh. Recalculates the vertex positions and normals.
+    /// </summary>
+    public void UpdateGeometry() {
+        // Map of vectors for vertices in mesh
+        Vector3[] vertices = heightMapMesh.vertices;
+        // Vector of normals for each vertex
+        Vector3[] normals = heightMapMesh.normals;
+        
+        // Create vertices based on noise map
+        for (int x = 0; x < mapSize; x++) {
+            for (int y = 0; y < mapSize; y++) {
+                int mapIndex = GetMapIndex(x, y);
+                // Create a vertex at the specified height
+                vertices[mapIndex] = new Vector3(x, GetLocalHeight(x, y), y);
+            }
+        }
+        
+        // Calculate normals at each point on the map
+        for (int x = 0; x < mapSize; x++) {
+            for (int y = 0; y < mapSize; y++) {
+                int mapIndex = GetMapIndex(x, y);
+                // Calculate the normal mapping for that coordinate
+                normals[mapIndex] = CalculateNormal(x, y);
+            }
+        }
+
+        heightMapMesh.vertices = vertices;
+        heightMapMesh.normals = normals;
     }
 
     /// <summary>
@@ -175,16 +170,7 @@ public class MeshGenerator : MonoBehaviour
             for (int y = 0; y < mapSize; y++) {
                 int mapIndex = GetMapIndex(x, y);
                 // Create a vertex at the specified height
-                vertices[mapIndex] = new Vector3(x, GetHeight(x, y), y);
-            }
-        }
-
-        // Create UV mapping for the coordinates
-        for (int x = 0; x < mapSize; x++) {
-            for (int y = 0; y < mapSize; y++) {
-                int mapIndex = GetMapIndex(x, y);
-                // Set the UV Coordinates for each vertex
-                uvMapping[mapIndex] = new Vector2(x * uvStep, y * uvStep);
+                vertices[mapIndex] = new Vector3(x, GetLocalHeight(x, y), y);
             }
         }
         
@@ -197,19 +183,24 @@ public class MeshGenerator : MonoBehaviour
             }
         }
 
-        int tri = 0;
+        // Create UV mapping for the coordinates
+        for (int x = 0; x < mapSize; x++) {
+            for (int y = 0; y < mapSize; y++) {
+                int mapIndex = GetMapIndex(x, y);
+                // Set the UV Coordinates for each vertex
+                uvMapping[mapIndex] = new Vector2(x * uvStep, y * uvStep);
+            }
+        }
+
         // Create triangles based on mesh
         // Two triangles for each x and y position on height map
         // Need vertices on edge so ignore the far edge
         for (int x = 0; x < mapSize - 1; x++) {
             for (int y = 0; y < mapSize - 1; y++) {
-                if (x == mapSize - 1 || y == mapSize - 1) {
-                    continue;
-                }
                 // First triangle goes in order (trix, triy), (trix, triy+1), (trix+1, triy)
                 // Second triangle goes in order (trix + 1, triy), (trix, triy+1), (trix+1, triy+1)
                 // Need this order of triangles so mesh renders in correct direction (clockise order of vertices)
-                int tri1Start = tri;
+                int tri1Start = (x + y * (mapSize - 1)) * 6;
                 int tri2Start = tri1Start + 3;
 
                 // index of vertex at position (trix, triy)
@@ -222,8 +213,6 @@ public class MeshGenerator : MonoBehaviour
                 triangles[tri2Start] = GetMapIndex(x + 1, y);
                 triangles[tri2Start + 1] = GetMapIndex(x, y + 1);
                 triangles[tri2Start + 2] = GetMapIndex(x + 1, y + 1);
-
-                tri += 6;
             }
         }
 
@@ -234,8 +223,6 @@ public class MeshGenerator : MonoBehaviour
         heightMapMesh.uv = uvMapping;
         heightMapMesh.normals = normals;
         
-        Debug.Log(heightMapMesh.bounds);
-
         meshFilter.mesh = heightMapMesh;
     }
 }

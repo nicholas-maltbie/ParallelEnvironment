@@ -303,8 +303,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1427697598}
-  - component: {fileID: 1427697599}
   - component: {fileID: 1427697600}
+  - component: {fileID: 1427697599}
+  - component: {fileID: 1427697601}
   m_Layer: 0
   m_Name: Terrain
   m_TagString: Untagged
@@ -335,13 +336,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 1427697597}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d1afbd8bb230b114284f667010966c4f, type: 3}
+  m_Script: {fileID: 11500000, guid: cfef069b2d6082046b1ec230007c0e3a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mapSize: 255
+  mapSize: 512
   minHeight: 0
-  maxHeight: 1000
-  terrainShader: {fileID: 4800000, guid: d86c328af692b2e468a1111f86c00722, type: 3}
+  maxHeight: 200
 --- !u!114 &1427697600
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -356,7 +356,21 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   octaves: 6
   repeat: 0
-  persistence: 0.5
+  persistence: 0.4
   frequencyGrowth: 2
-  seed: 0
-  scaleFactor: 1
+  seed: 1
+  scaleFactor: 100
+--- !u!114 &1427697601
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1427697597}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 236d38fa340fd3040bf5e43543c02ed6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  chunkSize: 16
+  terrainShader: {fileID: 4800000, guid: d86c328af692b2e468a1111f86c00722, type: 3}

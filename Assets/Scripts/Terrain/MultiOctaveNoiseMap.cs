@@ -44,10 +44,10 @@ public class MultiOctaveNoiseMap : AbstractHeightMapGenerator
 
     /// <summary>
     /// Scale factor for how noisy the map should be.
-    /// Lower values are smoother, higher values are noisier.
+    /// Higher vlaues are smooth, lower values are noisier.
     /// </summary>
-    [Range(0.001f, 10)]
-    public float scaleFactor = 1;
+    [Range(2f, 1000f)]
+    public float scaleFactor = 20;
 
     public override float[] CreateHeightMap(int mapSize)
     {
@@ -57,8 +57,8 @@ public class MultiOctaveNoiseMap : AbstractHeightMapGenerator
         for (int x = 0; x < mapSize; x++) {
             for (int y = 0; y < mapSize; y++) {
                 heights[x + mapSize * y] = noiseGen.OctavePerlin(
-                    x * scaleFactor / mapSize,
-                    y * scaleFactor /mapSize,
+                    x / scaleFactor,
+                    y / scaleFactor,
                     1,
                     octaves,
                     persistence,
