@@ -13,7 +13,7 @@ public class MeshGenerator : MonoBehaviour
     /// The total number of vertices is mapSize * mapSize. The number of squares will
     /// be (mapSize -1) * (mapSize -1) because a line of vertices is needed for the edge.
     /// </summary>
-    [Range(2, 256)]
+    [Range(2, 2048)]
     public int mapSize = 64;
 
     /// <summary>
@@ -32,9 +32,9 @@ public class MeshGenerator : MonoBehaviour
     private int heightRange;
 
     /// <summary>
-    /// Material to apply for once the mesh is generated
+    /// Shader to apply for once the mesh is generated
     /// </summary>
-    public Material terrainMaterial;
+    public Shader terrainShader;
 
     /// <summary>
     /// Saved values of the height map
@@ -107,6 +107,7 @@ public class MeshGenerator : MonoBehaviour
         // Generate height map based on these values
         CreateMeshFromHeightMap();
 
+        Material terrainMaterial = new Material(terrainShader);
         meshRenderer.material = terrainMaterial;
     }
 
@@ -126,7 +127,7 @@ public class MeshGenerator : MonoBehaviour
         x = Mathf.Min(Mathf.Max(0, x), mapSize - 1);
         y = Mathf.Min(Mathf.Max(0, y), mapSize - 1);
         // Return the closest value at the height map for that given location
-        return heightMap[x + mapSize * y];
+        return heightMap[GetMapIndex(x, y)];
     }
 
     /// <summary>
@@ -145,6 +146,10 @@ public class MeshGenerator : MonoBehaviour
         // compute terrain normal
         Vector3 norm = new Vector3(hL - hR, 2.0f, hD - hU);
         return norm.normalized;
+    }
+
+    private int GetMapIndex(int x, int y) {
+        return x + y * mapSize;
     }
 
     /// <summary>
@@ -168,7 +173,7 @@ public class MeshGenerator : MonoBehaviour
         // Create vertices based on noise map
         for (int x = 0; x < mapSize; x++) {
             for (int y = 0; y < mapSize; y++) {
-                int mapIndex = y * mapSize + x;
+                int mapIndex = GetMapIndex(x, y);
                 // Create a vertex at the specified height
                 vertices[mapIndex] = new Vector3(x, GetHeight(x, y), y);
             }
@@ -177,7 +182,7 @@ public class MeshGenerator : MonoBehaviour
         // Create UV mapping for the coordinates
         for (int x = 0; x < mapSize; x++) {
             for (int y = 0; y < mapSize; y++) {
-                int mapIndex = y * mapSize + x;
+                int mapIndex = GetMapIndex(x, y);
                 // Set the UV Coordinates for each vertex
                 uvMapping[mapIndex] = new Vector2(x * uvStep, y * uvStep);
             }
@@ -186,34 +191,39 @@ public class MeshGenerator : MonoBehaviour
         // Calculate normals at each point on the map
         for (int x = 0; x < mapSize; x++) {
             for (int y = 0; y < mapSize; y++) {
-                int mapIndex = y * mapSize + x;
+                int mapIndex = GetMapIndex(x, y);
                 // Calculate the normal mapping for that coordinate
                 normals[mapIndex] = CalculateNormal(x, y);
             }
         }
 
-
+        int tri = 0;
         // Create triangles based on mesh
         // Two triangles for each x and y position on height map
         // Need vertices on edge so ignore the far edge
         for (int x = 0; x < mapSize - 1; x++) {
             for (int y = 0; y < mapSize - 1; y++) {
+                if (x == mapSize - 1 || y == mapSize - 1) {
+                    continue;
+                }
                 // First triangle goes in order (trix, triy), (trix, triy+1), (trix+1, triy)
                 // Second triangle goes in order (trix + 1, triy), (trix, triy+1), (trix+1, triy+1)
                 // Need this order of triangles so mesh renders in correct direction (clockise order of vertices)
-                int tri1Start = (y * (mapSize - 1) + x) * 6;
-                int tri2Start = (y * (mapSize - 1) + x) * 6 + 3;
+                int tri1Start = tri;
+                int tri2Start = tri1Start + 3;
 
                 // index of vertex at position (trix, triy)
-                triangles[tri1Start] = x + y * mapSize;
+                triangles[tri1Start] = GetMapIndex(x, y);
                 // index of vertex at position (trix, triy + 1)
-                triangles[tri1Start + 1] = x + (y + 1) * mapSize;
+                triangles[tri1Start + 1] = GetMapIndex(x, y + 1);
                 // index of vertex at position (trix + 1, triy)
-                triangles[tri1Start + 2] = (x + 1) + y * mapSize;
+                triangles[tri1Start + 2] = GetMapIndex(x + 1, y);
 
-                triangles[tri2Start] = (x + 1) + y * mapSize;
-                triangles[tri2Start + 1] = x + (y + 1) * mapSize;
-                triangles[tri2Start + 2] = (x + 1) + (y + 1) * mapSize;
+                triangles[tri2Start] = GetMapIndex(x + 1, y);
+                triangles[tri2Start + 1] = GetMapIndex(x, y + 1);
+                triangles[tri2Start + 2] = GetMapIndex(x + 1, y + 1);
+
+                tri += 6;
             }
         }
 
@@ -224,6 +234,8 @@ public class MeshGenerator : MonoBehaviour
         heightMapMesh.uv = uvMapping;
         heightMapMesh.normals = normals;
         
+        Debug.Log(heightMapMesh.bounds);
+
         meshFilter.mesh = heightMapMesh;
     }
 }
