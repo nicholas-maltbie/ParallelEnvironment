@@ -28,7 +28,32 @@ public class LargeMapChunkLoader : MonoBehaviour {
     public void Start() {
         heightMap = GetComponent<LargeHeightMap>();
         heightMap.GenerateHeightMap();
+        //HydroErosion erosion = GetComponent<HydroErosion>();
+        //erosion.ErodeHeightMap(heightMap, 0, 0, heightMap.mapSize, heightMap.mapSize, 1000);
+
         SetupChunks();
+    }
+
+    float delay = 0.1f, elapsed = 20;
+    void Update() {
+        elapsed += Time.deltaTime;
+
+        if (elapsed > delay) {
+            elapsed %= delay;
+        
+            HydroErosion erosion = GetComponent<HydroErosion>();
+            erosion.ErodeHeightMap(heightMap, 0, 0, heightMap.mapSize, heightMap.mapSize, 100);
+            //Erosion erosion = GetComponent<Erosion>();
+            //erosion.Erode(heightMap, heightMap.mapSize, 10);
+            
+            UpdateMeshes();
+        }
+    }
+
+    private void UpdateMeshes() {
+        foreach (MeshGenerator gen in gameObject.GetComponentsInChildren<MeshGenerator>()) {
+            gen.UpdateGeometry();
+        }
     }
 
     /// <summary>

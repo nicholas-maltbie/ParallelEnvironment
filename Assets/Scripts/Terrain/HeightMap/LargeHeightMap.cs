@@ -70,7 +70,7 @@ public class LargeHeightMap : HeightMap {
 
     /// <summary>
     /// Sets the height at a specified x and y. Will throw an ArgumentOutOfRangeExcpetion if 
-    /// x and y do not fit the bounds 0 <= x or y < mapSize
+    /// x and y do not fit the bounds 0 <= (x or y) < mapSize
     /// </summary>
     /// <param name="x">X coordinate in the grid</param>
     /// <param name="y">Y coordinate in the grid</param>
@@ -90,5 +90,20 @@ public class LargeHeightMap : HeightMap {
     /// <returns>True if x and y are in the bounds (greater than or equal to zero and less than mapSize)</returns>
     public override bool IsInBounds(int x, int y) {
         return x >= 0 && x < mapSize && y >= 0 && y < mapSize;
+    }
+
+    /// <summary>
+    /// Adds to the height at a specified x and y. Will throw an ArgumentOutOfRangeExcpetion if 
+    /// x and y do not fit the bounds 0 <= (x or y) < mapSize
+    /// </summary>
+    /// <param name="x">X coordinate in the grid</param>
+    /// <param name="y">Y coordinate in the grid</param>
+    /// <param name="change">Height to add to the map at specified location.</param>
+    public override void AddHeight(int x, int y, float change)
+    {
+        if (! IsInBounds(x, y)) 
+            throw new ArgumentOutOfRangeException ();
+        heightMap[GetMapIndex(x, y)] += change;
+
     }
 }

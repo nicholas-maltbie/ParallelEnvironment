@@ -196,13 +196,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 284106465}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 1, z: -10}
+  m_LocalRotation: {x: 0.19459417, y: 0.758544, z: -0.26163688, w: 0.5641722}
+  m_LocalPosition: {x: -56.3, y: 169.1, z: 147.8}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 38.061, y: 106.719, z: 0}
 --- !u!1 &1118175517
 GameObject:
   m_ObjectHideFlags: 0
@@ -306,6 +306,8 @@ GameObject:
   - component: {fileID: 1427697601}
   - component: {fileID: 1427697600}
   - component: {fileID: 1427697599}
+  - component: {fileID: 1427697602}
+  - component: {fileID: 1427697603}
   m_Layer: 0
   m_Name: Terrain
   m_TagString: Untagged
@@ -341,7 +343,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   mapSize: 256
   minHeight: 0
-  maxHeight: 100
+  maxHeight: 256
 --- !u!114 &1427697600
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -354,12 +356,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8ab16dc5712fcf846baa803d848d7c82, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  octaves: 6
+  octaves: 8
   repeat: 0
-  persistence: 0.45
+  persistence: 0.35
   frequencyGrowth: 2
-  seed: 0
-  scaleFactor: 50
+  seed: 1
+  scaleFactor: 100
 --- !u!114 &1427697601
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -373,4 +375,54 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   chunkSize: 16
-  terrainShader: {fileID: 4800000, guid: d86c328af692b2e468a1111f86c00722, type: 3}
+  terrainShader: {fileID: 4800000, guid: ffac2e4453511594eaf171b73c9b6a40, type: 3}
+--- !u!114 &1427697602
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1427697597}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3ff2fdffaa638f14aa4a49d50cd7ad49, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  seed: 0
+  erosionRadius: 8
+  inertia: 0.05
+  sedimentCapacityFactor: 4
+  minSedimentCapacity: 0.01
+  erodeSpeed: 0.2
+  depositSpeed: 0.2
+  evaporateSpeed: 0.01
+  gravity: 2
+  maxDropletLifetime: 1000
+  initialWaterVolume: 1
+  initialSpeed: 1
+--- !u!114 &1427697603
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1427697597}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b6e0f5e65ada16947beca80624b1d1d4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  seed: 1
+  inertia: 0.1
+  evaporateSpeed: 0.02
+  maxDropletLifetime: 128
+  initialSpeed: 1
+  initialWater: 1
+  gravity: 4
+  sedimentCapacityFactor: 4
+  minSedimentCapacity: 0.01
+  erodeSpeed: 0.3
+  depositSpeed: 0.3
+  erodeRadius: 6
+  debugSphere: {fileID: 3928810723249354619, guid: 6f1ab9abc6b92a840a42b25129e7979c,
+    type: 3}

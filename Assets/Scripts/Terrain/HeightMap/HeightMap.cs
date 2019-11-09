@@ -21,6 +21,14 @@ abstract public class HeightMap : MonoBehaviour {
     abstract public void SetHeight(int x, int y, float height);
 
     /// <summary>
+    /// Adds to a map at the given coordinate by value of change
+    /// </summary>
+    /// <param name="x">X position in grid</param>
+    /// <param name="y">Y position in grid</param>
+    /// <param name="change">Height to add at position x and y.</param>
+    abstract public void AddHeight(int x, int y, float change);
+
+    /// <summary>
     /// Checks if a coordinate is in the bounds of the heightmap.
     /// </summary>
     /// <param name="x">X position in the height map</param>
