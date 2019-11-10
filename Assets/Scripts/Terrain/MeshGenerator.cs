@@ -16,9 +16,14 @@ public class MeshGenerator : MonoBehaviour
     public int mapSize = 16;
 
     /// <summary>
-    /// Shader to apply for once the mesh is generated
+    /// Shader to apply for once the mesh is generated.
+    /// AS OF RIGHT NOW THIS IS NOT USED
     /// </summary>
     public Shader terrainShader;
+    /// <summary>
+    /// Material to apply for once the mesh is generated
+    /// </summary>
+    public Material terrainMaterial;
 
     /// <summary>
     /// Offset of this component in x axis for reading values from height map.
@@ -33,7 +38,7 @@ public class MeshGenerator : MonoBehaviour
     /// <summary>
     /// Height map component.
     /// </summary>
-    public HeightMap heightMap;
+    public HeightMapComponent heightMap;
 
     /// <summary>
     /// Container object for holding this mesh. Should be a child object
@@ -57,7 +62,7 @@ public class MeshGenerator : MonoBehaviour
     /// Creates mesh from specified height map.
     /// </summary>
     /// <param name="heightMap">Height map to use when creating the mesh.</param>
-    public void SetupMesh(HeightMap heightMap) {
+    public void SetupMesh(HeightMapComponent heightMap) {
         this.heightMap = heightMap;
 
         // Create the mesh container and add required components
@@ -70,7 +75,7 @@ public class MeshGenerator : MonoBehaviour
         // Generate height map based on these values
         CreateMeshFromHeightMap();
 
-        Material terrainMaterial = new Material(terrainShader);
+        //Material terrainMaterial = new Material(terrainShader);
         meshRenderer.material = terrainMaterial;
     }
 

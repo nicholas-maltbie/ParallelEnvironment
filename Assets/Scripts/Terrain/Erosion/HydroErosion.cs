@@ -1,10 +1,20 @@
 using UnityEngine;
 using System;
 
+/// <summary>
+/// Simulated hydraulic erosion following 
+/// Hans Theobald Beyer's "Impleemtantion of a method for Hydraulic Erosion"
+/// Bachelor's Thesis in Informatics at TECHNISCHE UNIVERSITÄT MÜNCHEN. 15.11.2015
+/// 
+/// https://www.firespark.de/resources/downloads/implementation%20of%20a%20methode%20for%20hydraulic%20erosion.pdf
+/// 
+/// Some of the documentation of parameters is direclty from this document so if
+/// there is any uncertianty there is further explanation in this paper.
+/// </summary>
 public class HydroErosion : MonoBehaviour {
-
-    private static float sqrt2PI = Mathf.Sqrt(2 * Mathf.PI);
-
+    /// <summary>
+    /// Seed value for random number generator
+    /// </summary>
     public int seed = 0;
 
     /// <summary>
@@ -12,327 +22,391 @@ public class HydroErosion : MonoBehaviour {
     /// </summary>
     [Range(0.0f, 1.0f)]
     public float inertia = 0.05f;
+
     /// <summary>
-    /// Speed at which water evaporates from the droplet
+    /// Starting water in each droplet.
     /// </summary>
-    [Range (0, 1)]
-    public float evaporateSpeed = .01f;
+    public float initialWater = 1;
+    /// <summary>
+    /// Starting velocity of each droplet.
+    /// </summary>
+    public float initialVelocity = 1;
+
+    /// <summary>
+    /// Force of gravity to pull droplets down gradient. Overall
+    /// a higher gravity factor leads to faster erosion, but there are no differences in the
+    /// appearance of the terrain.
+    /// </summary>
+    public float gravity = 9.81f;
+
+    /// <summary>
+    /// determines the amount of sediment a drop can carry as used
+    /// in equation 5.4. A higher value results in more sediment being eroded on steeper
+    /// ground and deposited in lower regions. Thus each drop has a higher impact on the 
+    /// result. That leads to a ruggy terrain with more ravines. 
+    /// </summary>
+    public float sedimentCapacityFactor = 4;
+
+    /// <summary>
+    /// determines how fast the drops evaporate. Again its value is 
+    /// between 0 and 1. A faster evaporation leads to shorter paths of the drops in which they 
+    /// influence the terrain.
+    /// </summary>
+    public float evaporationRate = 0.0123f;
+
+    /// <summary>
+    /// the minimum level of height difference that is taken for
+    /// the calculation of the carry capacity of each single drop. Increasing the value ensures
+    /// that the carry capacity does not fall below a certain line. Higher values lead to faster
+    /// erosion but also stronger ravine forming. Terrains eroded with a low minimal slope
+    /// need more drops but give smoother, more realistic looking terrains.
+    /// </summary>
+    public float minSlope = 0.01f;
+
+    /// <summary>
+    /// Minimum capacity of a raindrop. It will always be able to hold at least this much sediment. 
+    /// </summary>
+    public float minCapacity = 0.1f;
 
     /// <summary>
     /// Maximum time that a droplet can survive
     /// </summary>
-    public int maxDropletLifetime = 30;
+    public int maxDropletLifetime = 256;
 
     /// <summary>
-    /// Initial speed of a droplet
+    /// limits the sediment that is dropped if the sediment carried
+    /// by a drop exceeds the drops carry capacity c as described in equation 5.5. The value is
+    /// between 0 and 1. Since the drop loses water over time through evaporation, it happens,
+    /// that the capacity falls below the amount of currently carried sediment. For high values
+    /// of pdeposition that leads to visible sediment deposition on the flow path
     /// </summary>
-    public float initialSpeed = 1.0f;
+    public float depositionRate = 0.1f;
+    
     /// <summary>
-    /// Initial water content of a droplet
+    /// determines how much of the free
+    /// capacity of a drop is filled with sediment in case of erosion as described in equation
+    /// 5.6. The value is between 0 and 1. With a high erosion speed, a drop quickly fills its
+    /// capacity and after that most likely only deposits sediment. With a low value, the drops
+    /// pick up sediment for a longer path, which results in stronger ravine formation.
     /// </summary>
-    public float initialWater = 1;
+    public float erosionRate = 0.1f;
 
     /// <summary>
-    /// Factor of gravity for moving down sides of mountain
+    /// determines the radius in which sediment is taken from the
+    /// rock layer. The smaller pradius is, the deeper and more distinct the ravines will be.
+    /// Raising the erosion radius also increases the computational time needed for each drop
+    /// drastically
     /// </summary>
-    public float gravity = 4.0f;
-
-    /// <summary>
-    /// Amount of sediment that a single droplet can carry.
-    /// </summary>
-    public float sedimentCapacityFactor = 4;
-    /// <summary>
-    /// Minimum sediment that a droplet can carry.
-    /// Used to prevent carry capacity getting too close to zero on flatter terrain
-    /// </summary>
-    public float minSedimentCapacity = .01f;
-    /// <summary>
-    /// Speed at which sediment is removed from surronding area
-    /// </summary>
-    [Range (0, 1)]
-    public float erodeSpeed = .3f;
-    /// <summary>
-    /// Speed at which sediment is added to the surronding area
-    /// </summary>
-    [Range (0, 1)]
-    public float depositSpeed = .3f;
-
-    /// <summary>
-    /// Radius for gaussian blur when eroding
-    /// </summary>
-    [Range(0, 10)]
     public int erodeRadius = 3;
 
-    [Range(0, 1)]
-    public float speedFactor = 0;
-
+    /// <summary>
+    /// Pseudo-random number generator for behaviour of raindrops
+    /// </summary>
     private System.Random prng;
 
-    public GameObject debugSphere;
+    /// <summary>
+    /// Brush for applying erode feature
+    /// </summary>
+    private float[,] erodeBrush;
+    
+    /// <summary>
+    /// Brush to apply to deposit locations.
+    /// </summary>
+    private float[,] depositBrush;
 
-    public void ErodeHeightMap(HeightMap map, int startX, int startY, int endX, int endY, int iterations) {
+    /// <summary>
+    /// Initializes the erosion brush and prng
+    /// </summary>
+    /// <param name="seed">Seed value for PRNG, zero means use arbitrary seed</param>
+    /// <param name="erodeRadius">Radius size of erosion brush</param>
+    private void Initialize(int seed, int erodeRadius) {
 
         if (prng == null) {
             prng = seed == 0 ? new System.Random() : new System.Random(seed);
         }
 
-        int dx = endX - startX;
-        int dy = endY - startY;
+        if (erodeBrush == null) {
+            erodeBrush = new float[erodeRadius * 2 + 1, erodeRadius * 2 + 1];
+            float sd = erodeRadius / 3.0f;
+            for (int x = -erodeRadius; x <= erodeRadius; x++) {
+                for (int y = -erodeRadius; y <= erodeRadius; y++) {
+                    erodeBrush[x + erodeRadius,y + erodeRadius] = 
+                        Mathf.Exp(- (x * x + y * y) / (2.0f * sd * sd)) / Mathf.Sqrt(2.0f * Mathf.PI * sd * sd);
+                }
+            }
+        }
+    }
 
-        Vector2 momentum = new Vector2(0, 0);
+    /// <summary>
+    /// Erodes a hight map by generating a set of droplets then simulating their movement along the height map.
+    /// </summary>
+    /// <param name="map">Map to apply changes to.</param>
+    /// <param name="startX">Minimum location for spawning droplets (X axis)</param>
+    /// <param name="startY">Minimum location for spawning droplets (Y axis)</param>
+    /// <param name="endX">Maximum location for spawning droplets (X axis)</param>
+    /// <param name="endY">Maximum location for spawning droplets (Y axis)</param>
+    /// <param name="iterations">Number of droplets to create</param>
+    public void ErodeHeightMap(HeightMap map, int startX, int startY, int endX, int endY, int iterations) {
+        Initialize(seed, erodeRadius);
 
         // Iteration for each raindrop
         for (int iter = 0; iter < iterations; iter++) {
             // Simulate each raindrop
-            Vector2 position = new Vector2(prng.Next() % dx + startX, prng.Next() % dy + startY);
-            float speed = initialSpeed;
-            float water = initialWater;
+            // Put the raindrop at a random position in the grid
+            Vector2 pos = new Vector2(prng.Next(startX + 1, endX - 1), prng.Next(startY + 1, endY - 1));
+            // Previous direction the droplet moved in
+            Vector2 dir = Vector2.zero;
+
             float sediment = 0;
+            float water = initialWater;
+            float vel = initialVelocity;
+            int totalSteps;
 
+            for (totalSteps = 0; totalSteps < maxDropletLifetime; totalSteps++) {
+                // Compute gradient at current position
+                Vector2 grad = CalculateGradient(map, pos);
 
-            for (int lifetime = 0; lifetime < maxDropletLifetime; lifetime++) {
-                
-                /*
-                GameObject debug = Instantiate(debugSphere, new Vector3((int)position.x, map.GetHeight((int)position.x, (int)position.y), (int)position.y), Quaternion.Euler(Vector3.zero));
-                debug.transform.localScale = Vector3.one * (sediment / sedimentCapacityFactor + 0.5f);
-                */
+                // Compute new direction as combination of old direction and gradient
+                // Add some intertia for fun
+                dir = dir * inertia - grad * (1 - inertia);
 
-                // Calculate droplet's height and direction of flow with bilinear interpolation of surrounding heights
-                HeightAndGradient heightAndGradient = CalculateHeightAndGradient(map, position);
+                // Select a random direction if dir is zero
+                if (dir.x == 0 && dir.y == 0) {
+                    dir = new Vector2(prng.Next(), prng.Next());
+                }
 
-                // Update the droplet's direction and position (move position 1 unit regardless of speed)
-                momentum = (momentum * inertia - heightAndGradient.gradientVec * (1 - inertia)).normalized;
-                int nodeX = Mathf.FloorToInt(position.x);
-                int nodeY = Mathf.FloorToInt(position.y);
+                // Normalize the vector dir
+                dir /= dir.magnitude;
 
-                float cellOffsetX = position.x - nodeX;
-                float cellOffsetY = position.y - nodeY;
+                // Calculate the new position
+                Vector2 posNew = pos + dir;
 
-                position += momentum;
+                // Calculate the chnage in height
+                float heightOld = ApproximateHeight(map, pos);
+                float heightNew = ApproximateHeight(map, posNew);
+                float deltaH = heightNew - heightOld;
 
-                // Stop simulating droplet if it's not moving or has flowed over edge of map
-                if (!map.IsInBounds(nodeX, nodeY)) {
+                // Calculate the carying capacity of the droplet
+                float capacity = Math.Max(Mathf.Max(-deltaH, minSlope) * water * sedimentCapacityFactor, minCapacity);
+
+                // if droplet moved off the map or stopped moving, kill it
+                if (!map.IsInBounds((int) posNew.x, (int) posNew.y)) {
+                    // If the droplet had excess sediment, attempt to deposit it.
+                    if (sediment > 0) {
+                        float amountToDeposit = (deltaH > 0) ? Mathf.Min (deltaH, sediment) : (sediment - capacity) * depositionRate;
+                        sediment -= Deposit(map, pos, amountToDeposit);
+                    }
                     break;
                 }
 
-                // Find the droplet's new height and calculate the deltaHeight
-                float newHeight = CalculateHeightAndGradient (map, position).height;
-                float deltaHeight = newHeight - heightAndGradient.height;
-
-                // Calculate the droplet's sediment capacity (higher when moving fast down a slope and contains lots of water)
-                float sedimentCapacity = Mathf.Max (-deltaHeight * (speed * speedFactor + 1.0f) * water * sedimentCapacityFactor, minSedimentCapacity);
-
-
-                //Debug.Log("sediment: " + sediment + " capacity: " + sedimentCapacity);
-
-                // If carrying more sediment than capacity, or if flowing uphill:
-                if (sediment > sedimentCapacity || deltaHeight > 0) {
-                    // If moving uphill (deltaHeight > 0) try fill up to the current height, otherwise deposit a fraction of the excess sediment
-                    float amountToDeposit = (deltaHeight > 0) ? Mathf.Min (deltaHeight, sediment) : (sediment - sedimentCapacity) * depositSpeed;
-                    //Debug.Log("Adding " + amountToDeposit + " to height map");
-                    // Add the sediment to the four nodes of the current cell using bilinear interpolation
-                    // Deposition is not distributed over a radius (like erosion) so that it can fill small pits
-                    
-                    
-                    sediment -= ChangeHeightMap(map, nodeX, nodeY, amountToDeposit * (1 - cellOffsetX) * (1 - cellOffsetY));
-                    sediment -= ChangeHeightMap(map, nodeX + 1, nodeY, amountToDeposit * cellOffsetX * (1 - cellOffsetY));
-                    sediment -= ChangeHeightMap(map, nodeX, nodeY + 1, amountToDeposit * (1 - cellOffsetX) * cellOffsetY);
-                    sediment -= ChangeHeightMap(map, nodeX + 1, nodeY + 1, amountToDeposit * cellOffsetX * cellOffsetY);
-                    
-                    //sediment -= AddGaussianHeight(map, position - momentum, erodeRadius, amountToDeposit);
-
-                } else {
-                    // Erode a fraction of the droplet's current carry capacity.
-                    // Clamp the erosion to the change in height so that it doesn't dig a hole in the terrain behind the droplet
-                    float amountToErode = Mathf.Min ((sedimentCapacity - sediment) * erodeSpeed, -deltaHeight);
-
-                    //Debug.Log(deltaHeight + ", " + amountToErode);
-
-                    // Remove the sediment to the four nodes of the current cell using bilinear interpolation
-                    // sediment -= AddHeightBiLinear(map, pos, -amountToErode);
-
-                    //sediment += GaussianErodeLocation(map, position - momentum, amountToErode, erodeRadius, newHeight);
-                    sediment += DistanceErodeLocation(map, nodeX, nodeY, erodeRadius, amountToErode);
-                    
-                    //sediment += amountToErode;
-                    //Debug.Log("target: " + amountToErode + ", before: " + before + ", after: " + sediment);
+                // If the droplet is carying too much sediment, it will drop its sediment
+                if (deltaH >= 0 || sediment > capacity) {
+                    float amountToDeposit = (deltaH > 0) ? Mathf.Min (deltaH, sediment) : (sediment - capacity) * depositionRate;
+                    sediment -= Deposit(map, pos, amountToDeposit);
+                }
+                // If the droplet is flowign downhill and has excess capacity, it will erode terrain
+                else {
+                    float amountToErode = Mathf.Min((capacity - sediment) * erosionRate, -deltaH);
+                    sediment += Erode(map, pos, amountToErode, erodeRadius, erodeBrush);
                 }
 
-
-                // Update droplet's speed and water content
-                speed = Mathf.Sqrt (speed * speed + deltaHeight * gravity);
-                water *= (1 - evaporateSpeed);
+                // Update velocity
+                vel = Mathf.Sqrt(vel * vel + deltaH * gravity);
+                // Updater water
+                water = water * (1 - evaporationRate);
+                // Update position
+                pos = posNew;
             }
-
         }
     }
 
-    private float AddGaussianHeight(HeightMap map, Vector2 pos, int radius, float amount) {
-        float totalKernel = 0;
-        float[,] kernel = new float[radius * 2 + 1,radius * 2 + 1];
-        float sd = radius / 3f;
-        float offsetX = pos.x % 1.0f;
-        float offsetY = pos.y % 1.0f;
-        for (int x = -radius; x < radius; x++) {
-            for (int y = -radius; y < radius; y++) {
-                if (!map.IsInBounds((int)pos.x + x, (int)pos.y + y) || x * x + y * y > radius * radius) {
-                    continue;
-                }
-                float dx = x + offsetX;
-                float dy = y + offsetY;
-                kernel[x+radius, y+radius] = 1 / (sqrt2PI * sd * sd) * Mathf.Exp(-(dx * dx + dy * dy) / (2 * sd * sd));
-                totalKernel += kernel[x+radius, y+radius];
-            }
-        }
+    /// <summary>
+    /// Erodes a height map at a given position using a erosion brush.
+    /// </summary>
+    /// <param name="map">Map to change</param>
+    /// <param name="pos">Position of droplet on map</param>
+    /// <param name="amountToErode">Total amount to be removed</param>
+    /// <param name="radius">Radius of the brush</param>
+    /// <param name="brush">Brush to use when applying erosion</param>
+    /// <returns>The total amount of soil eroded (might be slightly less than amountToErode</returns>
+    private float Erode(HeightMap map, Vector2 pos, float amountToErode, int radius, float[,] brush) {
+        // Calculate the grid location (rounded down)
+        int coordX = (int) pos.x;
+        int coordY = (int) pos.y;
         
-        float totalAdded = 0;
-
-        for (int x = -radius; x < radius; x++) {
-            for (int y = -radius; y < radius; y++) {
-                if (!map.IsInBounds((int)pos.x + x, (int)pos.y + y) || x * x + y * y > radius * radius) {
-                    continue;
-                }
-                float add = amount * kernel[x + radius, y + radius] / totalKernel;
-                map.AddHeight(x + (int)pos.x, y + (int)pos.y, add);
-                totalAdded += add;
-            }
-        }
-        return totalAdded;
-    }
-
-    private void ApplySmoothGaussKernel(HeightMap map, int posx, int posy, int radius) {
-        float totalKernel = 0;
-        float[,] kernel = new float[radius * 2 + 1,radius * 2 + 1];
-        float sd = radius;
-        for (int x = -radius; x < radius; x++) {
-            for (int y = -radius; y < radius; y++) {
-                if (!map.IsInBounds(posx + x, posy + y)) {
-                    continue;
-                }
-                kernel[x+radius, y+radius] = 1 / (sqrt2PI * sd * sd) * Mathf.Exp(-(x * x + y * y) / (2 * sd * sd));
-                totalKernel += kernel[x+radius, y+radius];
-            }
-        }
-
-        float wSum = 0;
-
-        for (int x = -radius; x < radius; x++) {
-            for (int y = -radius; y < radius; y++) {
-                if (!map.IsInBounds(posx + x, posy + y)) {
-                    continue;
-                }
-                wSum += kernel[x + radius, y + radius] / totalKernel * map.GetHeight(x + posx, y + posy);
-            }
-        }
-        map.SetHeight(posx, posy, wSum);
-    }
-
-    private float DistanceErodeLocation(HeightMap map, int posx, int posy, int radius, float amount) {
-        float[,] weights = new float[radius * 2 + 1, radius * 2 + 1];
-        float weightSum = 0;
+        float totalWeights = 0;
+        float sd = radius / 3.0f;
         for (int x = -radius; x <= radius; x++) {
             for (int y = -radius; y <= radius; y++) {
-                float sqrDst = x * x + y * y;
-                if (sqrDst < radius * radius || !map.IsInBounds(posx + x, posy + y)) {
+                if (!map.IsInBounds(x + coordX, y + coordY)) {
                     continue;
                 }
-                weights[x + radius, y + radius] = 1 - Mathf.Sqrt (sqrDst) / radius;
-                weightSum += weights[x + radius, y + radius];
+                totalWeights += brush[x + radius, y + radius];
             }
         }
-        float[,] brush = new float[radius * 2 + 1, radius * 2 + 1];
+
+        float eroded = 0;
         for (int x = -radius; x <= radius; x++) {
             for (int y = -radius; y <= radius; y++) {
-                brush[x + radius, y + radius] = weights[x + radius, y + radius] / weightSum;
-            }
-        }
-
-        float totalChange = 0;
-
-        for (int x = -radius; x <= radius; x++) {
-            for (int y = -radius; y <= radius; y++) {
-                float sqrDst = x * x + y * y;
-                if (sqrDst < radius * radius || !map.IsInBounds(posx + x, posy + y)) {
+                float weighedErodeAmount = brush[x + radius, y + radius] / totalWeights * amountToErode;
+                if (!map.IsInBounds(x + coordX, y + coordY)) {
                     continue;
                 }
-                float weightedErodeAmount = amount * brush[x + radius, y + radius];
-                map.AddHeight(x + posx, y + posy, -weightedErodeAmount);
-                totalChange += weightedErodeAmount;
+                float deltaSediment = (map.GetHeight(x + coordX, y + coordY) < weighedErodeAmount) ? map.GetHeight(x + coordX, y + coordY) : weighedErodeAmount;
+                map.AddHeight(x + coordX, y + coordY, -deltaSediment);
+                eroded += deltaSediment;
             }
         }
-        return totalChange;
+        return eroded;
+
     }
 
-    private float GaussianErodeLocation(HeightMap map, Vector2 pos, float change, int radius, float newHeight) {
-        float totalKernel = 0;
-        float[,] kernel = new float[radius * 2 + 1,radius * 2 + 1];
-        float sd = radius / 3f;
-        float offsetX = pos.x % 1.0f;
-        float offsetY = pos.y % 1.0f;
-        for (int x = -radius; x < radius; x++) {
-            for (int y = -radius; y < radius; y++) {
-                float deltaH = map.GetHeight(x + (int)pos.x, y + (int)pos.y) - newHeight;
-                if (!map.IsInBounds((int)pos.x + x, (int)pos.y + y) || x * x + y * y > radius * radius || map.GetHeight(x + (int)pos.x, y + (int)pos.y) < newHeight) {
-                    continue;
-                }
-                float dx = x + offsetX;
-                float dy = y + offsetY;
-                kernel[x+radius, y+radius] = 1 / (sqrt2PI * sd * sd) * Mathf.Exp(-(dx * dx + dy * dy) / (2 * sd * sd));
-                totalKernel += kernel[x+radius, y+radius];
-            }
-        }
-        
-        float totalEroded = 0;
-
-        for (int x = -radius; x < radius; x++) {
-            for (int y = -radius; y < radius; y++) {
-                if (!map.IsInBounds((int)pos.x + x, (int)pos.y + y) || x * x + y * y > radius * radius || map.GetHeight(x + (int)pos.x, y + (int)pos.y) < newHeight) {
-                    continue;
-                }
-                float deltaHeight = map.GetHeight(x + (int)pos.x, y + (int)pos.y) - newHeight;
-                float erode = Mathf.Min(kernel[x+radius, y+radius] / totalKernel * change, deltaHeight);
-                map.AddHeight(x + (int)pos.x, y + (int)pos.y, -erode);
-                totalEroded += erode;
-            }
-        }
-        return totalEroded;
-    }
-
-    private float ChangeHeightMap(HeightMap map, int posx, int posy, float change) {
-        if (map.IsInBounds(posx, posy)) {
-            map.AddHeight(posx, posy, change);
-            return change;
-        }
-        return 0;
-    }
-
-    private HeightAndGradient CalculateHeightAndGradient (HeightMap map, Vector2 pos) {
+    /// <summary>
+    /// Deposit an amount of sediment on the map at a given location. Uses BiLinear interpolation to deposit
+    /// a proportional amount of soil at each corner of the cell in the height map.
+    /// </summary>
+    /// <param name="map">Map to change</param>
+    /// <param name="pos">Position of the droplet</param>
+    /// <param name="amountToDeposit">Amount of soil to add</param>
+    /// <returns>The total amount of soil deposited. Might be slightly less if parts of the cell are outside 
+    /// of the grid.</returns>
+    private float Deposit(HeightMap map, Vector2 pos, float amountToDeposit) {
+        // Calculate the grid location (rounded down)
         int coordX = (int) pos.x;
         int coordY = (int) pos.y;
 
-        // Calculate droplet's offset inside the cell (0,0) = at NW node, (1,1) = at SE node
-        float x = pos.x - coordX;
-        float y = pos.y - coordY;
+        // Find the offest in the X and Y axis from that location
+        float offsetX = pos.x - coordX;
+        float offsetY = pos.y - coordY;
 
-        // Calculate heights of the four nodes of the droplet's cell
+        float deposited = 0;
+        deposited += ChangeHeightMap(map, coordX, coordY, amountToDeposit * (1 - offsetX) * (1 - offsetY));
+        deposited += ChangeHeightMap(map, coordX + 1, coordY, amountToDeposit * offsetX * (1 - offsetY));
+        deposited += ChangeHeightMap(map, coordX, coordY + 1, amountToDeposit * (1 - offsetX) * offsetY);
+        deposited += ChangeHeightMap(map, coordX + 1, coordY + 1, amountToDeposit * offsetX * offsetY);
+
+        return deposited;
+    }
+
+    /// <summary>
+    /// Apply a kernel to the map at a given location
+    /// </summary>
+    /// <param name="map">Height map</param>
+    /// <param name="posX">X position on the map</param>
+    /// <param name="posY">Y position on the map</param>
+    /// <param name="radius">Radius of the kernel</param>
+    /// <param name="brush">Kernel brush (should be 2radius + 1 by 2raidus + 1 in size)</param>
+    /// <returns>The value of sum of the kernel applied to that location on the map.</returns>
+    private float Kernel(HeightMap map, int posX, int posY, int radius, float[,] brush) {
+        float totalWeights = 0;
+        for(int x = -radius; x <= radius; x++) {
+            for(int y = -radius; y <= radius; y++) {
+                if (!map.IsInBounds(x, y)) {
+                    continue;
+                }
+                totalWeights += brush[x + radius, y + radius];
+            }
+        }
+
+        float newHeight = 0;
+        for(int x = -radius; x <= radius; x++) {
+            for(int y = -radius; y <= radius; y++) {
+                if (!map.IsInBounds(x, y)) {
+                    continue;
+                }
+                newHeight += brush[x + radius, y + radius] / totalWeights * map.GetHeight(x + posX, y + posY);
+            }
+        }
+
+        return newHeight;
+    }
+
+    /// <summary>
+    /// Approximates the height of a position using bilinear interpolation of a cell
+    /// </summary>
+    /// <param name="map">Height map to use</param>
+    /// <param name="pos">Position of droplet</param>
+    /// <returns>Weighted height by how close the position is to the edges of its cell</returns>
+    private float ApproximateHeight(HeightMap map, Vector2 pos) {
+        // Calculate the grid location (rounded down)
+        int coordX = (int) pos.x;
+        int coordY = (int) pos.y;
+
+        // Find the offest in the X and Y axis from that location
+        float offsetX = pos.x - coordX;
+        float offsetY = pos.y - coordY;
+
+        // Calculate heights of the four nodes of the droplet's cell\
+        float heightNW = map.GetHeight(coordX, coordY);
+        float heightNE = map.GetHeight(coordX + 1, coordY);
+        float heightSW = map.GetHeight(coordX, coordY + 1);
+        float heightSE = map.GetHeight(coordX + 1, coordY + 1);
+
+        return 
+            heightNW * (1 - offsetX) * (1 - offsetY) +
+            heightNE * offsetX * (1 - offsetY) +
+            heightSW * (1 - offsetX) * offsetY +
+            heightSE * offsetX * offsetY;
+    }
+
+    /// <summary>
+    /// Calculates the gradient of a map at a given position. Uses BiLinear interpolation to guess
+    /// the actual height between grid cells.
+    /// </summary>
+    /// <param name="map">Map with height information.</param>
+    /// <param name="pos">X,Y position on the map.</param>
+    /// <returns>A BiLinear interpolation of the height at a given x and y position.</returns>
+    private Vector2 CalculateGradient(HeightMap map, Vector2 pos) {
+        // Calculate the grid location (rounded down)
+        int coordX = (int) pos.x;
+        int coordY = (int) pos.y;
+
+        // Find the offest in the X and Y axis from that location
+        float offsetX = pos.x - coordX;
+        float offsetY = pos.y - coordY;
+
+        // Calculate heights of the four nodes of the droplet's cell\
         float heightNW = map.GetHeight(coordX, coordY);
         float heightNE = map.GetHeight(coordX + 1, coordY);
         float heightSW = map.GetHeight(coordX, coordY + 1);
         float heightSE = map.GetHeight(coordX + 1, coordY + 1);
 
         // Calculate droplet's direction of flow with bilinear interpolation of height difference along the edges
-        float gradientX = (heightNE - heightNW) * (1 - y) + (heightSE - heightSW) * y;
-        float gradientY = (heightSW - heightNW) * (1 - x) + (heightSE - heightNE) * x;
+        float gradientX = (heightNE - heightNW) * (1 - offsetY) + (heightSE - heightSW) * offsetY;
+        float gradientY = (heightSW - heightNW) * (1 - offsetX) + (heightSE - heightNE) * offsetX;
 
-        // Calculate height with bilinear interpolation of the heights of the nodes of the cell
-        float height = heightNW * (1 - x) * (1 - y) + heightNE * x * (1 - y) + heightSW * (1 - x) * y + heightSE * x * y;
-
-        return new HeightAndGradient () { height = height, gradientVec = new Vector2(gradientX, gradientY) };
+        return new Vector2(gradientX, gradientY);
     }
 
-    struct HeightAndGradient {
-        public float height;
-        public Vector2 gradientVec;
+    /// <summary>
+    /// Sets value to the height map and add to a specific location. Will do nothing if the specified location
+    /// is out of bounds.
+    /// </summary>
+    /// <param name="map">Map to apply changes to.</param>
+    /// <param name="posx">X position on the map</param>
+    /// <param name="posy">Y position on the map</param>
+    /// <param name="value">Amount to add to the map</param>
+    private void SetHeightMap(HeightMap map, int posx, int posy, float value) {
+        if (map.IsInBounds(posx, posy)) {
+            map.SetHeight(posx, posy, value);
+        }
+    }
+
+    /// <summary>
+    /// Adds a value to the height map and add to a specific location. Will do nothing if the specified location
+    /// is out of bounds.
+    /// </summary>
+    /// <param name="map">Map to apply changes to.</param>
+    /// <param name="posx">X position on the map</param>
+    /// <param name="posy">Y position on the map</param>
+    /// <param name="change">Amount to add to the map</param>
+    /// <returns>The amount added to the map. Will be zero if the location is out of bounds</returns>
+    private float ChangeHeightMap(HeightMap map, int posx, int posy, float change) {
+        if (map.IsInBounds(posx, posy)) {
+            map.AddHeight(posx, posy, change);
+            return change;
+        }
+        return 0;
     }
 
 }

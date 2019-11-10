@@ -307,7 +307,6 @@ GameObject:
   - component: {fileID: 1427697600}
   - component: {fileID: 1427697599}
   - component: {fileID: 1427697602}
-  - component: {fileID: 1427697603}
   m_Layer: 0
   m_Name: Terrain
   m_TagString: Untagged
@@ -360,7 +359,7 @@ MonoBehaviour:
   repeat: 0
   persistence: 0.35
   frequencyGrowth: 2
-  seed: 1
+  seed: 0
   scaleFactor: 100
 --- !u!114 &1427697601
 MonoBehaviour:
@@ -375,32 +374,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   chunkSize: 16
-  terrainShader: {fileID: 4800000, guid: ffac2e4453511594eaf171b73c9b6a40, type: 3}
+  terrainShader: {fileID: 4800000, guid: d86c328af692b2e468a1111f86c00722, type: 3}
+  terrainMaterial: {fileID: 2100000, guid: 9eef9a28c76784d4b8c9218515be9037, type: 2}
+  erodeInterval: 0.1
+  dropletsPerInterval: 250
+  totalDroplets: 120000
 --- !u!114 &1427697602
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1427697597}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3ff2fdffaa638f14aa4a49d50cd7ad49, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  seed: 0
-  erosionRadius: 8
-  inertia: 0.05
-  sedimentCapacityFactor: 4
-  minSedimentCapacity: 0.01
-  erodeSpeed: 0.2
-  depositSpeed: 0.2
-  evaporateSpeed: 0.01
-  gravity: 2
-  maxDropletLifetime: 1000
-  initialWaterVolume: 1
-  initialSpeed: 1
---- !u!114 &1427697603
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -413,16 +392,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   seed: 1
-  inertia: 0.1
-  evaporateSpeed: 0.02
-  maxDropletLifetime: 128
-  initialSpeed: 1
+  inertia: 0.14
   initialWater: 1
-  gravity: 4
-  sedimentCapacityFactor: 4
-  minSedimentCapacity: 0.01
-  erodeSpeed: 0.3
-  depositSpeed: 0.3
+  initialVelocity: 1
+  gravity: 9.8
+  sedimentCapacityFactor: 8
+  evaporationRate: 0.0125
+  minSlope: 0.01
+  minCapacity: 0.1
+  maxDropletLifetime: 128
+  depositionRate: 0.05
+  erosionRate: 0.1
   erodeRadius: 6
-  debugSphere: {fileID: 3928810723249354619, guid: 6f1ab9abc6b92a840a42b25129e7979c,
-    type: 3}

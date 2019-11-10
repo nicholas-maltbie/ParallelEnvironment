@@ -46,6 +46,13 @@ public class PerlinNoise {
         this.repeat = repeat;
     }
 
+    /// <summary>
+    /// Calculates the Perlin Noise value at a given x, y, z.
+    /// </summary>
+    /// <param name="x">X coordinate</param>
+    /// <param name="y">Y coordinate</param>
+    /// <param name="z">Z coordinate</param>
+    /// <returns>Perlin noise value at the given coordinate.</returns>
     public float Perlin(float x, float y, float z) {
         // If we have any repeat on, change the coordinates to their "local" repetitions
         if (repeat > 0) {

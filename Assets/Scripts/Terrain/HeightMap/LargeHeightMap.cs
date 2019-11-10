@@ -5,7 +5,7 @@ using System;
 /// Large Height map of a specified size
 /// </summary>
 [RequireComponent(typeof(AbstractHeightMapGenerator))]
-public class LargeHeightMap : HeightMap {
+public class LargeHeightMap : HeightMapComponent {
 
     /// <summary>
     /// Size of the map. Will be a square with edges of this length.
@@ -90,6 +90,10 @@ public class LargeHeightMap : HeightMap {
     /// <returns>True if x and y are in the bounds (greater than or equal to zero and less than mapSize)</returns>
     public override bool IsInBounds(int x, int y) {
         return x >= 0 && x < mapSize && y >= 0 && y < mapSize;
+    }
+
+    public float[] heightmaps() {
+        return heightMap;
     }
 
     /// <summary>
