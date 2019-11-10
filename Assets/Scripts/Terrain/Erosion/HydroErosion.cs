@@ -98,6 +98,20 @@ public class HydroErosion : MonoBehaviour {
     /// drastically
     /// </summary>
     public int erodeRadius = 3;
+    /// <summary>
+    /// Amount of blur to use when applying erosion changes. Blurs change map before combining
+    /// with regular map. Makes program significantly slower but does lead to smoother looking
+    /// reuslts. A blur is applied after a set of specified raindrops are created. The erosion
+    /// map is blurred and the original erosion map and blurred map are combined in rations of
+    /// original * (1 - blurValue) + blurred * (blurValue). Smoothing will look nicer when the
+    /// program is run in larget batches.
+    /// </summary>
+    [Range(0, 1)]
+    public float blurValue = 0f;
+    /// <summary>
+    /// Size of blur filter. Larger blur filts will fade the changes more.
+    /// </summary>
+    public int blurRadius = 2;
 
     /// <summary>
     /// Pseudo-random number generator for behaviour of raindrops
@@ -115,6 +129,11 @@ public class HydroErosion : MonoBehaviour {
     private float[,] depositBrush;
 
     /// <summary>
+    /// Brush for blurring
+    /// </summary>
+    private float[,] blurBrush;
+
+    /// <summary>
     /// Initializes the erosion brush and prng
     /// </summary>
     /// <param name="seed">Seed value for PRNG, zero means use arbitrary seed</param>
@@ -127,10 +146,21 @@ public class HydroErosion : MonoBehaviour {
 
         if (erodeBrush == null) {
             erodeBrush = new float[erodeRadius * 2 + 1, erodeRadius * 2 + 1];
-            float sd = erodeRadius / 3.0f;
+            float sd = erodeRadius;
             for (int x = -erodeRadius; x <= erodeRadius; x++) {
                 for (int y = -erodeRadius; y <= erodeRadius; y++) {
                     erodeBrush[x + erodeRadius,y + erodeRadius] = 
+                        Mathf.Exp(- (x * x + y * y) / (2.0f * sd * sd)) / Mathf.Sqrt(2.0f * Mathf.PI * sd * sd);
+                }
+            }
+        }
+
+        if (blurBrush == null) {
+            blurBrush = new float[blurRadius * 2 + 1, blurRadius * 2 + 1];
+            float sd = blurRadius;
+            for (int x = -blurRadius; x <= blurRadius; x++) {
+                for (int y = -blurRadius; y <= blurRadius; y++) {
+                    blurBrush[x + blurRadius,y + blurRadius] =
                         Mathf.Exp(- (x * x + y * y) / (2.0f * sd * sd)) / Mathf.Sqrt(2.0f * Mathf.PI * sd * sd);
                 }
             }
@@ -146,11 +176,17 @@ public class HydroErosion : MonoBehaviour {
     /// <param name="endX">Maximum location for spawning droplets (X axis)</param>
     /// <param name="endY">Maximum location for spawning droplets (Y axis)</param>
     /// <param name="iterations">Number of droplets to create</param>
-    public void ErodeHeightMap(HeightMap map, int startX, int startY, int endX, int endY, int iterations) {
+    public void ErodeHeightMap(HeightMap heightMap, int startX, int startY, int endX, int endY, int iterations) {
         Initialize(seed, erodeRadius);
 
+        // Map for chanes in current set of raindrops
+        ChangeMap deltaMap = new ChangeMap(endX - startX, endY - startY);
+        // Layered map for storing information about the original map and delta map together
+        LayeredMap layers = new LayeredMap(deltaMap, heightMap);
+        
         // Iteration for each raindrop
         for (int iter = 0; iter < iterations; iter++) {
+
             // Simulate each raindrop
             // Put the raindrop at a random position in the grid
             Vector2 pos = new Vector2(prng.Next(startX + 1, endX - 1), prng.Next(startY + 1, endY - 1));
@@ -164,7 +200,7 @@ public class HydroErosion : MonoBehaviour {
 
             for (totalSteps = 0; totalSteps < maxDropletLifetime; totalSteps++) {
                 // Compute gradient at current position
-                Vector2 grad = CalculateGradient(map, pos);
+                Vector2 grad = CalculateGradient(layers, pos);
 
                 // Compute new direction as combination of old direction and gradient
                 // Add some intertia for fun
@@ -182,19 +218,19 @@ public class HydroErosion : MonoBehaviour {
                 Vector2 posNew = pos + dir;
 
                 // Calculate the chnage in height
-                float heightOld = ApproximateHeight(map, pos);
-                float heightNew = ApproximateHeight(map, posNew);
+                float heightOld = ApproximateHeight(layers, pos);
+                float heightNew = ApproximateHeight(layers, posNew);
                 float deltaH = heightNew - heightOld;
 
                 // Calculate the carying capacity of the droplet
                 float capacity = Math.Max(Mathf.Max(-deltaH, minSlope) * water * sedimentCapacityFactor, minCapacity);
 
                 // if droplet moved off the map or stopped moving, kill it
-                if (!map.IsInBounds((int) posNew.x, (int) posNew.y)) {
+                if (!layers.IsInBounds((int) posNew.x, (int) posNew.y)) {
                     // If the droplet had excess sediment, attempt to deposit it.
                     if (sediment > 0) {
                         float amountToDeposit = (deltaH > 0) ? Mathf.Min (deltaH, sediment) : (sediment - capacity) * depositionRate;
-                        sediment -= Deposit(map, pos, amountToDeposit);
+                        sediment -= Deposit(layers, pos, amountToDeposit);
                     }
                     break;
                 }
@@ -202,12 +238,14 @@ public class HydroErosion : MonoBehaviour {
                 // If the droplet is carying too much sediment, it will drop its sediment
                 if (deltaH >= 0 || sediment > capacity) {
                     float amountToDeposit = (deltaH > 0) ? Mathf.Min (deltaH, sediment) : (sediment - capacity) * depositionRate;
-                    sediment -= Deposit(map, pos, amountToDeposit);
+                    sediment -= amountToDeposit;
+                    Deposit(layers, pos, amountToDeposit);
                 }
                 // If the droplet is flowign downhill and has excess capacity, it will erode terrain
                 else {
                     float amountToErode = Mathf.Min((capacity - sediment) * erosionRate, -deltaH);
-                    sediment += Erode(map, pos, amountToErode, erodeRadius, erodeBrush);
+                    sediment += amountToErode;
+                    Erode(layers, pos, amountToErode, erodeRadius, erodeBrush);
                 }
 
                 // Update velocity
@@ -217,6 +255,23 @@ public class HydroErosion : MonoBehaviour {
                 // Update position
                 pos = posNew;
             }
+        }
+
+        // If bluring changes, do steps to blur map
+        if (blurValue > 0) {
+            // Calculate the blurred map by applying the blur brush kernel to the map
+            ChangeMap blurredMap = deltaMap.ApplyKernel(blurBrush);
+            // Multipley the original map and blurred map by ratios
+            blurredMap.Multiply(blurValue);
+            deltaMap.Multiply(1 - blurValue);
+
+            // Apply changes to the original height map
+            blurredMap.ApplyChangesToMap(heightMap);
+            deltaMap.ApplyChangesToMap(heightMap);
+        }
+        // If not bluring changes, just ignore that complexity
+        else {
+            deltaMap.ApplyChangesToMap(heightMap);
         }
     }
 

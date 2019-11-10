@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 
 /// <summary>
 /// A height map that is meant to hold changes. Starts will all avlues
@@ -45,8 +47,19 @@ public class ChangeMap : HeightMap {
         map[GetIndex(x, y)] += change;
     }
 
+    /// <summary>
+    /// Gets the height at a grid cell.If x and y are beyond the bounds of 
+    /// the height map, the values are bounded to the closest edge.
+    /// </summary>
+    /// <param name="x">X coordinate in map</param>
+    /// <param name="y">Y coordinate in map</param>
+    /// <returns>Height saved at that specific x, y value. If x or y are < 0, the value less
+    /// than zero is set to zero. If x or y are > mapSize - 1, then the value greater thn
+    /// mapSize - 1 is set to mapSize - 1.</returns>
     public float GetHeight(int x, int y)
     {
+        x = Math.Min(Math.Max(0, x), sizeX - 1);
+        y = Math.Min(Math.Max(0, y), sizeY - 1);
         return map[GetIndex(x, y)];
     }
 
@@ -82,5 +95,68 @@ public class ChangeMap : HeightMap {
                 targetMap.AddHeight(x, y, GetHeight(x, y));
             }
         }
+    }
+
+    /// <summary>
+    /// Multiply all values in this map by a scalar. This changes this map.
+    /// </summary>
+    /// <param name="scalar">Scalar value to multiply and change all values in the map by.</param>
+    public void Multiply(float scalar) {
+        for (int x = 0; x < this.sizeX; x++) {
+            for (int y = 0; y < this.sizeY; y++) {
+                this.SetHeight(x, y, this.GetHeight(x, y) * scalar);
+            }
+        }   
+    }
+
+    /// <summary>
+    /// Run a kernel to a individual pixel. Returns the sum of the kernel applied to that pixel.
+    /// Does NOT change the map.
+    /// </summary>
+    /// <param name="x">X position in grid (Center of kernel)</param>
+    /// <param name="y">Y position in grid (Center of kernel)</param>
+    /// <param name="kernel">Kernel to get summed value of</param>
+    /// <returns>The sum of the weighted values around the center x and y. If a 
+    /// value is not inside the grid, it is excluded for the weights and the other elements are wighted
+    /// proportionally more.</returns>
+    private float Kernel(int x, int y, float[,] kernel) {
+        float totalWeights = 0;
+        int width = kernel.GetLength(0);
+        int height = kernel.GetLength(1);
+        for (int kx = 0; kx < width; kx++) {
+            for (int ky = 0; ky < height; ky++) {
+                if (IsInBounds(x + kx - width / 2, y + ky - height / 2)) {
+                    totalWeights += kernel[kx, ky];
+                }
+            }
+        }
+
+        float wSum = 0;
+        for (int kx = 0; kx < width; kx++) {
+            for (int ky = 0; ky < height; ky++) {
+                if (IsInBounds(x + kx - width / 2, y + ky - height / 2)) {
+                    wSum += kernel[kx, ky] / totalWeights *
+                            GetHeight(x - kx + width / 2, y + ky - height / 2);
+                }
+            }
+        }
+        return wSum;
+    }
+
+    /// <summary>
+    /// Gets a duplicate ChangeMap with the kernel applied to every element in the matrix.
+    /// </summary>
+    /// <param name="kernel">Kernel</param>
+    /// <returns>Duplicate map with kernel applied to every cell</returns>
+    public ChangeMap ApplyKernel(float[,] kernel) {
+        ChangeMap applied = new ChangeMap(this.sizeX, this.sizeY);
+
+        for (int x = 0; x < this.sizeX; x++) {
+            for (int y = 0; y < this.sizeY; y++) {
+                applied.SetHeight(x, y, Kernel(x, y, kernel));
+            }
+        }
+
+        return applied;
     }
 }
