@@ -376,8 +376,8 @@ MonoBehaviour:
   chunkSize: 16
   terrainShader: {fileID: 4800000, guid: d86c328af692b2e468a1111f86c00722, type: 3}
   terrainMaterial: {fileID: 2100000, guid: 9eef9a28c76784d4b8c9218515be9037, type: 2}
-  erodeInterval: 1
-  dropletsPerInterval: 1000
+  erodeInterval: 0.1
+  dropletsPerInterval: 100
   totalDroplets: 120000
 --- !u!114 &1427697602
 MonoBehaviour:
