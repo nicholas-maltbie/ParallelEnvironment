@@ -138,29 +138,29 @@ public class HydroErosion : MonoBehaviour {
     /// </summary>
     /// <param name="seed">Seed value for PRNG, zero means use arbitrary seed</param>
     /// <param name="erodeRadius">Radius size of erosion brush</param>
-    private void Initialize(int seed, int erodeRadius) {
+    private void Initialize() {
 
-        if (prng == null) {
-            prng = seed == 0 ? new System.Random() : new System.Random(seed);
+        if (this.prng == null) {
+            this.prng = this.seed == 0 ? new System.Random() : new System.Random(seed);
         }
 
-        if (erodeBrush == null) {
-            erodeBrush = new float[erodeRadius * 2 + 1, erodeRadius * 2 + 1];
-            float sd = erodeRadius;
-            for (int x = -erodeRadius; x <= erodeRadius; x++) {
-                for (int y = -erodeRadius; y <= erodeRadius; y++) {
-                    erodeBrush[x + erodeRadius,y + erodeRadius] = 
+        if (this.erodeBrush == null) {
+            this.erodeBrush = new float[this.erodeRadius * 2 + 1, this.erodeRadius * 2 + 1];
+            float sd = this.erodeRadius;
+            for (int x = -this.erodeRadius; x <= this.erodeRadius; x++) {
+                for (int y = -this.erodeRadius; y <= this.erodeRadius; y++) {
+                    this.erodeBrush[x + this.erodeRadius,y + this.erodeRadius] = 
                         Mathf.Exp(- (x * x + y * y) / (2.0f * sd * sd)) / Mathf.Sqrt(2.0f * Mathf.PI * sd * sd);
                 }
             }
         }
 
-        if (blurBrush == null) {
-            blurBrush = new float[blurRadius * 2 + 1, blurRadius * 2 + 1];
-            float sd = blurRadius;
-            for (int x = -blurRadius; x <= blurRadius; x++) {
-                for (int y = -blurRadius; y <= blurRadius; y++) {
-                    blurBrush[x + blurRadius,y + blurRadius] =
+        if (this.blurBrush == null) {
+            this.blurBrush = new float[this.blurRadius * 2 + 1, this.blurRadius * 2 + 1];
+            float sd = this.blurRadius;
+            for (int x = -this.blurRadius; x <= this.blurRadius; x++) {
+                for (int y = -this.blurRadius; y <= this.blurRadius; y++) {
+                    this.blurBrush[x + this.blurRadius,y + this.blurRadius] =
                         Mathf.Exp(- (x * x + y * y) / (2.0f * sd * sd)) / Mathf.Sqrt(2.0f * Mathf.PI * sd * sd);
                 }
             }
@@ -177,7 +177,7 @@ public class HydroErosion : MonoBehaviour {
     /// <param name="endY">Maximum location for spawning droplets (Y axis)</param>
     /// <param name="iterations">Number of droplets to create</param>
     public void ErodeHeightMap(HeightMap heightMap, int startX, int startY, int endX, int endY, int iterations) {
-        Initialize(seed, erodeRadius);
+        Initialize();
 
         // Map for chanes in current set of raindrops
         ChangeMap deltaMap = new ChangeMap(endX - startX, endY - startY);
@@ -194,17 +194,16 @@ public class HydroErosion : MonoBehaviour {
             Vector2 dir = Vector2.zero;
 
             float sediment = 0;
-            float water = initialWater;
-            float vel = initialVelocity;
-            int totalSteps;
+            float water = this.initialWater;
+            float vel = this.initialVelocity;
 
-            for (totalSteps = 0; totalSteps < maxDropletLifetime; totalSteps++) {
+            for (int totalSteps = 0; totalSteps < this.maxDropletLifetime; totalSteps++) {
                 // Compute gradient at current position
                 Vector2 grad = CalculateGradient(layers, pos);
 
                 // Compute new direction as combination of old direction and gradient
                 // Add some intertia for fun
-                dir = dir * inertia - grad * (1 - inertia);
+                dir = dir * this.inertia - grad * (1 - this.inertia);
 
                 // Select a random direction if dir is zero
                 if (dir.x == 0 && dir.y == 0) {
@@ -223,13 +222,13 @@ public class HydroErosion : MonoBehaviour {
                 float deltaH = heightNew - heightOld;
 
                 // Calculate the carying capacity of the droplet
-                float capacity = Math.Max(Mathf.Max(-deltaH, minSlope) * water * sedimentCapacityFactor, minCapacity);
+                float capacity = Math.Max(Mathf.Max(-deltaH, this.minSlope) * water * this.sedimentCapacityFactor, this.minCapacity);
 
                 // if droplet moved off the map or stopped moving, kill it
                 if (!layers.IsInBounds((int) posNew.x, (int) posNew.y)) {
                     // If the droplet had excess sediment, attempt to deposit it.
                     if (sediment > 0) {
-                        float amountToDeposit = (deltaH > 0) ? Mathf.Min (deltaH, sediment) : (sediment - capacity) * depositionRate;
+                        float amountToDeposit = (deltaH > 0) ? Mathf.Min (deltaH, sediment) : (sediment - capacity) * this.depositionRate;
                         sediment -= Deposit(layers, pos, amountToDeposit);
                     }
                     break;
@@ -237,33 +236,33 @@ public class HydroErosion : MonoBehaviour {
 
                 // If the droplet is carying too much sediment, it will drop its sediment
                 if (deltaH >= 0 || sediment > capacity) {
-                    float amountToDeposit = (deltaH > 0) ? Mathf.Min (deltaH, sediment) : (sediment - capacity) * depositionRate;
+                    float amountToDeposit = (deltaH > 0) ? Mathf.Min (deltaH, sediment) : (sediment - capacity) * this.depositionRate;
                     sediment -= amountToDeposit;
                     Deposit(layers, pos, amountToDeposit);
                 }
                 // If the droplet is flowign downhill and has excess capacity, it will erode terrain
                 else {
-                    float amountToErode = Mathf.Min((capacity - sediment) * erosionRate, -deltaH);
+                    float amountToErode = Mathf.Min((capacity - sediment) * this.erosionRate, -deltaH);
                     sediment += amountToErode;
-                    Erode(layers, pos, amountToErode, erodeRadius, erodeBrush);
+                    Erode(layers, pos, amountToErode, this.erodeRadius, this.erodeBrush);
                 }
 
                 // Update velocity
-                vel = Mathf.Sqrt(vel * vel + deltaH * gravity);
+                vel = Mathf.Sqrt(vel * vel + deltaH * this.gravity);
                 // Updater water
-                water = water * (1 - evaporationRate);
+                water = water * (1 - this.evaporationRate);
                 // Update position
                 pos = posNew;
             }
         }
 
         // If bluring changes, do steps to blur map
-        if (blurValue > 0) {
+        if (this.blurValue > 0) {
             // Calculate the blurred map by applying the blur brush kernel to the map
             ChangeMap blurredMap = deltaMap.ApplyKernel(blurBrush);
             // Multipley the original map and blurred map by ratios
-            blurredMap.Multiply(blurValue);
-            deltaMap.Multiply(1 - blurValue);
+            blurredMap.Multiply(this.blurValue);
+            deltaMap.Multiply(1 - this.blurValue);
 
             // Apply changes to the original height map
             blurredMap.ApplyChangesToMap(heightMap);
@@ -341,39 +340,6 @@ public class HydroErosion : MonoBehaviour {
         deposited += ChangeHeightMap(map, coordX + 1, coordY + 1, amountToDeposit * offsetX * offsetY);
 
         return deposited;
-    }
-
-    /// <summary>
-    /// Apply a kernel to the map at a given location
-    /// </summary>
-    /// <param name="map">Height map</param>
-    /// <param name="posX">X position on the map</param>
-    /// <param name="posY">Y position on the map</param>
-    /// <param name="radius">Radius of the kernel</param>
-    /// <param name="brush">Kernel brush (should be 2radius + 1 by 2raidus + 1 in size)</param>
-    /// <returns>The value of sum of the kernel applied to that location on the map.</returns>
-    private float Kernel(HeightMap map, int posX, int posY, int radius, float[,] brush) {
-        float totalWeights = 0;
-        for(int x = -radius; x <= radius; x++) {
-            for(int y = -radius; y <= radius; y++) {
-                if (!map.IsInBounds(x, y)) {
-                    continue;
-                }
-                totalWeights += brush[x + radius, y + radius];
-            }
-        }
-
-        float newHeight = 0;
-        for(int x = -radius; x <= radius; x++) {
-            for(int y = -radius; y <= radius; y++) {
-                if (!map.IsInBounds(x, y)) {
-                    continue;
-                }
-                newHeight += brush[x + radius, y + radius] / totalWeights * map.GetHeight(x + posX, y + posY);
-            }
-        }
-
-        return newHeight;
     }
 
     /// <summary>

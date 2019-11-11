@@ -340,7 +340,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b30598a712640e147b754cc2feb34116, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mapSize: 1024
+  mapSize: 256
   minHeight: 0
   maxHeight: 256
 --- !u!114 &1427697600

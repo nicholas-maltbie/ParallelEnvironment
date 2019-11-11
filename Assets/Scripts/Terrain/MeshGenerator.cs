@@ -66,17 +66,17 @@ public class MeshGenerator : MonoBehaviour
         this.heightMap = heightMap;
 
         // Create the mesh container and add required components
-        meshContainer = new GameObject();
-        meshContainer.name = "MeshContainer";
-        meshContainer.transform.parent = gameObject.transform;
-        meshRenderer = meshContainer.AddComponent<MeshRenderer>();
-        meshFilter = meshContainer.AddComponent<MeshFilter>();
+        this.meshContainer = new GameObject();
+        this.meshContainer.name = "MeshContainer";
+        this.meshContainer.transform.parent = gameObject.transform;
+        this.meshRenderer = meshContainer.AddComponent<MeshRenderer>();
+        this.meshFilter = meshContainer.AddComponent<MeshFilter>();
 
         // Generate height map based on these values
         CreateMeshFromHeightMap();
 
         //Material terrainMaterial = new Material(terrainShader);
-        meshRenderer.material = terrainMaterial;
+        this.meshRenderer.material = terrainMaterial;
     }
 
     /// <summary>
@@ -90,7 +90,7 @@ public class MeshGenerator : MonoBehaviour
     /// </returns>
     private float GetLocalHeight(int localX, int localY) {
         // Return the value at the height map for that given location
-        return heightMap.GetHeight(localX + offsetX, localY + offsetY);
+        return heightMap.GetHeight(localX + this.offsetX, localY + this.offsetY);
     }
 
     /// <summary>
@@ -118,7 +118,7 @@ public class MeshGenerator : MonoBehaviour
     /// <param name="y">Local Y coordinate in grid</param>
     /// <returns>Index in mesh vertices for a given x and y position</returns>
     private int GetMapIndex(int x, int y) {
-        return x + y * mapSize;
+        return x + y * this.mapSize;
     }
 
     /// <summary>
@@ -126,13 +126,13 @@ public class MeshGenerator : MonoBehaviour
     /// </summary>
     public void UpdateGeometry() {
         // Map of vectors for vertices in mesh
-        Vector3[] vertices = heightMapMesh.vertices;
+        Vector3[] vertices = this.heightMapMesh.vertices;
         // Vector of normals for each vertex
-        Vector3[] normals = heightMapMesh.normals;
+        Vector3[] normals = this.heightMapMesh.normals;
         
         // Create vertices based on noise map
-        for (int x = 0; x < mapSize; x++) {
-            for (int y = 0; y < mapSize; y++) {
+        for (int x = 0; x < this.mapSize; x++) {
+            for (int y = 0; y < this.mapSize; y++) {
                 int mapIndex = GetMapIndex(x, y);
                 // Create a vertex at the specified height
                 vertices[mapIndex] = new Vector3(x, GetLocalHeight(x, y), y);
@@ -140,16 +140,16 @@ public class MeshGenerator : MonoBehaviour
         }
         
         // Calculate normals at each point on the map
-        for (int x = 0; x < mapSize; x++) {
-            for (int y = 0; y < mapSize; y++) {
+        for (int x = 0; x < this.mapSize; x++) {
+            for (int y = 0; y < this.mapSize; y++) {
                 int mapIndex = GetMapIndex(x, y);
                 // Calculate the normal mapping for that coordinate
                 normals[mapIndex] = CalculateNormal(x, y);
             }
         }
 
-        heightMapMesh.vertices = vertices;
-        heightMapMesh.normals = normals;
+        this.heightMapMesh.vertices = vertices;
+        this.heightMapMesh.normals = normals;
     }
 
     /// <summary>
@@ -158,40 +158,28 @@ public class MeshGenerator : MonoBehaviour
     /// </summary>
     private void CreateMeshFromHeightMap() {
         // Size of each pixel in uv mapping
-        float uvStep = 1.0f / mapSize;
+        float uvStep = 1.0f / this.mapSize;
 
         // Map of vectors for vertices in mesh
-        Vector3[] vertices = new Vector3[mapSize * mapSize];
+        Vector3[] vertices = new Vector3[this.mapSize * this.mapSize];
         // Vector of normals for each vertex
-        Vector3[] normals = new Vector3[mapSize * mapSize];
+        Vector3[] normals = new Vector3[this.mapSize * this.mapSize];
         // UVMapping for height map (same as number of vertices)
-        Vector2[] uvMapping = new Vector2[mapSize * mapSize];
+        Vector2[] uvMapping = new Vector2[this.mapSize * this.mapSize];
         // Triangles in height map (2x number of squares)
         // One less than map size for border of points
-        int[] triangles = new int[(mapSize - 1) * (mapSize - 1) * 6];
+        int[] triangles = new int[(this.mapSize - 1) * (this.mapSize - 1) * 6];
 
         // Create vertices based on noise map
-        for (int x = 0; x < mapSize; x++) {
-            for (int y = 0; y < mapSize; y++) {
+        for (int x = 0; x < this.mapSize; x++) {
+            for (int y = 0; y < this.mapSize; y++) {
                 int mapIndex = GetMapIndex(x, y);
                 // Create a vertex at the specified height
                 vertices[mapIndex] = new Vector3(x, GetLocalHeight(x, y), y);
-            }
-        }
-        
-        // Calculate normals at each point on the map
-        for (int x = 0; x < mapSize; x++) {
-            for (int y = 0; y < mapSize; y++) {
-                int mapIndex = GetMapIndex(x, y);
+                
                 // Calculate the normal mapping for that coordinate
                 normals[mapIndex] = CalculateNormal(x, y);
-            }
-        }
-
-        // Create UV mapping for the coordinates
-        for (int x = 0; x < mapSize; x++) {
-            for (int y = 0; y < mapSize; y++) {
-                int mapIndex = GetMapIndex(x, y);
+                
                 // Set the UV Coordinates for each vertex
                 uvMapping[mapIndex] = new Vector2(x * uvStep, y * uvStep);
             }
@@ -200,12 +188,12 @@ public class MeshGenerator : MonoBehaviour
         // Create triangles based on mesh
         // Two triangles for each x and y position on height map
         // Need vertices on edge so ignore the far edge
-        for (int x = 0; x < mapSize - 1; x++) {
-            for (int y = 0; y < mapSize - 1; y++) {
+        for (int x = 0; x < this.mapSize - 1; x++) {
+            for (int y = 0; y < this.mapSize - 1; y++) {
                 // First triangle goes in order (trix, triy), (trix, triy+1), (trix+1, triy)
                 // Second triangle goes in order (trix + 1, triy), (trix, triy+1), (trix+1, triy+1)
                 // Need this order of triangles so mesh renders in correct direction (clockise order of vertices)
-                int tri1Start = (x + y * (mapSize - 1)) * 6;
+                int tri1Start = (x + y * (this.mapSize - 1)) * 6;
                 int tri2Start = tri1Start + 3;
 
                 // index of vertex at position (trix, triy)
@@ -222,12 +210,12 @@ public class MeshGenerator : MonoBehaviour
         }
 
         // Create mesh from given values
-        heightMapMesh = new Mesh();
-        heightMapMesh.vertices = vertices;
-        heightMapMesh.triangles = triangles;
-        heightMapMesh.uv = uvMapping;
-        heightMapMesh.normals = normals;
+        this.heightMapMesh = new Mesh();
+        this.heightMapMesh.vertices = vertices;
+        this.heightMapMesh.triangles = triangles;
+        this.heightMapMesh.uv = uvMapping;
+        this.heightMapMesh.normals = normals;
         
-        meshFilter.mesh = heightMapMesh;
+        this.meshFilter.mesh = this.heightMapMesh;
     }
 }

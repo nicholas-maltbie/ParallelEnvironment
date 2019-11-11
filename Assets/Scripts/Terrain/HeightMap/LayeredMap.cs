@@ -55,7 +55,7 @@ public class LayeredMap : HeightMap {
     {
         float sum = 0;
         for (int i = 0; i < this.layers.Length; i++) {
-            sum += layers[i].GetHeight(x, y);
+            sum += this.layers[i].GetHeight(x, y);
         }
         return sum;
     }
@@ -69,7 +69,7 @@ public class LayeredMap : HeightMap {
     public bool IsInBounds(int x, int y)
     {
         for (int i = 0; i < this.layers.Length; i++) {
-            if (!layers[i].IsInBounds(x, y)) {
+            if (!this.layers[i].IsInBounds(x, y)) {
                 return false;
             }
         }
@@ -89,6 +89,6 @@ public class LayeredMap : HeightMap {
     public void SetHeight(int x, int y, float height)
     {
         float current = GetHeight(x, y);
-        layers[0].SetHeight(x, y, height - current);
+        this.layers[0].SetHeight(x, y, height - current);
     }
 }

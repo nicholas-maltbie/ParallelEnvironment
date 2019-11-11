@@ -21,7 +21,7 @@ public class ChangeMap : HeightMap {
     /// <param name="sizeX">Size of the map along the X axis</param>
     /// <param name="sizeY">Size of teh map along the Y axis</param>
     public ChangeMap(int sizeX, int sizeY) {
-        map = new float[sizeX * sizeY];
+        this.map = new float[sizeX * sizeY];
         this.sizeX = sizeX;
         this.sizeY = sizeY;
     }
@@ -33,7 +33,7 @@ public class ChangeMap : HeightMap {
     /// <param name="y">Y position in grid</param>
     /// <returns>Height at specified position as a float.</returns>
     private int GetIndex(int x, int y) {
-        return x + y * sizeX;
+        return x + y * this.sizeX;
     }
 
     /// <summary>
@@ -44,7 +44,7 @@ public class ChangeMap : HeightMap {
     /// <param name="change">Height to add at position x and y.</param>
     public void AddHeight(int x, int y, float change)
     {
-        map[GetIndex(x, y)] += change;
+        this.map[GetIndex(x, y)] += change;
     }
 
     /// <summary>
@@ -58,9 +58,9 @@ public class ChangeMap : HeightMap {
     /// mapSize - 1 is set to mapSize - 1.</returns>
     public float GetHeight(int x, int y)
     {
-        x = Math.Min(Math.Max(0, x), sizeX - 1);
-        y = Math.Min(Math.Max(0, y), sizeY - 1);
-        return map[GetIndex(x, y)];
+        x = Math.Min(Math.Max(0, x), this.sizeX - 1);
+        y = Math.Min(Math.Max(0, y), this.sizeY - 1);
+        return this.map[GetIndex(x, y)];
     }
 
     /// <summary>
@@ -71,7 +71,7 @@ public class ChangeMap : HeightMap {
     /// <returns>True if the specified coordinate is in the bounds of the height map, false otherwise.</returns>
     public bool IsInBounds(int x, int y)
     {
-        return x >= 0 && x < sizeX && y >= 0 && y < sizeY;
+        return x >= 0 && x < this.sizeX && y >= 0 && y < this.sizeY;
     }
 
     /// <summary>
@@ -82,7 +82,7 @@ public class ChangeMap : HeightMap {
     /// <param name="height">Height to set at position x and y.</param>
     public void SetHeight(int x, int y, float height)
     {
-        map[GetIndex(x, y)] = height;
+        this.map[GetIndex(x, y)] = height;
     }
 
     /// <summary>
@@ -90,8 +90,8 @@ public class ChangeMap : HeightMap {
     /// </summary>
     /// <param name="targetMap"> Map to add changes to. </param>
     public void ApplyChangesToMap(HeightMap targetMap) {
-        for (int x = 0; x < sizeX; x++) {
-            for (int y = 0; y < sizeY; y++) {
+        for (int x = 0; x < this.sizeX; x++) {
+            for (int y = 0; y < this.sizeY; y++) {
                 targetMap.AddHeight(x, y, GetHeight(x, y));
             }
         }

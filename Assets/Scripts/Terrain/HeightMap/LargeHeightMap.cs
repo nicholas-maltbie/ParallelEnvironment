@@ -33,12 +33,12 @@ public class LargeHeightMap : HeightMapComponent {
     /// </summary>
     public void GenerateHeightMap() {
         AbstractHeightMapGenerator mapGen = GetComponent<AbstractHeightMapGenerator>();
-        heightMap = mapGen.CreateHeightMap(mapSize);
+        this.heightMap = mapGen.CreateHeightMap(this.mapSize);
         int heightMapRange = maxHeight - minHeight;
 
-        for (int x = 0; x < mapSize; x++) {
-            for (int y = 0; y < mapSize; y++) {
-                heightMap[x + y * mapSize] = heightMap[x + y * mapSize] * heightMapRange + minHeight;
+        for (int x = 0; x < this.mapSize; x++) {
+            for (int y = 0; y < this.mapSize; y++) {
+                this.heightMap[x + y * this.mapSize] = heightMap[x + y * this.mapSize] * heightMapRange + minHeight;
             }
         }
     }
@@ -53,9 +53,9 @@ public class LargeHeightMap : HeightMapComponent {
     /// than zero is set to zero. If x or y are > mapSize - 1, then the value greater thn
     /// mapSize - 1 is set to mapSize - 1.</returns>
     public override float GetHeight(int x, int y) {
-        x = Mathf.Min(Mathf.Max(0, x), mapSize - 1);
-        y = Mathf.Min(Mathf.Max(0, y), mapSize - 1);
-        return heightMap[GetMapIndex(x, y)];
+        x = Mathf.Min(Mathf.Max(0, x), this.mapSize - 1);
+        y = Mathf.Min(Mathf.Max(0, y), this.mapSize - 1);
+        return this.heightMap[GetMapIndex(x, y)];
     }
 
     /// <summary>
@@ -65,7 +65,7 @@ public class LargeHeightMap : HeightMapComponent {
     /// <param name="y">Y coordinate in the grid</param>
     /// <returns>The index in the height map that corresponds to the specified coordinates</returns>
     private int GetMapIndex(int x, int y) {
-        return x + y * mapSize;
+        return x + y * this.mapSize;
     }
 
     /// <summary>
@@ -79,7 +79,7 @@ public class LargeHeightMap : HeightMapComponent {
     {
         if (! IsInBounds(x, y)) 
             throw new ArgumentOutOfRangeException ();
-        heightMap[GetMapIndex(x, y)] = height;
+        this.heightMap[GetMapIndex(x, y)] = height;
     }
 
     /// <summary>
@@ -89,11 +89,7 @@ public class LargeHeightMap : HeightMapComponent {
     /// <param name="y">Y coordinate to check</param>
     /// <returns>True if x and y are in the bounds (greater than or equal to zero and less than mapSize)</returns>
     public override bool IsInBounds(int x, int y) {
-        return x >= 0 && x < mapSize && y >= 0 && y < mapSize;
-    }
-
-    public float[] heightmaps() {
-        return heightMap;
+        return x >= 0 && x < this.mapSize && y >= 0 && y < this.mapSize;
     }
 
     /// <summary>
@@ -107,7 +103,7 @@ public class LargeHeightMap : HeightMapComponent {
     {
         if (! IsInBounds(x, y)) 
             throw new ArgumentOutOfRangeException ();
-        heightMap[GetMapIndex(x, y)] += change;
+        this.heightMap[GetMapIndex(x, y)] += change;
 
     }
 }

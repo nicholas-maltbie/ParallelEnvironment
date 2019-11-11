@@ -32,7 +32,7 @@ public class FlatMap : AbstractHeightMapGenerator
                 // Calculate the index in the height map
                 int index = y * mapSize + x;
                 /// assign the value based on the pre-set height
-                heightMap[index] = height;
+                heightMap[index] = this.height;
             }
         }
 

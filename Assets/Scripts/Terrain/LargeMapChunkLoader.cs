@@ -55,8 +55,8 @@ public class LargeMapChunkLoader : MonoBehaviour {
     /// Initializes the chunks and loads height map.
     /// </summary>
     public void Start() {
-        heightMap = GetComponent<LargeHeightMap>();
-        heightMap.GenerateHeightMap();
+        this.heightMap = GetComponent<LargeHeightMap>();
+        this.heightMap.GenerateHeightMap();
 
         SetupChunks();
     }
@@ -65,15 +65,15 @@ public class LargeMapChunkLoader : MonoBehaviour {
     /// Update to do every iteration for erosion.
     /// </summary>
     void Update() {
-        if (progress < totalDroplets) {
-            elapsed += Time.deltaTime;
+        if (this.progress < this.totalDroplets) {
+            this.elapsed += Time.deltaTime;
 
-            if (elapsed > erodeInterval) {
-                elapsed %= erodeInterval;
+            if (this.elapsed > this.erodeInterval) {
+                this.elapsed %= this.erodeInterval;
             
                 HydroErosion erosion = GetComponent<HydroErosion>();
-                erosion.ErodeHeightMap(heightMap, 0, 0, heightMap.mapSize, heightMap.mapSize, dropletsPerInterval);
-                progress += dropletsPerInterval;
+                erosion.ErodeHeightMap(this.heightMap, 0, 0, this.heightMap.mapSize, this.heightMap.mapSize, this.dropletsPerInterval);
+                this.progress += this.dropletsPerInterval;
                 
                 UpdateMeshes();
             }
@@ -93,8 +93,8 @@ public class LargeMapChunkLoader : MonoBehaviour {
     /// Sets up the chunks. Creates a chunk at each offset value.
     /// </summary>
     private void SetupChunks() {
-        for (int chunkX = 0; chunkX < Mathf.CeilToInt(heightMap.mapSize / chunkSize); chunkX++) {
-            for (int chunkY = 0; chunkY < Mathf.CeilToInt(heightMap.mapSize / chunkSize); chunkY++) {
+        for (int chunkX = 0; chunkX < Mathf.CeilToInt(this.heightMap.mapSize / this.chunkSize); chunkX++) {
+            for (int chunkY = 0; chunkY < Mathf.CeilToInt(this.heightMap.mapSize / this.chunkSize); chunkY++) {
                 LoadChunk(chunkX, chunkY);
             }
         }
@@ -111,19 +111,19 @@ public class LargeMapChunkLoader : MonoBehaviour {
         chunk.name = "Chunk-" + chunkX + "," + chunkY;
 
         // Calculate the actual offset in grid spaces
-        int offx = chunkX * chunkSize;
-        int offy = chunkY * chunkSize;
+        int offx = chunkX * this.chunkSize;
+        int offy = chunkY * this.chunkSize;
 
         // Setup and run the mesh generator for the chunk
         MeshGenerator meshGen = chunk.AddComponent<MeshGenerator>();
         // Make chunk one larger than actual size to include borders between chunks
-        meshGen.mapSize = chunkSize + 1;
+        meshGen.mapSize = this.chunkSize + 1;
         meshGen.offsetX = offx;
         meshGen.offsetY = offy;
-        meshGen.terrainShader = terrainShader;
-        meshGen.terrainMaterial = terrainMaterial;
+        meshGen.terrainShader = this.terrainShader;
+        meshGen.terrainMaterial = this.terrainMaterial;
         // Generate mesh
-        meshGen.SetupMesh(heightMap);
+        meshGen.SetupMesh(this.heightMap);
         
         chunk.transform.parent = transform;
         chunk.transform.position = new Vector3(offx, 0, offy);

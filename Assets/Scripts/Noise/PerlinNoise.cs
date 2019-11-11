@@ -78,10 +78,10 @@ public class PerlinNoise {
     public int GetHashOfPosition(Vector3Int pos) {
         return 
             this.permutation[
-                this.permutation[
-                    this.permutation[pos.x % this.permutation.Length] +
-                    pos.y % this.permutation.Length] +
-                pos.z + this.permutation.Length];
+                (this.permutation[
+                    (this.permutation[pos.x % this.permutation.Length] +
+                    pos.y) % this.permutation.Length] +
+                pos.z) % this.permutation.Length];
     }
 
     /// <summary>
