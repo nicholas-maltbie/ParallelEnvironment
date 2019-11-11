@@ -65,12 +65,10 @@ public class MultiOctaveNoiseMap : AbstractHeightMapGenerator
         for (int x = 0; x < mapSize; x++) {
             for (int y = 0; y < mapSize; y++) {
                 heights[x + mapSize * y] = noiseGen.OctavePerlin(
-                    x / scaleFactor,
-                    y / scaleFactor,
-                    1,
-                    octaves,
-                    persistence,
-                    frequencyGrowth);
+                    new Vector3(x / this.scaleFactor, y / this.scaleFactor, 1),
+                    this.octaves,
+                    this.persistence,
+                    this.frequencyGrowth);
             }
         }
         
