@@ -13,7 +13,7 @@ public class ChangeMap : HeightMap {
     /// <summary>
     /// Dimensions of the map in the x and y axis
     /// </summary>
-    private int sizeX, sizeY;
+    private int dimX, dimY;
 
     /// <summary>
     /// Creates a change map with a given set of dimensions.
@@ -22,8 +22,8 @@ public class ChangeMap : HeightMap {
     /// <param name="sizeY">Size of teh map along the Y axis</param>
     public ChangeMap(int sizeX, int sizeY) {
         this.map = new float[sizeX * sizeY];
-        this.sizeX = sizeX;
-        this.sizeY = sizeY;
+        this.dimX = sizeX;
+        this.dimY = sizeY;
     }
     
     /// <summary>
@@ -33,7 +33,7 @@ public class ChangeMap : HeightMap {
     /// <param name="y">Y position in grid</param>
     /// <returns>Height at specified position as a float.</returns>
     private int GetIndex(int x, int y) {
-        return x + y * this.sizeX;
+        return x + y * this.dimX;
     }
 
     /// <summary>
@@ -58,8 +58,8 @@ public class ChangeMap : HeightMap {
     /// mapSize - 1 is set to mapSize - 1.</returns>
     public float GetHeight(int x, int y)
     {
-        x = Math.Min(Math.Max(0, x), this.sizeX - 1);
-        y = Math.Min(Math.Max(0, y), this.sizeY - 1);
+        x = Math.Min(Math.Max(0, x), this.dimX - 1);
+        y = Math.Min(Math.Max(0, y), this.dimY - 1);
         return this.map[GetIndex(x, y)];
     }
 
@@ -71,7 +71,7 @@ public class ChangeMap : HeightMap {
     /// <returns>True if the specified coordinate is in the bounds of the height map, false otherwise.</returns>
     public bool IsInBounds(int x, int y)
     {
-        return x >= 0 && x < this.sizeX && y >= 0 && y < this.sizeY;
+        return x >= 0 && x < this.dimX && y >= 0 && y < this.dimY;
     }
 
     /// <summary>
@@ -90,8 +90,8 @@ public class ChangeMap : HeightMap {
     /// </summary>
     /// <param name="targetMap"> Map to add changes to. </param>
     public void ApplyChangesToMap(HeightMap targetMap) {
-        for (int x = 0; x < this.sizeX; x++) {
-            for (int y = 0; y < this.sizeY; y++) {
+        for (int x = 0; x < this.dimX; x++) {
+            for (int y = 0; y < this.dimY; y++) {
                 targetMap.AddHeight(x, y, GetHeight(x, y));
             }
         }
@@ -102,8 +102,8 @@ public class ChangeMap : HeightMap {
     /// </summary>
     /// <param name="scalar">Scalar value to multiply and change all values in the map by.</param>
     public void Multiply(float scalar) {
-        for (int x = 0; x < this.sizeX; x++) {
-            for (int y = 0; y < this.sizeY; y++) {
+        for (int x = 0; x < this.dimX; x++) {
+            for (int y = 0; y < this.dimY; y++) {
                 this.SetHeight(x, y, this.GetHeight(x, y) * scalar);
             }
         }   
@@ -149,10 +149,10 @@ public class ChangeMap : HeightMap {
     /// <param name="kernel">Kernel</param>
     /// <returns>Duplicate map with kernel applied to every cell</returns>
     public ChangeMap ApplyKernel(float[,] kernel) {
-        ChangeMap applied = new ChangeMap(this.sizeX, this.sizeY);
+        ChangeMap applied = new ChangeMap(this.dimX, this.dimY);
 
-        for (int x = 0; x < this.sizeX; x++) {
-            for (int y = 0; y < this.sizeY; y++) {
+        for (int x = 0; x < this.dimX; x++) {
+            for (int y = 0; y < this.dimY; y++) {
                 applied.SetHeight(x, y, Kernel(x, y, kernel));
             }
         }
