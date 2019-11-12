@@ -5,6 +5,8 @@ using UnityEngine;
 /// <summary>
 /// Creates a height map using multiple octaves of noise generated with various settings.
 /// 
+/// Uses an OctaveNoise gen that uses a PerlinNoise for individual octaves.
+/// 
 /// Using Perlin Noise function from adrian's soapbox "Understanding Perlin Noise" by Flafla2.
 /// https://flafla2.github.io/2014/08/09/perlinnoise.html
 /// From August 9th, 2014
@@ -60,15 +62,13 @@ public class MultiOctaveNoiseMap : AbstractHeightMapGenerator
     public override float[] CreateHeightMap(int mapSize)
     {
         float[] heights = new float[mapSize * mapSize];
-        PerlinNoise noiseGen = new PerlinNoise(repeat, seed);
+        PerlinNoise noiseGen = new PerlinNoise(this.repeat, this.seed);
+        OctaveNoise octaveNoise = new OctaveNoise(noiseGen, this.octaves, this.persistence, this.frequencyGrowth);
 
         for (int x = 0; x < mapSize; x++) {
             for (int y = 0; y < mapSize; y++) {
-                heights[x + mapSize * y] = noiseGen.OctavePerlin(
-                    new Vector3(x / this.scaleFactor, y / this.scaleFactor, 1),
-                    this.octaves,
-                    this.persistence,
-                    this.frequencyGrowth);
+                heights[x + mapSize * y] = octaveNoise.GetNoise(
+                    new Vector3(x / this.scaleFactor, y / this.scaleFactor, 1));
             }
         }
         

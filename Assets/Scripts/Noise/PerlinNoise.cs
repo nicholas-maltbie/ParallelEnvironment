@@ -5,8 +5,27 @@ using UnityEngine;
 /// From August 9th, 2014
 /// 
 /// github link: https://gist.github.com/Flafla2/f0260a861be0ebdeef76
+/// 
+/// A high level overview of Perlin Noise is that it tries to generate smooth, natural
+/// looking curves. This allows for natural looking terrain, handwriting, etc...
+/// 
+/// The way Perlin Noise works is that it generates a grid of vectors at each 
+/// coordinate in a n-dimensional space. The value of noise at each position in
+/// the space is between -1 and 1 (converted to [0,1] for this example). This value
+/// is determined by the direction of the vectors in which a coordinate is located.
+/// If more of the neighboring vectors at the corners of the cell are pointing towards
+/// a point, then the value is closer to 1. If the vectors are pointing away from
+/// a point, then the values are closer to zero. This is calculated by using a gradient
+/// function to linearly interpolate how close the value should be to zero or one.
+/// There is additionally a fading value that is used to smooth out the curves 
+/// so they aren't block and rough.
+/// 
+/// They way this specific implemtnation works is by using a random hash function
+/// to calculate a vector direction for each integer coordinate in 3d space. 
+/// This hash function provides the direction of the vectors so the gradient vectors
+/// do not have to be saved.
 /// </summary>
-public class PerlinNoise {
+public class PerlinNoise : Noise {
 
     /// <summary>
     /// Corners on a unit sphere, (0, 0, 0), (0,0,1), ..., (1, 1, 1)
@@ -85,6 +104,15 @@ public class PerlinNoise {
     }
 
     /// <summary>
+    /// Get the perlin noise value at a 3d coordinate in space.
+    /// </summary>
+    /// <param name="vec">Point in (X,Y,Z) space.</param>
+    /// <returns>A noise value at given coordinate. Will always be in the range [0.0, 1.0]</returns>
+    public float GetNoise(Vector3 vec) {
+        return Perlin(vec);
+    }
+
+    /// <summary>
     /// Calculates the Perlin Noise value at a given x, y, z position.
     /// </summary>
     /// <param name="vec">Vector postiion to computer Perlin Noise with x, y, z component</param>
@@ -133,33 +161,6 @@ public class PerlinNoise {
         // For convenience we bind the result to 0 - 1 (theoretical min/max before is [-1, 1])
         return (Lerp (y1, y2, vecFade.z)+1)/2;
     }
-
-    /// <summary>
-    /// Computes multiple octave combination of perlin noise
-    /// </summary>
-    /// <param name="vec">Vector postiion to computer Perlin Noise with x, y, z component</param>
-    /// <param name="octaves">Number of octaves to apply</param>
-    /// <param name="persistence">Change in amplitude over each octave (decay)</param>
-    /// <param name="frequencyGrowth">Growth in frequency over each octave (growth factor)</param>
-    /// <returns>Returns the combination of multiple octaves of Perlin Noise.</returns>
-    public float OctavePerlin(Vector3 vec, int octaves, float persistence, float frequencyGrowth) {
-        float total = 0;
-        float frequency = 1;
-        float amplitude = 1;
-        // Used for normalizing result to 0.0 - 1.0
-        float maxValue = 0;
-        for(int i=0;i<octaves;i++) {
-            total += Perlin(vec * frequency) * amplitude;
-            
-            maxValue += amplitude;
-            
-            amplitude *= persistence;
-            frequency *= frequencyGrowth;
-        }
-        
-        return total/maxValue;
-    }
-
 
     /// <summary>
     /// Calculates the dot product of a randomly selected gradient vector and the 8 location vectors.
