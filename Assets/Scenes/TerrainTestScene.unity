@@ -392,14 +392,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   seed: 1
-  inertia: 0.14
+  inertia: 0.1
   initialWater: 1
   initialVelocity: 1
   gravity: 9.8
   sedimentCapacityFactor: 4
   evaporationRate: 0.0125
-  minSlope: 0.01
-  minCapacity: 0.1
+  minSlope: 0
+  minCapacity: 0.25
   maxDropletLifetime: 32
   depositionRate: 0.01
   erosionRate: 0.1

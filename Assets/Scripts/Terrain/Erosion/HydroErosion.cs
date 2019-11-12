@@ -10,6 +10,15 @@ using System;
 /// 
 /// Some of the documentation of parameters is direclty from this document so if
 /// there is any uncertianty there is further explanation in this paper.
+/// 
+/// Simulates Hydraulic erosion by spawning raindrops around the map. As the raindrops
+/// move down the sides of the terrain they will erode sides of the mountian.
+/// The raindrop's movement at each individual step will be one cell in the (x,y) direction.
+/// If the raindrop is moving downhill quickly it will pick up sediment.
+/// As the raindrop picks up sediment, it will fill up and slowly deposit sediment if it
+/// becomes too full or slows down enough. 
+/// The raindrop will also slowly lose water and will die if it moves off the map
+/// or runs out of water completely. 
 /// </summary>
 public class HydroErosion : MonoBehaviour {
     /// <summary>
@@ -210,7 +219,8 @@ public class HydroErosion : MonoBehaviour {
                     dir = new Vector2(prng.Next(), prng.Next());
                 }
 
-                // Normalize the vector dir
+                // Normalize the vector dir so that it only moves on cell
+                // at a time. This stops raindrops from skipping areas of the map.
                 dir /= dir.magnitude;
 
                 // Calculate the new position
@@ -225,7 +235,11 @@ public class HydroErosion : MonoBehaviour {
                 float capacity = Math.Max(Mathf.Max(-deltaH, this.minSlope) * water * this.sedimentCapacityFactor, this.minCapacity);
 
                 // if droplet moved off the map or stopped moving, kill it
-                if (!layers.IsInBounds((int) posNew.x, (int) posNew.y)) {
+                if (water == 0) {
+                    // Don't deposit because this should have already been handled
+                    break;
+                }
+                else if (!layers.IsInBounds((int) posNew.x, (int) posNew.y)) {
                     // If the droplet had excess sediment, attempt to deposit it.
                     if (sediment > 0) {
                         float amountToDeposit = (deltaH > 0) ? Mathf.Min (deltaH, sediment) : (sediment - capacity) * this.depositionRate;
@@ -248,7 +262,7 @@ public class HydroErosion : MonoBehaviour {
                 }
 
                 // Update velocity
-                vel = Mathf.Sqrt(vel * vel + deltaH * this.gravity);
+                vel = Mathf.Sqrt(vel * vel + Mathf.Abs(deltaH) * this.gravity);
                 // Updater water
                 water = water * (1 - this.evaporationRate);
                 // Update position
