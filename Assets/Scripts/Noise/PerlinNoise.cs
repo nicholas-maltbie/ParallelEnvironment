@@ -83,17 +83,16 @@ public class PerlinNoise : Noise {
     }
 
     /// <summary>
-    /// Gets the hash of a position.
+    /// Gets the hash of a position. This is a random hash function for a position's gradient vector.
     /// </summary>
-    /// <param name="pos">Position in the grid space (three component vector).</param>
+    /// <param name="pos">Position in the grid space (three component vector) as integer values.</param>
     /// <returns>The hash of the position for creating gradient vectors.</returns>
     public int GetHashOfPosition(Vector3Int pos) {
-        return 
-            this.permutation[
-                (this.permutation[
-                    (this.permutation[pos.x % this.permutation.Length] +
-                    pos.y) % this.permutation.Length] +
-                pos.z) % this.permutation.Length];
+        int hash = pos.x;
+        hash = this.permutation[hash % permutation.Length] + pos.y;
+        hash = this.permutation[hash % permutation.Length] + pos.z;
+        hash = this.permutation[hash % permutation.Length];
+        return hash;
     }
 
     /// <summary>
