@@ -395,14 +395,14 @@ MonoBehaviour:
   inertia: 0.1
   initialWater: 1
   initialVelocity: 1
-  gravity: 9.8
+  gravity: 1
   sedimentCapacityFactor: 4
   evaporationRate: 0.0125
-  minSlope: 0
+  minSlope: 0.1
   minCapacity: 0.25
   maxDropletLifetime: 32
   depositionRate: 0.01
-  erosionRate: 0.1
+  erosionRate: 0.01
   erodeRadius: 2
   blurValue: 0
-  blurRadius: 2
+  blurRadius: 4

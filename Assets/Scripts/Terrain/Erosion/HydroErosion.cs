@@ -49,6 +49,11 @@ public class HydroErosion : MonoBehaviour {
     public float gravity = 9.81f;
 
     /// <summary>
+    /// Should velocity be included in computing a droplets carry capacity.
+    /// </summary>
+    public bool includeVelocity = false;
+
+    /// <summary>
     /// determines the amount of sediment a drop can carry as used
     /// in equation 5.4. A higher value results in more sediment being eroded on steeper
     /// ground and deposited in lower regions. Thus each drop has a higher impact on the 
@@ -148,11 +153,12 @@ public class HydroErosion : MonoBehaviour {
     /// <param name="seed">Seed value for PRNG, zero means use arbitrary seed</param>
     /// <param name="erodeRadius">Radius size of erosion brush</param>
     private void Initialize() {
-
+        // setup PRNG
         if (this.prng == null) {
             this.prng = this.seed == 0 ? new System.Random() : new System.Random(seed);
         }
 
+        // setup erode brush
         if (this.erodeBrush == null) {
             this.erodeBrush = new float[this.erodeRadius * 2 + 1, this.erodeRadius * 2 + 1];
             float sd = this.erodeRadius;
@@ -164,6 +170,7 @@ public class HydroErosion : MonoBehaviour {
             }
         }
 
+        // setup blur brush
         if (this.blurBrush == null) {
             this.blurBrush = new float[this.blurRadius * 2 + 1, this.blurRadius * 2 + 1];
             float sd = this.blurRadius;
@@ -174,6 +181,22 @@ public class HydroErosion : MonoBehaviour {
                 }
             }
         }
+    }
+
+    /// <summary>
+    /// Compute the capacity of a droplet using factors like include velocity, min slope, and capacity
+    /// factor. This says how much a droplet can carry.
+    /// </summary>
+    /// <param name="deltaH">Change in sope from previous movement</param>
+    /// <param name="velocity">Current velocity of droplet</param>
+    /// <param name="waterFactor">Amount of water in droplet</param>
+    /// <returns>The computed capacity of the droplet or Minimum capacity fi it is less than
+    /// than the computed value.</returns>
+    private float ComputeCapacity(float deltaH, float velocity, float waterFactor) {
+        float slopeFactor = Mathf.Max(Mathf.Abs(deltaH), this.minSlope);
+        float velFactor = Mathf.Max(1, this.includeVelocity ? velocity : 1);
+        float capacity = slopeFactor * velFactor * waterFactor * this.sedimentCapacityFactor;
+        return Math.Max(capacity, this.minCapacity);
     }
 
     /// <summary>
@@ -232,7 +255,7 @@ public class HydroErosion : MonoBehaviour {
                 float deltaH = heightNew - heightOld;
 
                 // Calculate the carying capacity of the droplet
-                float capacity = Math.Max(Mathf.Max(-deltaH, this.minSlope) * water * this.sedimentCapacityFactor, this.minCapacity);
+                float capacity = ComputeCapacity(deltaH, vel, water);
 
                 // if droplet moved off the map or stopped moving, kill it
                 if (water == 0) {
@@ -262,7 +285,7 @@ public class HydroErosion : MonoBehaviour {
                 }
 
                 // Update velocity
-                vel = Mathf.Sqrt(vel * vel + Mathf.Abs(deltaH) * this.gravity);
+                vel = Mathf.Sqrt(Mathf.Max(0, vel * vel + -deltaH * this.gravity));
                 // Updater water
                 water = water * (1 - this.evaporationRate);
                 // Update position
