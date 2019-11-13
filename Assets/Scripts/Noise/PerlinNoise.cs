@@ -16,11 +16,11 @@ using UnityEngine;
 /// If more of the neighboring vectors at the corners of the cell are pointing towards
 /// a point, then the value is closer to 1. If the vectors are pointing away from
 /// a point, then the values are closer to zero. This is calculated by using a gradient
-/// function to linearly interpolate how close the value should be to zero or one.
+/// function to linearly interpolate how close the value should be zero or one.
 /// There is additionally a fading value that is used to smooth out the curves 
 /// so they aren't block and rough.
 /// 
-/// They way this specific implemtnation works is by using a random hash function
+/// They way this specific implementation works is by using a random hash function
 /// to calculate a vector direction for each integer coordinate in 3d space. 
 /// This hash function provides the direction of the vectors so the gradient vectors
 /// do not have to be saved.
@@ -30,22 +30,15 @@ public class PerlinNoise : Noise {
     /// <summary>
     /// Corners on a unit sphere, (0, 0, 0), (0,0,1), ..., (1, 1, 1)
     /// </summary>
-    private static Vector3Int[] corners = new Vector3Int[8];
-
-    /// <summary>
-    /// Setup static variables of unit sphere
-    /// </summary>
-    static PerlinNoise() {
-        // Perlin Noise hash function is used to get a unique value for every coordinate input. (8 in a unit sphere)
-        for (int idx = 0; idx < 8; idx++) {
-            // This will generate unit vectors for each corner of unit spehre
-            // (0, 0, 0) -- 0
-            // (0, 0, 1) -- 1
-            // ...
-            // (1, 1, 1) -- 7 
-            corners[idx] = new Vector3Int((idx & 0b100) > 0 ? 1 : 0, (idx & 0b010) > 0 ? 1 : 0, (idx & 0b001) > 0 ? 1 : 0);
-        }
-    }
+    private static readonly Vector3Int
+        X0Y0Z0 = new Vector3Int(0,0,0),
+        X0Y0Z1 = new Vector3Int(0,0,1),
+        X0Y1Z0 = new Vector3Int(0,1,0),
+        X0Y1Z1 = new Vector3Int(0,1,1),
+        X1Y0Z0 = new Vector3Int(1,0,0),
+        X1Y0Z1 = new Vector3Int(1,0,1),
+        X1Y1Z0 = new Vector3Int(1,1,0),
+        X1Y1Z1 = new Vector3Int(1,1,1);
 
     /// <summary>
     /// Doubled permutation to avoid overflow.
@@ -112,6 +105,12 @@ public class PerlinNoise : Noise {
         return Perlin(vec);
     }
 
+    private float GetLerpOfCorner(Vector3Int pos, Vector3 fraction, Vector3Int corner1, Vector3Int corner2, float fade) {
+        float corner1gradient = Grad (GetHashOfPosition(pos + corner1), fraction - corner1),
+            corner2gradient = Grad (GetHashOfPosition(pos + corner2), fraction - corner2);
+        return Lerp(corner1gradient, corner2gradient, fade);
+    }
+
     /// <summary>
     /// Calculates the Perlin Noise value at a given x, y, z position.
     /// </summary>
@@ -127,10 +126,10 @@ public class PerlinNoise : Noise {
         // The left bound is ( |_x_|,|_y_|,|_z_| ) and the right bound is that
         // plus 1.  Next we calculate the location (from 0.0 to 1.0) in that cube.
         Vector3Int posInt = new Vector3Int((int)vec.x, (int)vec.y, (int)vec.z);
-        Vector3 vecFraction = new Vector3(vec.x - (int)vec.x, vec.y - (int)vec.y, vec.z - (int)vec.z);
+        Vector3 posFrac = new Vector3(vec.x - (int)vec.x, vec.y - (int)vec.y, vec.z - (int)vec.z);
 
         // Compute faded values for smoothing
-        Vector3 vecFade = new Vector3(Fade(vecFraction.x), Fade(vecFraction.y), Fade(vecFraction.z));
+        Vector3 vecFade = new Vector3(Fade(posFrac.x), Fade(posFrac.y), Fade(posFrac.z));
 
         float x1, x2, y1, y2;
         // The gradient function calculates the dot product between a pseudorandom
@@ -139,23 +138,15 @@ public class PerlinNoise : Noise {
         // This is all then lerped together as a sort of weighted average based on the faded (u,v,w)
         
         // Find the lerp of the gradients at corners 000 and 100
-        x1 = Lerp(Grad (GetHashOfPosition(posInt + PerlinNoise.corners[0b000]), vecFraction - PerlinNoise.corners[0b000]),
-                  Grad (GetHashOfPosition(posInt + PerlinNoise.corners[0b100]), vecFraction - PerlinNoise.corners[0b100]),
-                  vecFade.x);
+        x1 = GetLerpOfCorner(posInt, posFrac, X0Y0Z0, X1Y0Z0, vecFade.x);
         // Find the lerp of the gradients at corners 010 and 110
-        x2 = Lerp(Grad (GetHashOfPosition(posInt + PerlinNoise.corners[0b010]), vecFraction - PerlinNoise.corners[0b010]),
-                  Grad (GetHashOfPosition(posInt + PerlinNoise.corners[0b110]), vecFraction - PerlinNoise.corners[0b110]),
-                  vecFade.x);
+        x2 = GetLerpOfCorner(posInt, posFrac, X0Y1Z0, X1Y1Z0, vecFade.x);
         y1 = Lerp(x1, x2, vecFade.y);
 
         // Find the lerp of the gradients at corners 001 and 101
-        x1 = Lerp(Grad (GetHashOfPosition(posInt + PerlinNoise.corners[0b001]), vecFraction - PerlinNoise.corners[0b001]),
-                  Grad (GetHashOfPosition(posInt + PerlinNoise.corners[0b101]), vecFraction - PerlinNoise.corners[0b101]),
-                  vecFade.x);
-        // Find the lerp of the gradients at corners 00111 and 111
-        x2 = Lerp(Grad (GetHashOfPosition(posInt + PerlinNoise.corners[0b011]), vecFraction - PerlinNoise.corners[0b011]),
-                  Grad (GetHashOfPosition(posInt + PerlinNoise.corners[0b111]), vecFraction - PerlinNoise.corners[0b111]),
-                  vecFade.x);
+        x1 = GetLerpOfCorner(posInt, posFrac, X0Y0Z1, X1Y0Z1, vecFade.x);
+        // Find the lerp of the gradients at corners 011 and 111
+        x2 = GetLerpOfCorner(posInt, posFrac, X0Y1Z1, X1Y1Z1, vecFade.x);
         y2 = Lerp (x1, x2, vecFade.y);
 
         // For convenience we bind the result to 0 - 1 (theoretical min/max before is [-1, 1])
