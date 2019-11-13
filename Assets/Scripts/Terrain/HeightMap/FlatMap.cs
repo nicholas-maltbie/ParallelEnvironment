@@ -17,7 +17,7 @@ public class FlatMap : AbstractHeightMapGenerator
     /// Creates a height map with a given map size at a fixed height.
     /// </summary>
     /// <param name="mapSize">Size of the map (square)</param>
-    /// <returns>All values in the float array are the same.null 
+    /// <returns>All values in the float array are the same. 
     /// The map is a float array representing the height map where each location
     /// corresponds to index = y * mapSize + x. Each value in the map will be
     /// between 0.0 and 1.0</returns>
