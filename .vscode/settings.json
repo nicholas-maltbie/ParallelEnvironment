@@ -52,5 +52,13 @@
         "ProjectSettings/":true,
         "temp/":true,
         "Temp/":true
-    }
+    },
+    "cSpell.words": [
+        "Buzas",
+        "Dharne",
+        "Maltbie",
+        "Saylee",
+        "boids",
+        "heightmap"
+    ]
 }
