@@ -26,7 +26,7 @@ You cannot push directly to master, you must make a pull request, have it review
 
 See [Creating a pull request](https://help.github.com/en/github/collaborating-with-issues-and-pull-requests/creating-a-pull-request) guide from github for any more questions about how to make pull requests. 
 
-As far as coding style, please try to stay consistent with [Csharp Coding Guildelines](https://wiki.unity3d.com/index.php/Csharp_Coding_Guidelines) from Unity's reference guide. 
+As far as coding style, please try to stay consistent with [Csharp Coding Guidelines](https://wiki.unity3d.com/index.php/Csharp_Coding_Guidelines) from Unity's reference guide. 
 
 ## 5. Done
 

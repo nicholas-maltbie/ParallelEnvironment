@@ -5,7 +5,7 @@
 
 Nicholas Maltbie
 
-Samual Buzas
+Samuel Buzas
 
 Saylee Dharne
 
@@ -18,19 +18,17 @@ Saylee Dharne
 
 **decision. Discuss potential mentors or advisors for your project.**
 
-Our primary motivation is to learn more about Unity, Compute Shaders, and how to apply these. These ideas are inspired by Sebastian Lague’s Youtube channel [https://www.youtube.com/channel/UCmtyQOKKmrMVaKuRXz02jbQ](https://www.youtube.com/channel/UCmtyQOKKmrMVaKuRXz02jbQ) and all focus on general simulation of a dynamic and realistic environment. We are all interested in concepts associated with making these environments as well as game development. These concepts have all already been implemented before but we want to look into understanding them and implementing them in a highly parallel environment and calculating the levels of improvement. 
+Our primary motivation is to learn more about Unity, Compute Shaders, and how to apply these. These ideas are inspired by Sebastian 
+Lague's YouTube channel [https://www.youtube.com/channel/UCmtyQOKKmrMVaKuRXz02jbQ](https://www.youtube.com/channel/
+UCmtyQOKKmrMVaKuRXz02jbQ) and all focus on general simulation of a dynamic and realistic environment. We are all interested in concepts
+associated with making these environments as well as game development. These concepts have all already been implemented before but we 
+want to look into understanding them and implementing them in a highly parallel environment and calculating the levels of improvement. 
 
 Potential Mentors/Advisors:
-
-
-
 *   Dr. Annexstein
 *   Dr. Bhatnagar 
 
 Languages Used:
-
-
-
 *   C# : for scripting in Unity
 *   HLSL (High-Level Shader Language) : for GPU processes (similar to Direct X languages)
 
@@ -62,7 +60,7 @@ The goals for our project are to:
 *   Learn about using Unity and create a fun project
 *   Create version of code in parallel and in sequential
 *   Create a procedurally generated terrain with
-    *   Dynamic Heightmap
+    *   Dynamic HeightMap
     *   Clouds 
     *   Birds (boids)
 *   Stretch Goals:
@@ -116,7 +114,7 @@ Components:
 
 ### Interaction Overview
 
-![Diagram of Interaction Overview with three components and under interface. The three components are Terrain Generation, Boids, and Rendering Clouds. There are arows from Terrain Generation to Boids and from Terrain Generation to Rendering Clouds. The Three components and two arrows are all in a box Labeled Dynamic Environment. There is an arrow going to and from User Interface to Dynamic Environment with the label Configures and Interacts with.](Images/InteractionOverview.png)
+![Diagram of Interaction Overview with three components and under interface. The three components are Terrain Generation, Boids, and Rendering Clouds. There are arrows from Terrain Generation to Boids and from Terrain Generation to Rendering Clouds. The Three components and two arrows are all in a box Labeled Dynamic Environment. There is an arrow going to and from User Interface to Dynamic Environment with the label Configures and Interacts with.](Images/InteractionOverview.png)
 
 
 ### Control Flow
@@ -126,7 +124,7 @@ Components:
 
 ### Terrain Generation
 
-![Terrain Generation Daiagrm](Images/TerrainGeneration.png)
+![Terrain Generation Diagram](Images/TerrainGeneration.png)
 
 ![Generating Section of Terrain Diagram](Images/GenerateSectionTerrain.png)
 
@@ -134,7 +132,7 @@ Components:
 
 ### Boids
 
-![Boids Contorl Flow Diagram](Images/Boids.png)
+![Boids Control Flow Diagram](Images/Boids.png)
 
 ### Render Clouds
 
