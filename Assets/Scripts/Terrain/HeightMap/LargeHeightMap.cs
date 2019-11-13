@@ -38,7 +38,7 @@ public class LargeHeightMap : HeightMapComponent {
 
         for (int x = 0; x < this.mapSize; x++) {
             for (int y = 0; y < this.mapSize; y++) {
-                this.heightMap[x + y * this.mapSize] = heightMap[x + y * this.mapSize] * heightMapRange + minHeight;
+                this.heightMap[GetMapIndex(x, y)] = heightMap[GetMapIndex(x, y)] * heightMapRange + minHeight;
             }
         }
     }
