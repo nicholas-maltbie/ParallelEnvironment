@@ -78,7 +78,7 @@ public class LayeredMap : HeightMap {
 
     /// <summary>
     /// Sets the height in the height map so the resultant sum of all layers will be 
-    /// a given heihgt. Will only change the eidtable height map.
+    /// a given height. Will only change the editable height map.
     /// 
     /// Sets the height of the editable to be height - current (current is the sum of all
     /// height maps at the given x and y)

@@ -2,7 +2,7 @@
 using UnityEngine;
 
 /// <summary>
-/// Abstarct HeightMap as a component so it can be attached to GameObjects. 
+/// Abstract HeightMap as a component so it can be attached to GameObjects. 
 /// </summary>
 abstract public class HeightMapComponent : MonoBehaviour, HeightMap
 {

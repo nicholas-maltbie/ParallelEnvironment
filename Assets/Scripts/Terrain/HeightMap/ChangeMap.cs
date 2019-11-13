@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 
 /// <summary>
-/// A height map that is meant to hold changes. Starts will all avlues
+/// A height map that is meant to hold changes. Starts will all values
 /// initialized to zero and can be applied to other height maps.
 /// </summary>
 public class ChangeMap : HeightMap {
@@ -117,7 +117,7 @@ public class ChangeMap : HeightMap {
     /// <param name="y">Y position in grid (Center of kernel)</param>
     /// <param name="kernel">Kernel to get summed value of</param>
     /// <returns>The sum of the weighted values around the center x and y. If a 
-    /// value is not inside the grid, it is excluded for the weights and the other elements are wighted
+    /// value is not inside the grid, it is excluded for the weights and the other elements are weighted
     /// proportionally more.</returns>
     private float Kernel(int x, int y, float[,] kernel) {
         float totalWeights = 0;

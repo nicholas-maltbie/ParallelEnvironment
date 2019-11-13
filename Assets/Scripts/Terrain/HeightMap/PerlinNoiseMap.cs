@@ -12,7 +12,7 @@ public class PerlinNoiseMap : AbstractHeightMapGenerator
     /// Creates a height map using one level of perlin Noise.null 
     /// </summary>
     /// <param name="mapSize">Size of the height map (square size)</param>
-    /// <returns>A float array represetnting the height map where each location
+    /// <returns>A float array representing the height map where each location
     /// corresponds to index = y * mapSize + x. Each value in the map will be
     /// between 0.0 and 1.0</returns>
     public override float[] CreateHeightMap(int mapSize)

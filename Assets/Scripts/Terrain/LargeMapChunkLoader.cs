@@ -111,21 +111,21 @@ public class LargeMapChunkLoader : MonoBehaviour {
         chunk.name = "Chunk-" + chunkX + "," + chunkY;
 
         // Calculate the actual offset in grid spaces
-        int offx = chunkX * this.chunkSize;
-        int offy = chunkY * this.chunkSize;
+        int offX = chunkX * this.chunkSize;
+        int offY = chunkY * this.chunkSize;
 
         // Setup and run the mesh generator for the chunk
         MeshGenerator meshGen = chunk.AddComponent<MeshGenerator>();
         // Make chunk one larger than actual size to include borders between chunks
         meshGen.mapSize = this.chunkSize + 1;
-        meshGen.offsetX = offx;
-        meshGen.offsetY = offy;
+        meshGen.offsetX = offX;
+        meshGen.offsetY = offY;
         meshGen.terrainShader = this.terrainShader;
         meshGen.terrainMaterial = this.terrainMaterial;
         // Generate mesh
         meshGen.SetupMesh(this.heightMap);
         
         chunk.transform.parent = transform;
-        chunk.transform.position = new Vector3(offx, 0, offy);
+        chunk.transform.position = new Vector3(offX, 0, offY);
     }
 }

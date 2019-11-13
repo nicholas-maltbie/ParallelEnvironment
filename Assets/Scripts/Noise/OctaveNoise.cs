@@ -2,21 +2,21 @@ using UnityEngine;
 
 /// <summary>
 /// Octave noise works by combining multiple levels of another noise
-/// function. This allows for more comlicated and realistic terrain.
+/// function. This allows for more complicated and realistic terrain.
 /// 
 /// It combines increasingly smaller amplitudes and higher frequencies
 /// of a noise function to generate complex, layered noise.
 /// 
 /// An example is a mountian range, it not only has the mountains,
-/// it also has smaller ridges, valleyes. Also smaller bounders,
+/// it also has smaller ridges, valleys. Also smaller bounders,
 /// rocks, streams. And at an even smaller level, pebbles and small
-/// divets. The idea of multi octave noise is to combine all of these
+/// divots. The idea of multi octave noise is to combine all of these
 /// layers of noise together into one function.
 /// </summary>
 public class OctaveNoise : Noise {
 
     /// <summary>
-    /// Number of octabes to combine
+    /// Number of octaves to combine
     /// </summary>
     private int octaves;
     /// <summary>
@@ -24,7 +24,7 @@ public class OctaveNoise : Noise {
     /// </summary>
     private float persistence;
     /// <summary>
-    /// Growth in frequence from octave to the next, finer octave.
+    /// Growth in frequency from octave to the next, finer octave.
     /// </summary>
     private float frequencyGrowth;
     /// <summary>
@@ -50,7 +50,7 @@ public class OctaveNoise : Noise {
     /// <summary>
     /// Gets the multi octave combination of the provided noise function.
     /// </summary>
-    /// <param name="position">Position in 3d space to calulate noise for</param>
+    /// <param name="position">Position in 3d space to calculate noise for</param>
     /// <returns>Returns the combination of multiple octaves of noise normalized
     /// to the range of [0.0, 1.0] </returns>
     public float GetNoise(Vector3 position)

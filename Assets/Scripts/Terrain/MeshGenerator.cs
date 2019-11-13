@@ -190,17 +190,17 @@ public class MeshGenerator : MonoBehaviour
         // Need vertices on edge so ignore the far edge
         for (int x = 0; x < this.mapSize - 1; x++) {
             for (int y = 0; y < this.mapSize - 1; y++) {
-                // First triangle goes in order (trix, triy), (trix, triy+1), (trix+1, triy)
-                // Second triangle goes in order (trix + 1, triy), (trix, triy+1), (trix+1, triy+1)
+                // First triangle goes in order (triX, triY), (triX, triY+1), (triX+1, triY)
+                // Second triangle goes in order (triX + 1, triY), (triX, triY+1), (triX+1, triY+1)
                 // Need this order of triangles so mesh renders in correct direction (clockise order of vertices)
                 int tri1Start = (x + y * (this.mapSize - 1)) * 6;
                 int tri2Start = tri1Start + 3;
 
-                // index of vertex at position (trix, triy)
+                // index of vertex at position (triX, triY)
                 triangles[tri1Start] = GetMapIndex(x, y);
-                // index of vertex at position (trix, triy + 1)
+                // index of vertex at position (triX, triY + 1)
                 triangles[tri1Start + 1] = GetMapIndex(x, y + 1);
-                // index of vertex at position (trix + 1, triy)
+                // index of vertex at position (triX + 1, triY)
                 triangles[tri1Start + 2] = GetMapIndex(x + 1, y);
 
                 triangles[tri2Start] = GetMapIndex(x + 1, y);

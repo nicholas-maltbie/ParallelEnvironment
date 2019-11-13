@@ -113,7 +113,7 @@ public class PerlinNoise : Noise {
     /// <summary>
     /// Calculates the Perlin Noise value at a given x, y, z position.
     /// </summary>
-    /// <param name="vec">Vector postiion to computer Perlin Noise with x, y, z component</param>
+    /// <param name="vec">Vector position to computer Perlin Noise with x, y, z component</param>
     /// <returns>Perlin noise value at the given coordinate. Will always be in the range [0.0, 1.0]</returns>
     public float Perlin(Vector3 vec) {
         // If we have any repeat on, change the coordinates to their "local" repetitions
@@ -134,7 +134,8 @@ public class PerlinNoise : Noise {
         // The gradient function calculates the dot product between a pseudorandom
         // gradient vector and the vector from the input coordinate to the 8
         // surrounding points in its unit cube.
-        // This is all then lerped together as a sort of weighted average based on the faded (u,v,w)
+        // This is all then combined using a lerp together as a sort of
+        // weighted average based on the faded (u,v,w)
         
         // Find the lerp of the gradients at corners 000 and 100
         x1 = GetLerpOfCorner(posInt, posFrac, X0Y0Z0, X1Y0Z0, vecFade.x);
