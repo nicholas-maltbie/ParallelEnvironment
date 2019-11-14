@@ -31,6 +31,27 @@ $ cd ~/projects
 $ git clone git@github.com:nicholas-maltbie/ParallelEnvironment.git
 ```
 
+# Version Control
+Version Control: This project uses a combination of git, git-lfs, and github.
+
+Ensure that you have git installed. If not here is a [guide to install git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git)
+```
+git --version
+```
+
+Ensure that you also have git lfs installed. It should be setup to auto-track certain types of files as determined in the `.gitattributes` file. If the command to install git-lfs `git lfs install` is giving you trouble, try looking into the [installation guide](https://git-lfs.github.com/)
+```bash
+# Run this inside the repository after cloning it
+# May need to run this on linux
+curl -s https://packagecloud.io/install/repositories/github/git-lfs/script.deb.sh | sudo bash
+sudo apt-get install git-lfs
+# Installing git lfs
+git lfs install
+git-lfs --version
+```
+
+# Opening the Project
+
 After you have downloaded the git repo, launch unity hub and navigate to the `Projects` section on the
 menu on the left half of the screen. 
 
@@ -56,26 +77,6 @@ Languages: [C#](https://docs.unity3d.com/Manual/CSharpCompiler.html) | [HLSL](ht
 The compilers for these are included in Unity but having the `.Net Core SDK` is required for the IDE. Instructions to install `.Net Core SDK`: [Installation Instructions](https://dotnet.microsoft.com/download/dotnet-core/sdk-for-vs-code?utm_source=vs-code&utm_medium=referral&utm_campaign=sdk-install). There should be a `.exe` for windows, a set of commands for linux or mac. 
 * **Note** If you are installing for linux, ensure that you have the mono libraries installed. Mono Libraries: [https://www.mono-project.com/download/stable](https://www.mono-project.com/download/stable)
 * **Additional Note** You may need to reboot the computer after installing the `.Net Core SDK`.
-
-
-# Version Control
-Version Control: This project uses a combination of git, git-lfs, and github.
-
-Ensure that you have git installed. If not here is a [guide to install git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git)
-```
-git --version
-```
-
-Ensure that you also have git lfs installed. It should be setup to auto-track certain types of files as determined in the `.gitattributes` file. If the command to install git-lfs `git lfs install` is giving you trouble, try looking into the [installation guide](https://git-lfs.github.com/)
-```bash
-# Run this inside the repository after cloning it
-# May need to run this on linux
-curl -s https://packagecloud.io/install/repositories/github/git-lfs/script.deb.sh | sudo bash
-sudo apt-get install git-lfs
-# Installing git lfs
-git lfs install
-git-lfs --version
-```
 
 # IDE
 
