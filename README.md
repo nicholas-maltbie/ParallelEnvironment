@@ -36,7 +36,7 @@ Our goal is to make a configurable environment with interactive components like 
 
 ## Reference Material
 
-The main ideas of this project are inspired from [Sebastian League's Youtube Channel](https://www.youtube.com/channel/UCmtyQOKKmrMVaKuRXz02jbQ). Here are some of his projects that we are referencing
+The main ideas of this project are inspired from [Sebastian League's YouTube Channel](https://www.youtube.com/channel/UCmtyQOKKmrMVaKuRXz02jbQ). Here are some of his projects that we are referencing
 * Coding Adventure: Boids — [YouTube](https://www.youtube.com/watch?v=bqtqltqcQhw) | [GitHub](https://github.com/SebLague/Boids)
 * Coding Adventure: Clouds - [YouTube](https://www.youtube.com/watch?v=4QOcCGI6xOU) | [GitHub](https://github.com/SebLague/Clouds)
 * Coding Adventure: Compute Shaders — [YouTube](https://www.youtube.com/watch?v=9RHGLZLUuwc) | [GitHub](https://github.com/SebLague/Hydraulic-Erosion)

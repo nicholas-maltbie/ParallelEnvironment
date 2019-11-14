@@ -58,5 +58,11 @@
         "Mathf",
         "lerp",
         "prng"
+        "Buzas",
+        "Dharne",
+        "Maltbie",
+        "Saylee",
+        "boids",
+        "heightmap"
     ]
 }
