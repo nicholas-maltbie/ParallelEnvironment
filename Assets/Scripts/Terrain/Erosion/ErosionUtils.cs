@@ -4,7 +4,24 @@ namespace Erosion {
     /// <summary>
     /// Class for utility functions to manage erosion
     /// </summary>
-    public static class ErosionUtilities {
+    public static class ErosionUtils {
+        /// <summary>
+        /// Compute the capacity of a droplet using factors like include velocity, min slope, and capacity
+        /// factor. This says how much a droplet can carry.
+        /// </summary>
+        /// <param name="deltaH">Change in height from previous movement</param>
+        /// <param name="velocity">Current velocity of droplet</param>
+        /// <param name="waterFactor">Amount of water in droplet</param>
+        /// /// <param name="parameters">Erosion parameters for controlling how erosion works</param>
+        /// <returns>The computed capacity of the droplet or Minimum capacity fi it is less than
+        /// than the computed value.</returns>
+        public static float ComputeCapacity(float deltaH, float velocity, float waterFactor, ErosionParams parameters) {
+            float slopeFactor = Mathf.Max(Mathf.Abs(deltaH), parameters.minSlope);
+            float velFactor = Mathf.Max(1, parameters.includeVelocity ? velocity : 1);
+            float capacity = slopeFactor * velFactor * waterFactor * parameters.sedimentCapacityFactor;
+            return Mathf.Max(capacity, parameters.minCapacity);
+        }
+
         /// <summary>
         /// Evaluate how much sediment is deposited and deposit that much
         /// sediment based on the droplets current state.
@@ -24,7 +41,7 @@ namespace Erosion {
             float capacityBasedDeposit = (sediment - capacity) * parameters.depositionRate;
             // Select slope or capacity based on if moving uphill
             float amountToDeposit = (deltaH > 0) ? slopeBasedDeposit : capacityBasedDeposit;
-            return ErosionUtilities.Deposit(map, pos, amountToDeposit);
+            return ErosionUtils.Deposit(map, pos, amountToDeposit);
         }
 
         /// <summary>
@@ -88,10 +105,10 @@ namespace Erosion {
             float offsetY = pos.y - locY;
 
             float deposited = 0;
-            deposited += ErosionUtilities.ChangeHeightMap(map, locX, locY, amountToDeposit * (1 - offsetX) * (1 - offsetY));
-            deposited += ErosionUtilities.ChangeHeightMap(map, locX + 1, locY, amountToDeposit * offsetX * (1 - offsetY));
-            deposited += ErosionUtilities.ChangeHeightMap(map, locX, locY + 1, amountToDeposit * (1 - offsetX) * offsetY);
-            deposited += ErosionUtilities.ChangeHeightMap(map, locX + 1, locY + 1, amountToDeposit * offsetX * offsetY);
+            deposited += ErosionUtils.ChangeHeightMap(map, locX, locY, amountToDeposit * (1 - offsetX) * (1 - offsetY));
+            deposited += ErosionUtils.ChangeHeightMap(map, locX + 1, locY, amountToDeposit * offsetX * (1 - offsetY));
+            deposited += ErosionUtils.ChangeHeightMap(map, locX, locY + 1, amountToDeposit * (1 - offsetX) * offsetY);
+            deposited += ErosionUtils.ChangeHeightMap(map, locX + 1, locY + 1, amountToDeposit * offsetX * offsetY);
 
             return deposited;
         }

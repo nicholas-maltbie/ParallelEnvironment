@@ -168,22 +168,6 @@ namespace Erosion {
         }
 
         /// <summary>
-        /// Compute the capacity of a droplet using factors like include velocity, min slope, and capacity
-        /// factor. This says how much a droplet can carry.
-        /// </summary>
-        /// <param name="deltaH">Change in height from previous movement</param>
-        /// <param name="velocity">Current velocity of droplet</param>
-        /// <param name="waterFactor">Amount of water in droplet</param>
-        /// <returns>The computed capacity of the droplet or Minimum capacity fi it is less than
-        /// than the computed value.</returns>
-        private float ComputeCapacity(float deltaH, float velocity, float waterFactor) {
-            float slopeFactor = Mathf.Max(Mathf.Abs(deltaH), this.minSlope);
-            float velFactor = Mathf.Max(1, this.includeVelocity ? velocity : 1);
-            float capacity = slopeFactor * velFactor * waterFactor * this.sedimentCapacityFactor;
-            return Math.Max(capacity, this.minCapacity);
-        }
-
-        /// <summary>
         /// Erodes a hight map by generating a set of droplets then simulating their movement along the height map.
         /// </summary>
         /// <param name="map">Map to apply changes to.</param>
@@ -215,7 +199,7 @@ namespace Erosion {
 
                 for (int totalSteps = 0; totalSteps < this.maxDropletLifetime; totalSteps++) {
                     // Compute gradient at current position
-                    Vector2 grad = ErosionUtilities.CalculateGradient(layers, pos);
+                    Vector2 grad = ErosionUtils.CalculateGradient(layers, pos);
 
                     // Compute new direction as combination of old direction and gradient
                     // Add some intertia for fun
@@ -234,12 +218,12 @@ namespace Erosion {
                     Vector2 posNew = pos + dir;
 
                     // Calculate the change in height
-                    float heightOld = ErosionUtilities.ApproximateHeight(layers, pos);
-                    float heightNew = ErosionUtilities.ApproximateHeight(layers, posNew);
+                    float heightOld = ErosionUtils.ApproximateHeight(layers, pos);
+                    float heightNew = ErosionUtils.ApproximateHeight(layers, posNew);
                     float deltaH = heightNew - heightOld;
 
                     // Calculate the carying capacity of the droplet
-                    float capacity = ComputeCapacity(deltaH, vel, water);
+                    float capacity = ErosionUtils.ComputeCapacity(deltaH, vel, water, this.erosionParams);
 
                     // if droplet moved off the map or stopped moving, kill it
                     if (water == 0) {
@@ -249,19 +233,19 @@ namespace Erosion {
                     else if (!layers.IsInBounds((int) posNew.x, (int) posNew.y)) {
                         // If the droplet had excess sediment, attempt to deposit it.
                         if (sediment > 0) {
-                            sediment -= ErosionUtilities.DepositSediment(deltaH, sediment, capacity, pos, layers, this.erosionParams);
+                            sediment -= ErosionUtils.DepositSediment(deltaH, sediment, capacity, pos, layers, this.erosionParams);
                         }
                         break;
                     }
 
                     // If the droplet is carying too much sediment, it will drop its sediment
                     if (deltaH >= 0 || sediment > capacity) {
-                        sediment -= ErosionUtilities.DepositSediment(deltaH, sediment, capacity, pos, layers, this.erosionParams);
+                        sediment -= ErosionUtils.DepositSediment(deltaH, sediment, capacity, pos, layers, this.erosionParams);
                     }
                     // If the droplet is flowign downhill and has excess capacity, it will erode terrain
                     else {
                         float amountToErode = Mathf.Min((capacity - sediment) * this.erosionRate, -deltaH);
-                        sediment += ErosionUtilities.Erode(layers, pos, amountToErode, this.erodeRadius, this.erosionParams.erodeBrush);
+                        sediment += ErosionUtils.Erode(layers, pos, amountToErode, this.erodeRadius, this.erosionParams.erodeBrush);
                     }
 
                     // Update velocity
