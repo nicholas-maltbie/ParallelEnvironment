@@ -78,6 +78,25 @@ The compilers for these are included in Unity but having the `.Net Core SDK` is 
 * **Note** If you are installing for linux, ensure that you have the mono libraries installed. Mono Libraries: [https://www.mono-project.com/download/stable](https://www.mono-project.com/download/stable)
 * **Additional Note** You may need to reboot the computer after installing the `.Net Core SDK`.
 
+Also make sure to be using .Net 4.x compatibility in Unity. This will allow for full use
+of libraries and other features. For more information on how to do this, follow 
+Microsoft's guide to switch [Unity to .Net 4.x](https://docs.microsoft.com/en-us/visualstudio/cross-platform/unity-scripting-upgrade?view=vs-2019).
+
+## Enabling the .NET 4.x scripting runtime in Unity
+
+To enable the .NET 4.x scripting runtime, take the following steps:
+
+1. Open PlayerSettings in the Unity Inspector by selecting `Edit > Project Settings > Player > Other Settings`.
+2. Under the Configuration heading, click the Scripting Runtime Version dropdown and select .NET 4.x Equivalent. You will be prompted to restart Unity.
+
+![Navigating to menu](Images/SetupDotNet4.x.png)
+
+![Menu to setup changes](Reference/vstu_scripting-runtime-version.png)
+
+From Microsoft's article ([Unity to .Net 4.x](https://docs.microsoft.com/en-us/visualstudio/cross-platform/unity-scripting-upgrade?view=vs-2019))
+
+
+
 # IDE
 
 The IDE we are using is [VSCode](https://code.visualstudio.com/).
