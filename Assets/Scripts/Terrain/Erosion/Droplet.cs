@@ -105,7 +105,7 @@ namespace Erosion {
         /// <returns>True if the droplet has died, false if it is still live.</returns>
         public bool HasDied() {
             bool tooOld = this.steps > this.erosionParams.maxDropletLifetime;
-            bool outOfBounds = !this.map.IsInBounds(Mathf.FloorToInt(pos.x), Mathf.FloorToInt(pos.y));
+            bool outOfBounds = !this.map.IsInBounds(Mathf.FloorToInt(this.pos.x), Mathf.FloorToInt(this.pos.y));
             bool outOfWater = this.water == 0;
             return tooOld || outOfBounds || outOfWater;
         }
@@ -126,19 +126,19 @@ namespace Erosion {
 
             // Compute new direction as combination of old direction and gradient
             // Add some intertia for fun
-            dir = dir * this.erosionParams.inertia - grad * (1 - this.erosionParams.inertia);
+            this.dir = this.dir * this.erosionParams.inertia - grad * (1 - this.erosionParams.inertia);
 
             // Select a random direction if dir is zero
-            if (dir.x == 0 && dir.y == 0) {
-                dir = new Vector2(this.prng.Next(), this.prng.Next());
+            if (this.dir.x == 0 && this.dir.y == 0) {
+                this.dir = new Vector2(this.prng.Next(), this.prng.Next());
             }
 
             // Normalize the vector dir so that it only moves on cell
             // at a time. This stops raindrops from skipping areas of the map.
-            dir /= dir.magnitude;
+            this.dir /= this.dir.magnitude;
 
             // Calculate the new position
-            Vector2 posNew = this.pos + dir;
+            Vector2 posNew = this.pos + this.dir;
 
             // Calculate the change in height
             float heightOld = ErosionUtils.ApproximateHeight(this.map, this.pos);
