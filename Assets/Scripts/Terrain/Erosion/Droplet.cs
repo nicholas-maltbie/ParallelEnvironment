@@ -110,6 +110,9 @@ namespace Erosion {
             return tooOld || outOfBounds || outOfWater;
         }
 
+        /// <summary>
+        /// Complete a single step in the droplets movement and erode/deposit on map if needed.
+        /// </summary>
         public void DoStep() {
             // Exit if already dead
             if (HasDied()) {
