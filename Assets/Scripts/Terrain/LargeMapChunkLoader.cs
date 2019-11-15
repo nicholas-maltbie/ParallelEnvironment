@@ -73,7 +73,9 @@ public class LargeMapChunkLoader : MonoBehaviour {
                 this.elapsed %= this.erodeInterval;
             
                 HydroErosion erosion = GetComponent<HydroErosion>();
-                erosion.ErodeHeightMap(this.heightMap, 0, 0, this.heightMap.mapSize, this.heightMap.mapSize, this.dropletsPerInterval);
+                erosion.ErodeHeightMap(this.heightMap, 
+                    new Vector2Int(0, 0), new Vector2Int(this.heightMap.mapSize, this.heightMap.mapSize),
+                    this.dropletsPerInterval);
                 this.progress += this.dropletsPerInterval;
                 
                 UpdateMeshes();

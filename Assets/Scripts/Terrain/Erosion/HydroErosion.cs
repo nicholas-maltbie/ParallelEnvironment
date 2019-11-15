@@ -171,90 +171,22 @@ namespace Erosion {
         /// Erodes a hight map by generating a set of droplets then simulating their movement along the height map.
         /// </summary>
         /// <param name="map">Map to apply changes to.</param>
-        /// <param name="startX">Minimum location for spawning droplets (X axis)</param>
-        /// <param name="startY">Minimum location for spawning droplets (Y axis)</param>
-        /// <param name="endX">Maximum location for spawning droplets (X axis)</param>
-        /// <param name="endY">Maximum location for spawning droplets (Y axis)</param>
+        /// <param name="start">Minimum location for spawning droplets (X,Y) position</param>
+        /// <param name="end">Maximum location for spawning droplets (X,Y) position</param>
         /// <param name="iterations">Number of droplets to create</param>
-        public void ErodeHeightMap(HeightMap heightMap, int startX, int startY, int endX, int endY, int iterations) {
+        public void ErodeHeightMap(HeightMap heightMap, Vector2Int start, Vector2Int end, int iterations) {
             Initialize();
 
             // Map for changes in current set of raindrops
-            ChangeMap deltaMap = new ChangeMap(endX - startX, endY - startY);
+            ChangeMap deltaMap = new ChangeMap(end.x - start.x, end.y - start.y);
             // Layered map for storing information about the original map and delta map together
             LayeredMap layers = new LayeredMap(deltaMap, heightMap);
             
             // Iteration for each raindrop
             for (int iter = 0; iter < iterations; iter++) {
-
-                // Simulate each raindrop
-                // Put the raindrop at a random position in the grid
-                Vector2 pos = new Vector2(prng.Next(startX + 1, endX - 1), prng.Next(startY + 1, endY - 1));
-                // Previous direction the droplet moved in
-                Vector2 dir = Vector2.zero;
-
-                float sediment = 0;
-                float water = this.initialWater;
-                float vel = this.initialVelocity;
-
-                for (int totalSteps = 0; totalSteps < this.maxDropletLifetime; totalSteps++) {
-                    // Compute gradient at current position
-                    Vector2 grad = ErosionUtils.CalculateGradient(layers, pos);
-
-                    // Compute new direction as combination of old direction and gradient
-                    // Add some intertia for fun
-                    dir = dir * this.inertia - grad * (1 - this.inertia);
-
-                    // Select a random direction if dir is zero
-                    if (dir.x == 0 && dir.y == 0) {
-                        dir = new Vector2(prng.Next(), prng.Next());
-                    }
-
-                    // Normalize the vector dir so that it only moves on cell
-                    // at a time. This stops raindrops from skipping areas of the map.
-                    dir /= dir.magnitude;
-
-                    // Calculate the new position
-                    Vector2 posNew = pos + dir;
-
-                    // Calculate the change in height
-                    float heightOld = ErosionUtils.ApproximateHeight(layers, pos);
-                    float heightNew = ErosionUtils.ApproximateHeight(layers, posNew);
-                    float deltaH = heightNew - heightOld;
-
-                    // Calculate the carying capacity of the droplet
-                    float capacity = ErosionUtils.ComputeCapacity(deltaH, vel, water, this.erosionParams);
-
-                    // if droplet moved off the map or stopped moving, kill it
-                    if (water == 0) {
-                        // Don't deposit because this should have already been handled
-                        break;
-                    }
-                    else if (!layers.IsInBounds((int) posNew.x, (int) posNew.y)) {
-                        // If the droplet had excess sediment, attempt to deposit it.
-                        if (sediment > 0) {
-                            sediment -= ErosionUtils.DepositSediment(deltaH, sediment, capacity, pos, layers, this.erosionParams);
-                        }
-                        break;
-                    }
-
-                    // If the droplet is carying too much sediment, it will drop its sediment
-                    if (deltaH >= 0 || sediment > capacity) {
-                        sediment -= ErosionUtils.DepositSediment(deltaH, sediment, capacity, pos, layers, this.erosionParams);
-                    }
-                    // If the droplet is flowign downhill and has excess capacity, it will erode terrain
-                    else {
-                        float amountToErode = Mathf.Min((capacity - sediment) * this.erosionRate, -deltaH);
-                        sediment += ErosionUtils.Erode(layers, pos, amountToErode, this.erodeRadius, this.erosionParams.erodeBrush);
-                    }
-
-                    // Update velocity
-                    vel = Mathf.Sqrt(Mathf.Max(0, vel * vel + -deltaH * this.gravity));
-                    // Updater water
-                    water = water * (1 - this.evaporationRate);
-                    // Update position
-                    pos = posNew;
-                }
+                Droplet droplet = Droplet.CreateRandomizedDroplet(this.prng, this.erosionParams, layers, 
+                    start, end);
+                Droplet.SimulateDroplet(droplet);
             }
 
             // If bluring changes, do steps to blur map
