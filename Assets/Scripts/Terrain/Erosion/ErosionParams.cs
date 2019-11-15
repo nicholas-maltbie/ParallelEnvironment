@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace Erosion {
+namespace Terrain.Erosion {
     /// <summary>
     /// Set of parameters for eroding the height map
     /// </summary>

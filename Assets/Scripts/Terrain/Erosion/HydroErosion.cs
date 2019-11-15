@@ -1,7 +1,7 @@
 using UnityEngine;
 using System;
 
-namespace Erosion {
+namespace Terrain.Erosion {
     /// <summary>
     /// Simulated hydraulic erosion following 
     /// Hans Theobald Beyer's "Implementation of a method for Hydraulic Erosion"

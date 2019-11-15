@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace Erosion {
+namespace Terrain.Erosion {
     /// <summary>
     /// A droplet has the ability to move along a map and erode or deposit
     /// terrain depending on what has happened on the map.

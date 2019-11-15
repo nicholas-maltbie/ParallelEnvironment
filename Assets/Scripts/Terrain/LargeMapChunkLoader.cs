@@ -1,5 +1,5 @@
 using UnityEngine;
-using Erosion;
+using Terrain.Erosion;
 
 /// <summary>
 /// Loads a map from a LargeHeightMap into the world.

@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace Erosion {
+namespace Terrain.Erosion {
     /// <summary>
     /// Class for utility functions to manage erosion
     /// </summary>
