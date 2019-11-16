@@ -303,10 +303,10 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1427697598}
-  - component: {fileID: 1427697601}
   - component: {fileID: 1427697600}
   - component: {fileID: 1427697599}
   - component: {fileID: 1427697602}
+  - component: {fileID: 1427697601}
   m_Layer: 0
   m_Name: Terrain
   m_TagString: Untagged
@@ -370,7 +370,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1427697597}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 236d38fa340fd3040bf5e43543c02ed6, type: 3}
+  m_Script: {fileID: 11500000, guid: d81563a8bd06bbb4a94bd48106281d69, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   chunkSize: 16
@@ -379,6 +379,7 @@ MonoBehaviour:
   erodeInterval: 0.1
   dropletsPerInterval: 100
   totalDroplets: 120000
+  meshGenType: 0
 --- !u!114 &1427697602
 MonoBehaviour:
   m_ObjectHideFlags: 0

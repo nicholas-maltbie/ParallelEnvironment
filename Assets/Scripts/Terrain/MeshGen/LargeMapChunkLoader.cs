@@ -1,7 +1,8 @@
 using UnityEngine;
+using Terrain.Map;
 using Terrain.Erosion;
 
-namespace Terrain.Map {
+namespace Terrain.MeshGen {
     /// <summary>
     /// Loads a map from a LargeHeightMap into the world.
     /// </summary>
@@ -12,7 +13,7 @@ namespace Terrain.Map {
         /// <summary>
         /// Size of each individual chunk
         /// </summary>
-        [Range(16, 256)]
+        [Range(16, 255)]
         public int chunkSize = 16;
 
         /// <summary>
@@ -54,6 +55,11 @@ namespace Terrain.Map {
         public int totalDroplets = 60000;
 
         /// <summary>
+        /// Type of mesh generator being used in this chunk loader.
+        /// </summary>
+        public MeshGenType meshGenType;
+
+        /// <summary>
         /// Initializes the chunks and loads height map.
         /// </summary>
         public void Start() {
@@ -67,17 +73,20 @@ namespace Terrain.Map {
         /// Update to do every iteration for erosion.
         /// </summary>
         void Update() {
-            this.elapsed += Time.deltaTime;
-            if (this.elapsed > this.erodeInterval) {
-                this.elapsed %= this.erodeInterval;
+            if (this.progress < this.totalDroplets) {
+                this.elapsed += Time.deltaTime;
 
-                AbstractHydroErosion erosion = GetComponent<AbstractHydroErosion>();
-                erosion.ErodeHeightMap(this.heightMap, 
-                    new Vector2Int(0, 0), new Vector2Int(this.heightMap.mapSize, this.heightMap.mapSize),
-                    this.dropletsPerInterval);
-                this.progress += this.dropletsPerInterval;
+                if (this.elapsed > this.erodeInterval) {
+                    this.elapsed %= this.erodeInterval;
 
-                UpdateMeshes();
+                    AbstractHydroErosion erosion = GetComponent<AbstractHydroErosion>();
+                    erosion.ErodeHeightMap(this.heightMap, 
+                        new Vector2Int(0, 0), new Vector2Int(this.heightMap.mapSize, this.heightMap.mapSize),
+                        this.dropletsPerInterval);
+                    this.progress += this.dropletsPerInterval;
+
+                    UpdateMeshes();
+                }
             }
         }
 
@@ -85,7 +94,7 @@ namespace Terrain.Map {
         /// Updates the mesh for all chunks in the map.
         /// </summary>
         private void UpdateMeshes() {
-            foreach (MeshGenerator gen in gameObject.GetComponentsInChildren<MeshGenerator>()) {
+            foreach (AbstractMeshGenerator gen in gameObject.GetComponentsInChildren<AbstractMeshGenerator>()) {
                 gen.UpdateGeometry();
             }
         }
@@ -116,15 +125,11 @@ namespace Terrain.Map {
             int offY = chunkY * this.chunkSize;
 
             // Setup and run the mesh generator for the chunk
-            MeshGenerator meshGen = chunk.AddComponent<MeshGenerator>();
+            AbstractMeshGenerator meshGen = chunk.AddComponent(meshGenType.GetMeshGenType()) as AbstractMeshGenerator;
             // Make chunk one larger than actual size to include borders between chunks
-            meshGen.mapSize = this.chunkSize + 1;
-            meshGen.offsetX = offX;
-            meshGen.offsetY = offY;
-            meshGen.terrainShader = this.terrainShader;
-            meshGen.terrainMaterial = this.terrainMaterial;
             // Generate mesh
-            meshGen.SetupMesh(this.heightMap);
+            meshGen.SetupMesh(this.heightMap, new Vector2Int(offX, offY), this.chunkSize + 1,
+                this.terrainShader, this.terrainMaterial);
             
             chunk.transform.parent = transform;
             chunk.transform.position = new Vector3(offX, 0, offY);
