@@ -21,7 +21,7 @@ namespace Terrain.Erosion {
     /// The raindrop will also slowly lose water and will die if it moves off the map
     /// or runs out of water completely. 
     /// </summary>
-    public class HydroErosion : MonoBehaviour {
+    abstract public class AbstractHydroErosion : MonoBehaviour {
         /// <summary>
         /// Seed value for random number generator
         /// </summary>
@@ -141,7 +141,7 @@ namespace Terrain.Erosion {
         /// <summary>
         /// Container for all erosion parameters
         /// </summary>
-        private ErosionParams erosionParams;
+        private HydroErosionParams erosionParams;
         /// <summary>
         /// Have erosion parameters been setup yet
         /// </summary>
@@ -159,7 +159,7 @@ namespace Terrain.Erosion {
             // Setup erosion parameters
             if (!setupParams) {
                 this.setupParams = true;
-                this.erosionParams = new ErosionParams(this.inertia, this.initialWater, 
+                this.erosionParams = new HydroErosionParams(this.inertia, this.initialWater, 
                     this.initialVelocity, this.gravity, this.includeVelocity,
                     this.sedimentCapacityFactor, this.evaporationRate, this.minSlope,
                     this.minCapacity, this.maxDropletLifetime, this.depositionRate,
@@ -168,44 +168,28 @@ namespace Terrain.Erosion {
         }
 
         /// <summary>
+        /// Initializes this HydroErosion if it has not been initialized yet and then then does erosion.
+        /// </summary>
+        /// <param name="map">Map to apply changes to.</param>
+        /// <param name="start">Minimum location for spawning droplets (X,Y) position</param>
+        /// <param name="end">Maximum location for spawning droplets (X,Y) position</param>
+        /// <param name="iterations">Number of droplets to create</param>
+        public void ErodeHeightMap(HeightMap map, Vector2Int start, Vector2Int end, int iterations) {
+            Initialize();
+            DoErosion(map, start, end, iterations, this.erosionParams, this.prng);
+        }
+        
+        /// <summary>
         /// Erodes a hight map by generating a set of droplets then simulating their movement along the height map.
         /// </summary>
         /// <param name="map">Map to apply changes to.</param>
         /// <param name="start">Minimum location for spawning droplets (X,Y) position</param>
         /// <param name="end">Maximum location for spawning droplets (X,Y) position</param>
         /// <param name="iterations">Number of droplets to create</param>
-        public void ErodeHeightMap(HeightMap heightMap, Vector2Int start, Vector2Int end, int iterations) {
-            Initialize();
-
-            // Map for changes in current set of raindrops
-            ChangeMap deltaMap = new ChangeMap(end.x - start.x, end.y - start.y);
-            // Layered map for storing information about the original map and delta map together
-            LayeredMap layers = new LayeredMap(deltaMap, heightMap);
-            
-            // Iteration for each raindrop
-            for (int iter = 0; iter < iterations; iter++) {
-                Droplet droplet = Droplet.CreateRandomizedDroplet(this.prng, this.erosionParams, layers, 
-                    start, end);
-                Droplet.SimulateDroplet(droplet);
-            }
-
-            // If bluring changes, do steps to blur map
-            if (this.blurValue > 0) {
-                // Calculate the blurred map by applying the blur brush kernel to the map
-                ChangeMap blurredMap = deltaMap.ApplyKernel(this.erosionParams.blurBrush);
-                // Multiply the original map and blurred map by ratios
-                blurredMap.Multiply(this.blurValue);
-                deltaMap.Multiply(1 - this.blurValue);
-
-                // Apply changes to the original height map
-                blurredMap.ApplyChangesToMap(heightMap);
-                deltaMap.ApplyChangesToMap(heightMap);
-            }
-            // If not bluring changes, just ignore that complexity
-            else {
-                deltaMap.ApplyChangesToMap(heightMap);
-            }
-        }
+        /// <param name="erosionParams">Parameters for erosion</param>
+        /// <param name="prng">Random number generator for droplet spawning and decisions</param>
+        abstract protected void DoErosion(HeightMap map, Vector2Int start, Vector2Int end, int iterations,
+            HydroErosionParams erosionParams, System.Random prng);
 
     }
 }

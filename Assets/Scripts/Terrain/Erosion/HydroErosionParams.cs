@@ -4,7 +4,7 @@ namespace Terrain.Erosion {
     /// <summary>
     /// Set of parameters for eroding the height map
     /// </summary>
-    public readonly struct ErosionParams {
+    public readonly struct HydroErosionParams {
         /// <summary>
         /// Creates a set of ErosionParameters
         /// </summary>
@@ -25,7 +25,7 @@ namespace Terrain.Erosion {
         /// <param name="blurRadius">Radius of blurring terrain after changes</param>
         /// <param name="erodeBrush"></param>
         /// <param name="blurBrush"></param>
-        public ErosionParams(float inertia, float initialWater, float initialVelocity, 
+        public HydroErosionParams(float inertia, float initialWater, float initialVelocity, 
             float gravity, bool includeVelocity, float sedimentCapacityFactor, 
             float evaporationRate, float minSlope, float minCapacity, int maxDropletLifetime, float depositionRate,
             float erodeRate, int erodeRadius, float blurValue, int blurRadius) {

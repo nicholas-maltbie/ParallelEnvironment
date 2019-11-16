@@ -15,7 +15,7 @@ namespace Terrain.Erosion {
         /// /// <param name="parameters">Erosion parameters for controlling how erosion works</param>
         /// <returns>The computed capacity of the droplet or Minimum capacity fi it is less than
         /// than the computed value.</returns>
-        public static float ComputeCapacity(float deltaH, float velocity, float waterFactor, ErosionParams parameters) {
+        public static float ComputeCapacity(float deltaH, float velocity, float waterFactor, HydroErosionParams parameters) {
             float slopeFactor = Mathf.Max(Mathf.Abs(deltaH), parameters.minSlope);
             float velFactor = Mathf.Max(1, parameters.includeVelocity ? velocity : 1);
             float capacity = slopeFactor * velFactor * waterFactor * parameters.sedimentCapacityFactor;
@@ -34,7 +34,7 @@ namespace Terrain.Erosion {
         /// <param name="parameters">Erosion parameters for controlling how erosion works</param>
         /// <returns>Actual amount of sediment deposited</returns>
         public static float DepositSediment(float deltaH, float sediment, float capacity,
-            Vector2 pos, HeightMap map, ErosionParams parameters) {
+            Vector2 pos, HeightMap map, HydroErosionParams parameters) {
             // Deposit all sediment if moving uphill (but not more than the size of the pit)
             float slopeBasedDeposit = Mathf.Min (deltaH, sediment);
             // Deposit proportion of sediment based on capacity

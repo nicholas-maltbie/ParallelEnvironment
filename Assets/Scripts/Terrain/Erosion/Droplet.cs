@@ -37,7 +37,7 @@ namespace Terrain.Erosion {
         /// <summary>
         /// Parameters for controling droplet behaviour
         /// </summary>
-        private ErosionParams erosionParams;
+        private HydroErosionParams erosionParams;
         /// <summary>
         /// prng for moving droplet when it is moving too slow
         /// </summary>
@@ -57,7 +57,7 @@ namespace Terrain.Erosion {
         /// <param name="end">Ending range for droplet position</param>
         /// <returns>Creates a droplet at any position between [start + 1, end - 1] using
         /// a uniform distribution.</returns>
-        public static Droplet CreateRandomizedDroplet(System.Random prng, ErosionParams erosionParams, HeightMap map,
+        public static Droplet CreateRandomizedDroplet(System.Random prng, HydroErosionParams erosionParams, HeightMap map,
             Vector2Int start, Vector2Int end) {
             // Simulate each raindrop
             // Put the raindrop at a random position in the grid
@@ -83,7 +83,7 @@ namespace Terrain.Erosion {
         /// <param name="erosionParams">Parameters controling the droplet behaviour</param>
         /// <param name="prng">Random numbers for moving droplet when its movement is
         /// too slow</param>
-        public Droplet(HeightMap map, Vector2 pos, ErosionParams erosionParams, System.Random prng) {
+        public Droplet(HeightMap map, Vector2 pos, HydroErosionParams erosionParams, System.Random prng) {
             this.map = map;
             this.pos = pos;
             this.erosionParams = erosionParams;
@@ -114,10 +114,6 @@ namespace Terrain.Erosion {
         /// Complete a single step in the droplets movement and erode/deposit on map if needed.
         /// </summary>
         public void DoStep() {
-            // Exit if already dead
-            if (HasDied()) {
-                return;
-            }
             // increment steps by one
             this.steps += 1;
 
@@ -149,19 +145,11 @@ namespace Terrain.Erosion {
             float capacity = ErosionUtils.ComputeCapacity(deltaH, this.vel, this.water, this.erosionParams);
 
             // if droplet moved off the map or stopped moving, kill it
-            if (this.water == 0) {
-                // Don't deposit because this should have already been handled
+            if (this.water == 0 || !map.IsInBounds(Mathf.FloorToInt(posNew.x), Mathf.FloorToInt(posNew.y))) {
+                this.pos = posNew;
                 return;
             }
-            else if (!map.IsInBounds(Mathf.FloorToInt(pos.x), Mathf.FloorToInt(pos.y))) {
-                // If the droplet had excess sediment, attempt to deposit it.
-                if (this.sediment > 0) {
-                    this.sediment -= ErosionUtils.DepositSediment(deltaH, this.sediment,
-                        capacity, this.pos, this.map, this.erosionParams);
-                }
-                return;
-            }
-
+            
             // If the droplet is carying too much sediment, it will drop its sediment
             if (deltaH >= 0 || this.sediment > capacity) {
                 this.sediment -= ErosionUtils.DepositSediment(deltaH, this.sediment, capacity,

@@ -5,7 +5,7 @@ using Terrain.Erosion;
 /// Loads a map from a LargeHeightMap into the world.
 /// </summary>
 [RequireComponent(typeof(LargeHeightMap))]
-[RequireComponent(typeof(HydroErosion))]
+[RequireComponent(typeof(AbstractHydroErosion))]
 public class LargeMapChunkLoader : MonoBehaviour {
     
     /// <summary>
@@ -71,8 +71,8 @@ public class LargeMapChunkLoader : MonoBehaviour {
 
             if (this.elapsed > this.erodeInterval) {
                 this.elapsed %= this.erodeInterval;
-            
-                HydroErosion erosion = GetComponent<HydroErosion>();
+
+                AbstractHydroErosion erosion = GetComponent<AbstractHydroErosion>();
                 erosion.ErodeHeightMap(this.heightMap, 
                     new Vector2Int(0, 0), new Vector2Int(this.heightMap.mapSize, this.heightMap.mapSize),
                     this.dropletsPerInterval);
