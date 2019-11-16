@@ -1,13 +1,12 @@
 using UnityEngine;
 using Terrain.Erosion;
-using Terrain.Map;
 
-namespace Terrain {
+namespace Terrain.Map {
     /// <summary>
     /// Loads a map from a LargeHeightMap into the world.
     /// </summary>
     [RequireComponent(typeof(LargeHeightMap))]
-    [RequireComponent(typeof(HydroErosion))]
+    [RequireComponent(typeof(AbstractHydroErosion))]
     public class LargeMapChunkLoader : MonoBehaviour {
         
         /// <summary>
@@ -68,18 +67,17 @@ namespace Terrain {
         /// Update to do every iteration for erosion.
         /// </summary>
         void Update() {
-            if (this.progress < this.totalDroplets) {
-                this.elapsed += Time.deltaTime;
+            this.elapsed += Time.deltaTime;
+            if (this.elapsed > this.erodeInterval) {
+                this.elapsed %= this.erodeInterval;
 
-                if (this.elapsed > this.erodeInterval) {
-                    this.elapsed %= this.erodeInterval;
-                
-                    HydroErosion erosion = GetComponent<HydroErosion>();
-                    erosion.ErodeHeightMap(this.heightMap, 0, 0, this.heightMap.mapSize, this.heightMap.mapSize, this.dropletsPerInterval);
-                    this.progress += this.dropletsPerInterval;
-                    
-                    UpdateMeshes();
-                }
+                AbstractHydroErosion erosion = GetComponent<AbstractHydroErosion>();
+                erosion.ErodeHeightMap(this.heightMap, 
+                    new Vector2Int(0, 0), new Vector2Int(this.heightMap.mapSize, this.heightMap.mapSize),
+                    this.dropletsPerInterval);
+                this.progress += this.dropletsPerInterval;
+
+                UpdateMeshes();
             }
         }
 

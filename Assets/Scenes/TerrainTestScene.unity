@@ -388,22 +388,22 @@ MonoBehaviour:
   m_GameObject: {fileID: 1427697597}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b6e0f5e65ada16947beca80624b1d1d4, type: 3}
+  m_Script: {fileID: 11500000, guid: 5aa8d71520f88844680ae057321fbc39, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  seed: 1
-  inertia: 0.1
+  seed: 0
+  inertia: 0.4
   initialWater: 1
   initialVelocity: 1
-  gravity: 1
+  gravity: 4
   includeVelocity: 0
   sedimentCapacityFactor: 4
   evaporationRate: 0.0125
   minSlope: 0.01
-  minCapacity: 0.01
+  minCapacity: 0.1
   maxDropletLifetime: 32
   depositionRate: 0.01
   erosionRate: 0.1
-  erodeRadius: 4
+  erodeRadius: 6
   blurValue: 0
-  blurRadius: 4
+  blurRadius: 2
