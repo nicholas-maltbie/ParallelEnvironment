@@ -3,7 +3,7 @@ using UnityEngine;
 namespace Terrain.Erosion {
     /// <summary>
     /// Performs Hydraulic Erosion in Serial, one droplet at a time
-    /// <see cref="AbstarctHydroErosion"/> for more details.
+    /// <see cref="AbstractHydroErosion"/> for more details.
     /// </summary>
     public class SerialHydroErosion : AbstractHydroErosion {
 
