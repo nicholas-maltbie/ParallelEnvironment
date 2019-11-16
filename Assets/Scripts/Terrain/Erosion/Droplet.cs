@@ -119,7 +119,7 @@ namespace Terrain.Erosion {
             this.steps += 1;
 
             // Compute gradient at current position
-            Vector2 grad = ErosionUtils.CalculateGradient(this.map, this.pos);
+            Vector2 grad = this.map.CalculateGradient(this.pos);
 
             // Compute new direction as combination of old direction and gradient
             // Add some intertia for fun
@@ -138,12 +138,12 @@ namespace Terrain.Erosion {
             Vector2 posNew = this.pos + this.dir;
 
             // Calculate the change in height
-            float heightOld = ErosionUtils.ApproximateHeight(this.map, this.pos);
-            float heightNew = ErosionUtils.ApproximateHeight(this.map, posNew);
+            float heightOld = this.map.ApproximateHeight(this.pos);
+            float heightNew = this.map.ApproximateHeight(posNew);
             float deltaH = heightNew - heightOld;
 
             // Calculate the carying capacity of the droplet
-            float capacity = ErosionUtils.ComputeCapacity(deltaH, this.vel, this.water, this.erosionParams);
+            float capacity = ComputeCapacity(deltaH);
 
             // if droplet moved off the map or stopped moving, kill it
             if (this.water == 0 || !map.IsInBounds(Mathf.FloorToInt(posNew.x), Mathf.FloorToInt(posNew.y))) {
@@ -153,13 +153,13 @@ namespace Terrain.Erosion {
             
             // If the droplet is carying too much sediment, it will drop its sediment
             if (deltaH >= 0 || this.sediment > capacity) {
-                this.sediment -= ErosionUtils.DepositSediment(deltaH, this.sediment, capacity,
-                    this.pos, this.map, this.erosionParams);
+                this.sediment -= this.map.DepositSediment(deltaH, this.sediment, capacity,
+                    this.pos, this.erosionParams);
             }
             // If the droplet is flowign downhill and has excess capacity, it will erode terrain
             else {
                 float amountToErode = Mathf.Min((capacity - this.sediment) * this.erosionParams.erodeRate, -deltaH);
-                this.sediment += ErosionUtils.Erode(this.map, this.pos, amountToErode, this.erosionParams.erodeRadius,
+                this.sediment += this.map.Erode(this.pos, amountToErode, this.erosionParams.erodeRadius,
                     this.erosionParams.erodeBrush);
             }
 
@@ -169,6 +169,23 @@ namespace Terrain.Erosion {
             this.water = this.water * (1 - this.erosionParams.evaporationRate);
             // Update position
             this.pos = posNew;
+        }
+
+        /// <summary>
+        /// Compute the capacity of a droplet using factors like include velocity, min slope, and capacity
+        /// factor. This says how much a droplet can carry.
+        /// </summary>
+        /// <param name="deltaH">Change in height from previous movement</param>
+        /// <param name="velocity">Current velocity of droplet</param>
+        /// <param name="waterFactor">Amount of water in droplet</param>
+        /// /// <param name="parameters">Erosion parameters for controlling how erosion works</param>
+        /// <returns>The computed capacity of the droplet or Minimum capacity fi it is less than
+        /// than the computed value.</returns>
+        public float ComputeCapacity(float deltaH) {
+            float slopeFactor = Mathf.Max(Mathf.Abs(deltaH), this.erosionParams.minSlope);
+            float velFactor = Mathf.Max(1, this.erosionParams.includeVelocity ? this.vel : 1);
+            float capacity = slopeFactor * velFactor * this.water * this.erosionParams.sedimentCapacityFactor;
+            return Mathf.Max(capacity, this.erosionParams.minCapacity);
         }
     }
 }

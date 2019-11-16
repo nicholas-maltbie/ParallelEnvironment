@@ -5,7 +5,7 @@ namespace Terrain.Map {
     /// <summary>
     /// Abstract HeightMap as a component so it can be attached to GameObjects. 
     /// </summary>
-    abstract public class HeightMapComponent : MonoBehaviour, HeightMap
+    abstract public class AbstractHeightMapComponent : MonoBehaviour, HeightMap
     {
         /// <summary>
         /// Gets the height of the map at a given x, y coordinate.

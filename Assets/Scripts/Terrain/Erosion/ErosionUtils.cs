@@ -7,23 +7,6 @@ namespace Terrain.Erosion {
     /// </summary>
     public static class ErosionUtils {
         /// <summary>
-        /// Compute the capacity of a droplet using factors like include velocity, min slope, and capacity
-        /// factor. This says how much a droplet can carry.
-        /// </summary>
-        /// <param name="deltaH">Change in height from previous movement</param>
-        /// <param name="velocity">Current velocity of droplet</param>
-        /// <param name="waterFactor">Amount of water in droplet</param>
-        /// /// <param name="parameters">Erosion parameters for controlling how erosion works</param>
-        /// <returns>The computed capacity of the droplet or Minimum capacity fi it is less than
-        /// than the computed value.</returns>
-        public static float ComputeCapacity(float deltaH, float velocity, float waterFactor, HydroErosionParams parameters) {
-            float slopeFactor = Mathf.Max(Mathf.Abs(deltaH), parameters.minSlope);
-            float velFactor = Mathf.Max(1, parameters.includeVelocity ? velocity : 1);
-            float capacity = slopeFactor * velFactor * waterFactor * parameters.sedimentCapacityFactor;
-            return Mathf.Max(capacity, parameters.minCapacity);
-        }
-
-        /// <summary>
         /// Evaluate how much sediment is deposited and deposit that much
         /// sediment based on the droplets current state.
         /// </summary>
@@ -34,15 +17,15 @@ namespace Terrain.Erosion {
         /// <param name="map">Map to read and make changes to</param>
         /// <param name="parameters">Erosion parameters for controlling how erosion works</param>
         /// <returns>Actual amount of sediment deposited</returns>
-        public static float DepositSediment(float deltaH, float sediment, float capacity,
-            Vector2 pos, HeightMap map, HydroErosionParams parameters) {
+        public static float DepositSediment(this HeightMap map, float deltaH, float sediment, float capacity,
+            Vector2 pos, HydroErosionParams parameters) {
             // Deposit all sediment if moving uphill (but not more than the size of the pit)
             float slopeBasedDeposit = Mathf.Min (deltaH, sediment);
             // Deposit proportion of sediment based on capacity
             float capacityBasedDeposit = (sediment - capacity) * parameters.depositionRate;
             // Select slope or capacity based on if moving uphill
             float amountToDeposit = (deltaH > 0) ? slopeBasedDeposit : capacityBasedDeposit;
-            return ErosionUtils.Deposit(map, pos, amountToDeposit);
+            return map.Deposit(pos, amountToDeposit);
         }
 
         /// <summary>
@@ -54,7 +37,7 @@ namespace Terrain.Erosion {
         /// <param name="radius">Radius of the brush</param>
         /// <param name="brush">Brush to use when applying erosion</param>
         /// <returns>The total amount of soil eroded (might be slightly less than amountToErode</returns>
-        public static float Erode(HeightMap map, Vector2 pos, float amountToErode, int radius, float[,] brush) {
+        public static float Erode(this HeightMap map, Vector2 pos, float amountToErode, int radius, float[,] brush) {
             // Calculate the grid location (rounded down)
             int locX = (int) pos.x;
             int locY = (int) pos.y;
@@ -96,7 +79,7 @@ namespace Terrain.Erosion {
         /// <param name="amountToDeposit">Amount of soil to add</param>
         /// <returns>The total amount of soil deposited. Might be slightly less if parts of the cell are outside 
         /// of the grid.</returns>
-        public static float Deposit(HeightMap map, Vector2 pos, float amountToDeposit) {
+        public static float Deposit(this HeightMap map, Vector2 pos, float amountToDeposit) {
             // Calculate the grid location (rounded down)
             int locX = (int) pos.x;
             int locY = (int) pos.y;
@@ -106,10 +89,10 @@ namespace Terrain.Erosion {
             float offsetY = pos.y - locY;
 
             float deposited = 0;
-            deposited += ErosionUtils.ChangeHeightMap(map, locX, locY, amountToDeposit * (1 - offsetX) * (1 - offsetY));
-            deposited += ErosionUtils.ChangeHeightMap(map, locX + 1, locY, amountToDeposit * offsetX * (1 - offsetY));
-            deposited += ErosionUtils.ChangeHeightMap(map, locX, locY + 1, amountToDeposit * (1 - offsetX) * offsetY);
-            deposited += ErosionUtils.ChangeHeightMap(map, locX + 1, locY + 1, amountToDeposit * offsetX * offsetY);
+            deposited += map.ChangeHeightMap(locX, locY, amountToDeposit * (1 - offsetX) * (1 - offsetY));
+            deposited += map.ChangeHeightMap(locX + 1, locY, amountToDeposit * offsetX * (1 - offsetY));
+            deposited += map.ChangeHeightMap(locX, locY + 1, amountToDeposit * (1 - offsetX) * offsetY);
+            deposited += map.ChangeHeightMap(locX + 1, locY + 1, amountToDeposit * offsetX * offsetY);
 
             return deposited;
         }
@@ -120,7 +103,7 @@ namespace Terrain.Erosion {
         /// <param name="map">Height map to use</param>
         /// <param name="pos">Position of droplet</param>
         /// <returns>Weighted height by how close the position is to the edges of its cell</returns>
-        public static float ApproximateHeight(HeightMap map, Vector2 pos) {
+        public static float ApproximateHeight(this HeightMap map, Vector2 pos) {
             // Calculate the grid location (rounded down)
             int locX = (int) pos.x;
             int locY = (int) pos.y;
@@ -149,7 +132,7 @@ namespace Terrain.Erosion {
         /// <param name="map">Map with height information.</param>
         /// <param name="pos">X,Y position on the map.</param>
         /// <returns>A BiLinear interpolation of the height at a given x and y position.</returns>
-        public static Vector2 CalculateGradient(HeightMap map, Vector2 pos) {
+        public static Vector2 CalculateGradient(this HeightMap map, Vector2 pos) {
             // Calculate the grid location (rounded down)
             int locX = (int) pos.x;
             int locY = (int) pos.y;
@@ -179,7 +162,7 @@ namespace Terrain.Erosion {
         /// <param name="posX">X position on the map</param>
         /// <param name="posY">Y position on the map</param>
         /// <param name="value">Amount to add to the map</param>
-        public static void SetHeightMap(HeightMap map, int posX, int posY, float value) {
+        public static void SetHeightMap(this HeightMap map, int posX, int posY, float value) {
             if (map.IsInBounds(posX, posY)) {
                 map.SetHeight(posX, posY, value);
             }
@@ -194,7 +177,7 @@ namespace Terrain.Erosion {
         /// <param name="posY">Y position on the map</param>
         /// <param name="change">Amount to add to the map</param>
         /// <returns>The amount added to the map. Will be zero if the location is out of bounds</returns>
-        public static float ChangeHeightMap(HeightMap map, int posX, int posY, float change) {
+        public static float ChangeHeightMap(this HeightMap map, int posX, int posY, float change) {
             if (map.IsInBounds(posX, posY)) {
                 map.AddHeight(posX, posY, change);
                 return change;

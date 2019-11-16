@@ -27,7 +27,7 @@ namespace Noise {
     /// This hash function provides the direction of the vectors so the gradient vectors
     /// do not have to be saved.
     /// </summary>
-    public class PerlinNoise : Noise {
+    public class PerlinNoise : INoise {
 
         /// <summary>
         /// Corners on a unit sphere, (0, 0, 0), (0,0,1), ..., (1, 1, 1)

@@ -14,7 +14,7 @@ namespace Noise {
     /// divots. The idea of multi octave noise is to combine all of these
     /// layers of noise together into one function.
     /// </summary>
-    public class OctaveNoise : Noise {
+    public class OctaveNoise : INoise {
 
         /// <summary>
         /// Number of octaves to combine
@@ -31,7 +31,7 @@ namespace Noise {
         /// <summary>
         /// Function used to generate noise for various (x,y,z) coordinates.
         /// </summary>
-        private Noise noiseFunction;
+        private INoise noiseFunction;
             
         /// <summary>
         /// Computes multiple octave combination of octaves of a noise function
@@ -41,7 +41,7 @@ namespace Noise {
         /// <param name="persistence">Change in amplitude over each octave (decay). Can be any value between [0.0, 1.0]</param>
         /// <param name="frequencyGrowth">Growth in frequency over each octave (growth factor)</param>
         /// <returns>Returns the combination of multiple octaves of Perlin Noise.</returns>
-        public OctaveNoise(Noise noise, int octaves, float persistence, float frequencyGrowth) {
+        public OctaveNoise(INoise noise, int octaves, float persistence, float frequencyGrowth) {
             this.noiseFunction = noise;
             this.octaves = octaves;
             this.persistence = persistence;

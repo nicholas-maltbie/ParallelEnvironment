@@ -6,7 +6,7 @@ namespace Terrain.Map {
     /// Large Height map of a specified size
     /// </summary>
     [RequireComponent(typeof(AbstractHeightMapGenerator))]
-    public class LargeHeightMap : HeightMapComponent {
+    public class LargeHeightMap : AbstractHeightMapComponent {
 
         /// <summary>
         /// Size of the map. Will be a square with edges of this length.
