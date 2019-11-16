@@ -4,12 +4,12 @@ namespace Terrain.Map {
     /// Layered map is a combination of one or more Height Maps and allows for 
     /// interacting with maps as a group.
     /// </summary>
-    public class LayeredMap : HeightMap {
+    public class LayeredMap : IHeightMap {
 
         /// <summary>
         /// Different layers in the height map.
         /// </summary>
-        private HeightMap[] layers;
+        private IHeightMap[] layers;
         /// <summary>
         /// The height map that can be edited.
         /// </summary>
@@ -19,7 +19,7 @@ namespace Terrain.Map {
         /// Constructs a height map with a given set of layers
         /// </summary>
         /// <param name="layers">Layers of the height map (different height maps)</param>
-        public LayeredMap(params HeightMap[] layers) {
+        public LayeredMap(params IHeightMap[] layers) {
             this.layers = layers;
             this.editable = 0;
         }
@@ -29,7 +29,7 @@ namespace Terrain.Map {
         /// </summary>
         /// <param name="editable">Editable layer.</param>
         /// <param name="layers">Various layers in the height map.</param>
-        public LayeredMap(int editable, HeightMap[] layers) {
+        public LayeredMap(int editable, IHeightMap[] layers) {
             this.layers = layers;
             this.editable = editable;
         }

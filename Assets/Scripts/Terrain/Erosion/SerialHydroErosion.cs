@@ -13,7 +13,7 @@ namespace Terrain.Erosion {
         /// <see cref="AbstractHydroErosion.DoErosion"/> for more information
         /// <seealso cref="AbstractHydroErosion"/>
         /// </summary>
-        protected override void DoErosion(HeightMap heightMap, Vector2Int start, Vector2Int end, int iterations,
+        protected override void DoErosion(IHeightMap heightMap, Vector2Int start, Vector2Int end, int iterations,
             HydroErosionParams erosionParams, System.Random prng)
         {
             // Map for changes in current set of raindrops

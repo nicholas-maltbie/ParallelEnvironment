@@ -6,7 +6,7 @@ namespace Terrain.Map {
     /// A height map that is meant to hold changes. Starts will all values
     /// initialized to zero and can be applied to other height maps.
     /// </summary>
-    public class ChangeMap : HeightMap {
+    public class ChangeMap : IHeightMap {
         /// <summary>
         /// Data stored in change map
         /// </summary>
@@ -90,7 +90,7 @@ namespace Terrain.Map {
         /// Adds all the changes stored in this map to another map (does a sum on the other map)
         /// </summary>
         /// <param name="targetMap"> Map to add changes to. </param>
-        public void ApplyChangesToMap(HeightMap targetMap) {
+        public void ApplyChangesToMap(IHeightMap targetMap) {
             for (int x = 0; x < this.dimX; x++) {
                 for (int y = 0; y < this.dimY; y++) {
                     targetMap.AddHeight(x, y, GetHeight(x, y));

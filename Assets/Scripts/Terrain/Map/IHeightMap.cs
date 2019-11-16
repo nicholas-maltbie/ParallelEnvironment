@@ -4,7 +4,7 @@ namespace Terrain.Map {
     /// <summary>
     /// Height Map interface that can get and set the height at a specified x and y coordinate.
     /// </summary>
-    public interface HeightMap {
+    public interface IHeightMap {
         /// <summary>
         /// Gets the height of the map at a given x, y coordinate.
         /// </summary>

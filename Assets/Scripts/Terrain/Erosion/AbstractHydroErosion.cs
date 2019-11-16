@@ -175,7 +175,7 @@ namespace Terrain.Erosion {
         /// <param name="start">Minimum location for spawning droplets (X,Y) position</param>
         /// <param name="end">Maximum location for spawning droplets (X,Y) position</param>
         /// <param name="iterations">Number of droplets to create</param>
-        public void ErodeHeightMap(HeightMap map, Vector2Int start, Vector2Int end, int iterations) {
+        public void ErodeHeightMap(IHeightMap map, Vector2Int start, Vector2Int end, int iterations) {
             Initialize();
             DoErosion(map, start, end, iterations, this.erosionParams, this.prng);
         }
@@ -189,7 +189,7 @@ namespace Terrain.Erosion {
         /// <param name="iterations">Number of droplets to create</param>
         /// <param name="erosionParams">Parameters for erosion</param>
         /// <param name="prng">Random number generator for droplet spawning and decisions</param>
-        abstract protected void DoErosion(HeightMap map, Vector2Int start, Vector2Int end, int iterations,
+        abstract protected void DoErosion(IHeightMap map, Vector2Int start, Vector2Int end, int iterations,
             HydroErosionParams erosionParams, System.Random prng);
 
     }

@@ -46,7 +46,7 @@ namespace Terrain.Erosion {
         /// <summary>
         /// Height map for movement
         /// </summary>
-        private HeightMap map;
+        private IHeightMap map;
 
         /// <summary>
         /// Creates a droplet with a randomized location.
@@ -58,7 +58,7 @@ namespace Terrain.Erosion {
         /// <param name="end">Ending range for droplet position</param>
         /// <returns>Creates a droplet at any position between [start + 1, end - 1] using
         /// a uniform distribution.</returns>
-        public static Droplet CreateRandomizedDroplet(System.Random prng, HydroErosionParams erosionParams, HeightMap map,
+        public static Droplet CreateRandomizedDroplet(System.Random prng, HydroErosionParams erosionParams, IHeightMap map,
             Vector2Int start, Vector2Int end) {
             // Simulate each raindrop
             // Put the raindrop at a random position in the grid
@@ -84,7 +84,7 @@ namespace Terrain.Erosion {
         /// <param name="erosionParams">Parameters controling the droplet behaviour</param>
         /// <param name="prng">Random numbers for moving droplet when its movement is
         /// too slow</param>
-        public Droplet(HeightMap map, Vector2 pos, HydroErosionParams erosionParams, System.Random prng) {
+        public Droplet(IHeightMap map, Vector2 pos, HydroErosionParams erosionParams, System.Random prng) {
             this.map = map;
             this.pos = pos;
             this.erosionParams = erosionParams;
