@@ -11,7 +11,7 @@ namespace Terrain.MeshGen {
         /// <summary>
         /// Size of each individual chunk
         /// </summary>
-        [Range(16, 256)]
+        [Range(16, 255)]
         public int chunkSize = 16;
 
         /// <summary>
@@ -53,6 +53,11 @@ namespace Terrain.MeshGen {
         public int totalDroplets = 60000;
 
         /// <summary>
+        /// Type of mesh generator being used in this chunk loader.
+        /// </summary>
+        public MeshGenType meshGenType;
+
+        /// <summary>
         /// Initializes the chunks and loads height map.
         /// </summary>
         public void Start() {
@@ -85,7 +90,7 @@ namespace Terrain.MeshGen {
         /// Updates the mesh for all chunks in the map.
         /// </summary>
         private void UpdateMeshes() {
-            foreach (MeshGenerator gen in gameObject.GetComponentsInChildren<MeshGenerator>()) {
+            foreach (AbstractMeshGenerator gen in gameObject.GetComponentsInChildren<AbstractMeshGenerator>()) {
                 gen.UpdateGeometry();
             }
         }
@@ -116,15 +121,11 @@ namespace Terrain.MeshGen {
             int offY = chunkY * this.chunkSize;
 
             // Setup and run the mesh generator for the chunk
-            MeshGenerator meshGen = chunk.AddComponent<MeshGenerator>();
+            AbstractMeshGenerator meshGen = chunk.AddComponent(meshGenType.GetMeshGenType()) as AbstractMeshGenerator;
             // Make chunk one larger than actual size to include borders between chunks
-            meshGen.mapSize = this.chunkSize + 1;
-            meshGen.offsetX = offX;
-            meshGen.offsetY = offY;
-            meshGen.terrainShader = this.terrainShader;
-            meshGen.terrainMaterial = this.terrainMaterial;
             // Generate mesh
-            meshGen.SetupMesh(this.heightMap);
+            meshGen.SetupMesh(this.heightMap, new Vector2Int(offX, offY), this.chunkSize + 1,
+                this.terrainShader, this.terrainMaterial);
             
             chunk.transform.parent = transform;
             chunk.transform.position = new Vector3(offX, 0, offY);

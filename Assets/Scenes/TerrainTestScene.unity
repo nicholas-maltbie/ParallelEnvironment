@@ -379,6 +379,7 @@ MonoBehaviour:
   erodeInterval: 0.1
   dropletsPerInterval: 100
   totalDroplets: 60000
+  meshGenType: 0
 --- !u!114 &1427697602
 MonoBehaviour:
   m_ObjectHideFlags: 0
