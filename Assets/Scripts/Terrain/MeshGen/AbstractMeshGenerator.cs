@@ -33,7 +33,7 @@ namespace Terrain.MeshGen {
         /// <summary>
         /// Height map component.
         /// </summary>
-        private AbstractHeightMapComponent heightMap;
+        private IHeightMap heightMap;
 
         /// <summary>
         /// Container object for holding this mesh. Should be a child object
@@ -64,7 +64,7 @@ namespace Terrain.MeshGen {
         /// <param name="mapSize">Size of the map (must be in range [1,256])</param>
         /// <param name="terrainShader">Shader used to render the heightmap</param>
         /// <param name="terrainMaterial">Material used to apply to the height map</param>
-        public void SetupMesh(AbstractHeightMapComponent heightMap, Vector2Int offset, int mapSize,
+        public void SetupMesh(IHeightMap heightMap, Vector2Int offset, int mapSize,
             Shader terrainShader, Material terrainMaterial) {
             this.heightMap = heightMap;
             this.offset = offset;
