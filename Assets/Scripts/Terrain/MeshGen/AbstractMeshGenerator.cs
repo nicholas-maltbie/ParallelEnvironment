@@ -134,16 +134,50 @@ namespace Terrain.MeshGen {
             this.meshFilter.mesh = this.heightMapMesh;
         }
 
+        /// <summary>
+        /// Get the size of the map (square map)
+        /// </summary>
+        /// <returns>An integer between [1, 256] of the size of the map.</returns>
         protected int GetMapSize() {
             return this.mapSize;
         }
 
+        /// <summary>
+        /// Get the UV mapping for each coordinate in the map.
+        /// </summary>
+        /// <returns>This should be a 2d vector array of size mapSize * mapSize. Each
+        /// vector should be a value between [(0.0, 0.0), (1.0, 1.0)]. This
+        /// represents the mapping of each vertex to a location on a texture map.</returns>
         abstract protected Vector2[] GetUVMapping();
 
+        /// <summary>
+        /// This will generate the vertices. This should be a mapping of each vertex
+        /// to a 3d coordinate following the height map of this class.
+        /// </summary>
+        /// <returns>A vector3 array of mapSize * mapSize of the coordinates of each mesh.</returns>
         abstract protected Vector3[] GetMeshVertices();
 
+        /// <summary>
+        /// Get the normal mapping for each vertex. This determines how light interacts
+        /// with the mesh and how light should bounce. There should be one normal
+        /// vector for each vertex in the mesh.
+        /// </summary>
+        /// <returns>A vector3 array of mapSize * mapSize that has the normal
+        /// direction to the surface at each vertex in the mesh.</returns>
         abstract protected Vector3[] GetMeshNormals();
 
+        /// <summary>
+        /// This should return the triangles. There should be 3x the number
+        /// of triangles in size. It needs to specify triangle vertex indices
+        /// in the order of (t1v1, t1v2, t1v3, t2v1, t2v2, t3v3, ..., tnv1, tnv2, tnv3).
+        /// The order of vertices in the triangles determines whether the face is
+        /// pointing forward (clockwise) or backward counterclockwise.
+        /// When making a square mesh, the number of triangles should be
+        /// (mapSize - 1) * (mapSize - 1) * 2, so the size of this array 
+        /// should be numTriangles * 3.
+        /// </summary>
+        /// <returns>A mapping of triangles where every three vertices
+        /// corresponds to a triangle in the mesh.</returns>
         abstract protected int[] GetMeshTriangles();
     }
 }
