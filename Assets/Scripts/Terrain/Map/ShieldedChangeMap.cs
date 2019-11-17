@@ -12,7 +12,7 @@ namespace Terrain.Map {
         /// <summary>
         /// Data stored in change map
         /// </summary>
-        private ShieldedDict<int, float> map;
+        private Shielded<float>[] map;
         /// <summary>
         /// Dimensions of the map in the x and y axis
         /// </summary>
@@ -24,7 +24,7 @@ namespace Terrain.Map {
         /// <param name="dimX">Size of the map along the X axis</param>
         /// <param name="dimY">Size of teh map along the Y axis</param>
         public ShieldedChangeMap(int dimX, int dimY) {
-            this.map = new ShieldedDict<int, float>();
+            this.map = new Shielded<float>[dimX * dimY];
             this.dimX = dimX;
             this.dimY = dimY;
         }
@@ -40,6 +40,28 @@ namespace Terrain.Map {
         }
 
         /// <summary>
+        /// Checks if a value is stored at a (x,y) coordinate.
+        /// </summary>
+        /// <param name="x">X position in grid</param>
+        /// <param name="y">Y position in grid</param>
+        /// <returns>True if a value exists there, false otherwise</returns>
+        private bool ContainsValue(int x, int y) {
+            return this.map[GetIndex(x, y)] != null;
+        }
+
+        /// <summary>
+        /// Adds an element at a specified (x,y) location if a value
+        /// is not stored there.
+        /// </summary>
+        /// <param name="x">X position in grid</param>
+        /// <param name="y">Y position in grid</param>
+        public void AddIfNotExist(int x, int y) {
+            if (!ContainsValue(x, y)) {
+                this.map[GetIndex(x, y)] = new Shielded<float>();
+            }
+        }
+
+        /// <summary>
         /// Adds to a map at the given coordinate by value of change
         /// </summary>
         /// <param name="x">X position in grid</param>
@@ -47,8 +69,8 @@ namespace Terrain.Map {
         /// <param name="change">Height to add at position x and y.</param>
         public void AddHeight(int x, int y, float change)
         {
-            int key = GetIndex(x, y);
-            this.map[key] = this.map.ContainsKey(key) ? this.map[key] + change : change;
+            AddIfNotExist(x, y);
+            this.map[GetIndex(x, y)].Value += change;
         }
 
         /// <summary>
@@ -64,15 +86,7 @@ namespace Terrain.Map {
         {
             x = Mathf.Min(Mathf.Max(0, x), this.dimX - 1);
             y = Mathf.Min(Mathf.Max(0, y), this.dimY - 1);
-            int key = GetIndex(x, y);
-            return this.map.ContainsKey(key) ? this.map[GetIndex(x, y)] : 0;
-        }
-
-        /// <summary>
-        /// Clears this map of all changes
-        /// </summary>
-        public void Clear() {
-            this.map.Clear();
+            return ContainsValue(x, y) ? this.map[GetIndex(x, y)].Value : 0;
         }
 
         /// <summary>
@@ -94,7 +108,8 @@ namespace Terrain.Map {
         /// <param name="height">Height to set at position x and y.</param>
         public void SetHeight(int x, int y, float height)
         {
-            this.map[GetIndex(x, y)] = height;
+            AddIfNotExist(x, y);
+            this.map[GetIndex(x, y)].Value = height;
         }
 
         /// <summary>
@@ -102,10 +117,10 @@ namespace Terrain.Map {
         /// </summary>
         /// <param name="targetMap"> Map to add changes to. </param>
         public void ApplyChangesToMap(IHeightMap targetMap) {
-            foreach (int i in this.map.Keys) {
-                int x = i % this.dimY;
-                int y = i / this.dimY;
-                targetMap.AddHeight(x, y, GetHeight(x, y));
+            for (int x = 0; x < this.dimX; x++) {
+                for (int y = 0; y < this.dimY; y++) {
+                    targetMap.AddHeight(x, y, GetHeight(x, y));
+                }
             }
         }
 
