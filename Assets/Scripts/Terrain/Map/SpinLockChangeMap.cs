@@ -138,7 +138,7 @@ namespace Terrain.Map {
         /// <param name="kernel">Kernel</param>
         /// <returns>Duplicate map with kernel applied to every cell</returns>
         public IChangeMap ApplyKernel(float[,] kernel) {
-            ChangeMap applied = new ChangeMap(this.dimX, this.dimY);
+            SpinLockChangeMap applied = new SpinLockChangeMap(this.dimX, this.dimY);
 
             ParallelEnumerable.Range(0, this.dimX * this.dimY).ForAll(
                 i => {

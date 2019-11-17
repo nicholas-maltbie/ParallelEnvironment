@@ -376,8 +376,8 @@ MonoBehaviour:
   chunkSize: 16
   terrainShader: {fileID: 4800000, guid: d86c328af692b2e468a1111f86c00722, type: 3}
   terrainMaterial: {fileID: 2100000, guid: 9eef9a28c76784d4b8c9218515be9037, type: 2}
-  erodeInterval: 1
-  dropletsPerInterval: 10000
+  erodeInterval: 0.1
+  dropletsPerInterval: 1000
   totalDroplets: 120000
   meshGenType: 0
 --- !u!114 &1427697602
@@ -393,20 +393,20 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   seed: 0
-  inertia: 0.05
+  inertia: 0.4
   initialWater: 1
   initialVelocity: 1
-  gravity: 9.81
+  gravity: 4
   includeVelocity: 0
   sedimentCapacityFactor: 4
-  evaporationRate: 0.0123
+  evaporationRate: 0.0125
   minSlope: 0.01
   minCapacity: 0.1
   maxDropletLifetime: 32
-  depositionRate: 0.1
+  depositionRate: 0.01
   erosionRate: 0.1
-  erodeRadius: 3
+  erodeRadius: 4
   blurValue: 0
   blurRadius: 2
   erosionType: 2
-  debugPerformance: 1
+  debugPerformance: 0
