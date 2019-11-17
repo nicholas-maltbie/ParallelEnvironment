@@ -25,6 +25,8 @@ namespace Terrain.Erosion {
     public interface IHydroErosion {
         /// <summary>
         /// Erodes a hight map by generating a set of droplets then simulating their movement along the height map.
+        /// This will NOT change the height map. It only returns the set of changes that should 
+        /// be applied or blurred.
         /// </summary>
         /// <param name="map">Map to apply changes to.</param>
         /// <param name="start">Minimum location for spawning droplets (X,Y) position</param>
@@ -32,7 +34,8 @@ namespace Terrain.Erosion {
         /// <param name="iterations">Number of droplets to create</param>
         /// <param name="erosionParams">Parameters for erosion</param>
         /// <param name="prng">Random number generator for droplet spawning and decisions</param>
-        /// <returns>A change map of all the changes that need to be made to the TM</returns>
+        /// <returns>A change map of all the changes that need to be made to the map.
+        /// This change map should be applied to the original height map.</returns>
         IChangeMap DoErosion(IHeightMap map, Vector2Int start, Vector2Int end, int iterations,
             HydroErosionParams erosionParams, System.Random prng);
 
