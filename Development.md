@@ -68,20 +68,47 @@ After the environment has a chance to load, the project
 should be listed in the projects area as shown in the image
 below.
 
+![Everything setup and good to go](Images/UnityComplete.png)
+
 # Coding Environment
 
 ## Languages
 
 Languages: [C#](https://docs.unity3d.com/Manual/CSharpCompiler.html) | [HLSL](https://docs.unity3d.com/Manual/SL-ShadingLanguage.html) | [Compute Shaders](https://docs.unity3d.com/Manual/class-ComputeShader.html)
 
-The compilers for these are included in Unity but having the `.Net Core SDK` is required for the IDE. Instructions to install `.Net Core SDK`: [Installation Instructions](https://dotnet.microsoft.com/download/dotnet-core/sdk-for-vs-code?utm_source=vs-code&utm_medium=referral&utm_campaign=sdk-install). There should be a `.exe` for windows, a set of commands for linux or mac. 
+The compilers for these are included in Unity but having the `.NET Core SDK` is required for the IDE. Instructions to install `.NET Core SDK`: [Installation Instructions](https://dotnet.microsoft.com/download/dotnet-core/sdk-for-vs-code?utm_source=vs-code&utm_medium=referral&utm_campaign=sdk-install). There should be a `.exe` for windows, a set of commands for linux or mac. 
 * **Note** If you are installing for linux, ensure that you have the mono libraries installed. Mono Libraries: [https://www.mono-project.com/download/stable](https://www.mono-project.com/download/stable)
-* **Additional Note** You may need to reboot the computer after installing the `.Net Core SDK`.
+* **Additional Note** You may need to reboot the computer after installing the `.NET Core SDK`.
+
+Also make sure to be using .NET 4.x compatibility in Unity. This will allow for full use
+of libraries and other features. For more information on how to do this, follow 
+Microsoft's guide to switch [Unity to .NET 4.x](https://docs.microsoft.com/en-us/visualstudio/cross-platform/unity-scripting-upgrade?view=vs-2019).
+
+## Enabling the .NET 4.x scripting runtime in Unity
+
+To enable the .NET 4.x scripting runtime, take the following steps:
+
+1. Open PlayerSettings in the Unity Inspector by selecting `Edit > Project Settings > Player > Other Settings`.
+2. Under the Configuration heading, click the Scripting Runtime Version dropdown and select .NET 4.x Equivalent. You will be prompted to restart Unity.
+
+![Navigating to menu](Images/SetupDotNet4.x.png)
+
+![Menu to setup changes](Reference/vstu_scripting-runtime-version.png)
+
+From Microsoft's article ([Unity to .NET 4.x](https://docs.microsoft.com/en-us/visualstudio/cross-platform/unity-scripting-upgrade?view=vs-2019))
+
+## Adding new libraries
+
+If you wish to add new .NET libraries to the project, See Microsoft's page on [Using .NET 4.x in Unity](https://docs.microsoft.com/en-us/visualstudio/cross-platform/unity-scripting-upgrade?view=vs-2019#taking-advantage-of-net-compatibility)
+and the sub section of "taking advance of .NET compatibility".
+You simply have to add the `.dll` file from the 
+project package archive. Instructions on how to get this and
+implement these changes are in the article linked above. 
 
 # IDE
 
 The IDE we are using is [VSCode](https://code.visualstudio.com/).
-* Make sure that you have the `.Net Core SDK` installed. [Installation Instructions](https://dotnet.microsoft.com/download/dotnet-core/sdk-for-vs-code?utm_source=vs-code&utm_medium=referral&utm_campaign=sdk-install). (See earlier section [Languages](#Languages) for more information)
+* Make sure that you have the `.NET Core SDK` installed. [Installation Instructions](https://dotnet.microsoft.com/download/dotnet-core/sdk-for-vs-code?utm_source=vs-code&utm_medium=referral&utm_campaign=sdk-install). (See earlier section [Languages](#Languages) for more information)
 
 To add VSCode as Unity's default editor, select it under: `Edit > Preferences > External Tools > External Script Editor`. 
 
