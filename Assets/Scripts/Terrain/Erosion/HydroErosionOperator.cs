@@ -1,6 +1,5 @@
-using UnityEngine;
-using System;
 using Terrain.Map;
+using UnityEngine;
 
 namespace Terrain.Erosion {
     /// <summary>
@@ -22,7 +21,7 @@ namespace Terrain.Erosion {
     /// The raindrop will also slowly lose water and will die if it moves off the map
     /// or runs out of water completely. 
     /// </summary>
-    abstract public class AbstractHydroErosion : MonoBehaviour {
+    public class HydroErosionOperator : MonoBehaviour {
         /// <summary>
         /// Seed value for random number generator
         /// </summary>
@@ -144,9 +143,22 @@ namespace Terrain.Erosion {
         /// </summary>
         private HydroErosionParams erosionParams;
         /// <summary>
+        /// Type of erosion for construction the erosion module.
+        /// </summary>
+        public HydroErosionType erosionType;
+        /// <summary>
         /// Have erosion parameters been setup yet
         /// </summary>
         private bool setupParams;
+        /// <summary>
+        /// Module used to apply erosion to the terrain.
+        /// </summary>
+        private IHydroErosion erosion;
+
+        /// <summary>
+        /// Should performance be debugged to console
+        /// </summary>
+        public bool debugPerformance;
 
         /// <summary>
         /// Initializes the erosion parameters and prng
@@ -164,7 +176,9 @@ namespace Terrain.Erosion {
                     this.initialVelocity, this.gravity, this.includeVelocity,
                     this.sedimentCapacityFactor, this.evaporationRate, this.minSlope,
                     this.minCapacity, this.maxDropletLifetime, this.depositionRate,
-                    this.erosionRate, this.erodeRadius, this.blurValue, this.blurRadius);
+                    this.erosionRate, this.erodeRadius, this.blurValue, this.blurRadius,
+                    this.debugPerformance);
+                this.erosion = this.erosionType.ConstructErosion();
             }
         }
 
@@ -177,20 +191,7 @@ namespace Terrain.Erosion {
         /// <param name="iterations">Number of droplets to create</param>
         public void ErodeHeightMap(IHeightMap map, Vector2Int start, Vector2Int end, int iterations) {
             Initialize();
-            DoErosion(map, start, end, iterations, this.erosionParams, this.prng);
+            this.erosion.DoErosion(map, start, end, iterations, this.erosionParams, this.prng);
         }
-        
-        /// <summary>
-        /// Erodes a hight map by generating a set of droplets then simulating their movement along the height map.
-        /// </summary>
-        /// <param name="map">Map to apply changes to.</param>
-        /// <param name="start">Minimum location for spawning droplets (X,Y) position</param>
-        /// <param name="end">Maximum location for spawning droplets (X,Y) position</param>
-        /// <param name="iterations">Number of droplets to create</param>
-        /// <param name="erosionParams">Parameters for erosion</param>
-        /// <param name="prng">Random number generator for droplet spawning and decisions</param>
-        abstract protected void DoErosion(IHeightMap map, Vector2Int start, Vector2Int end, int iterations,
-            HydroErosionParams erosionParams, System.Random prng);
-
     }
 }

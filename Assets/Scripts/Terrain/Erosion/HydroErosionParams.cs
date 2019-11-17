@@ -23,12 +23,12 @@ namespace Terrain.Erosion {
         /// <param name="erodeRadius">Erosion radius of a droplet</param>
         /// <param name="blurValue">Amount of bluring for terrain after changes</param>
         /// <param name="blurRadius">Radius of blurring terrain after changes</param>
-        /// <param name="erodeBrush"></param>
-        /// <param name="blurBrush"></param>
+        /// <param name="debugPerformance">Should performance be debugged to console</param>
         public HydroErosionParams(float inertia, float initialWater, float initialVelocity, 
             float gravity, bool includeVelocity, float sedimentCapacityFactor, 
             float evaporationRate, float minSlope, float minCapacity, int maxDropletLifetime, float depositionRate,
-            float erodeRate, int erodeRadius, float blurValue, int blurRadius) {
+            float erodeRate, int erodeRadius, float blurValue, int blurRadius,
+            bool debugPerformance) {
             this.inertia = inertia;
             this.initialWater = initialWater;
             this.initialVelocity = initialVelocity;
@@ -46,6 +46,7 @@ namespace Terrain.Erosion {
             this.blurRadius = blurRadius;
             this.erodeBrush = InitGaussianBrush(erodeRadius, erodeRadius / 3.0f);
             this.blurBrush = InitGaussianBrush(blurRadius, blurRadius / 3.0f);
+            this.debugPerformance = debugPerformance;
         }
 
 
@@ -179,5 +180,10 @@ namespace Terrain.Erosion {
         /// Brush for blurring
         /// </summary>
         public readonly float[,] blurBrush;
+
+        /// <summary>
+        /// Print debug information about performance
+        /// </summary>
+        public readonly bool debugPerformance;
     }
 }

@@ -305,8 +305,8 @@ GameObject:
   - component: {fileID: 1427697598}
   - component: {fileID: 1427697600}
   - component: {fileID: 1427697599}
-  - component: {fileID: 1427697602}
   - component: {fileID: 1427697601}
+  - component: {fileID: 1427697602}
   m_Layer: 0
   m_Name: Terrain
   m_TagString: Untagged
@@ -376,8 +376,8 @@ MonoBehaviour:
   chunkSize: 16
   terrainShader: {fileID: 4800000, guid: d86c328af692b2e468a1111f86c00722, type: 3}
   terrainMaterial: {fileID: 2100000, guid: 9eef9a28c76784d4b8c9218515be9037, type: 2}
-  erodeInterval: 0.1
-  dropletsPerInterval: 100
+  erodeInterval: 1
+  dropletsPerInterval: 10000
   totalDroplets: 120000
   meshGenType: 0
 --- !u!114 &1427697602
@@ -389,22 +389,24 @@ MonoBehaviour:
   m_GameObject: {fileID: 1427697597}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5aa8d71520f88844680ae057321fbc39, type: 3}
+  m_Script: {fileID: 11500000, guid: f2e87c85f1249ce31819e63a39a09c03, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   seed: 0
-  inertia: 0.4
+  inertia: 0.05
   initialWater: 1
   initialVelocity: 1
-  gravity: 4
+  gravity: 9.81
   includeVelocity: 0
   sedimentCapacityFactor: 4
-  evaporationRate: 0.0125
+  evaporationRate: 0.0123
   minSlope: 0.01
   minCapacity: 0.1
   maxDropletLifetime: 32
-  depositionRate: 0.01
+  depositionRate: 0.1
   erosionRate: 0.1
-  erodeRadius: 6
+  erodeRadius: 3
   blurValue: 0
   blurRadius: 2
+  erosionType: 2
+  debugPerformance: 1

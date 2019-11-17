@@ -1,17 +1,18 @@
-using System;
-using System.Collections.Generic;
+using System.Linq;
+using Shielded;
 using UnityEngine;
 
 namespace Terrain.Map {
     /// <summary>
     /// A height map that is meant to hold changes. Starts will all values
-    /// initialized to zero and can be applied to other height maps.
+    /// initialized to zero and can be applied to other height maps. 
+    /// This will use shielded transactions to manage thread safety.
     /// </summary>
-    public class ChangeMap : IChangeMap {
+    public class ShieldedChangeMap : IChangeMap {
         /// <summary>
         /// Data stored in change map
         /// </summary>
-        private float[] map;
+        private ShieldedDict<int, float> map;
         /// <summary>
         /// Dimensions of the map in the x and y axis
         /// </summary>
@@ -22,8 +23,8 @@ namespace Terrain.Map {
         /// </summary>
         /// <param name="dimX">Size of the map along the X axis</param>
         /// <param name="dimY">Size of teh map along the Y axis</param>
-        public ChangeMap(int dimX, int dimY) {
-            this.map = new float[dimX * dimY];
+        public ShieldedChangeMap(int dimX, int dimY) {
+            this.map = new ShieldedDict<int, float>();
             this.dimX = dimX;
             this.dimY = dimY;
         }
@@ -46,7 +47,8 @@ namespace Terrain.Map {
         /// <param name="change">Height to add at position x and y.</param>
         public void AddHeight(int x, int y, float change)
         {
-            this.map[GetIndex(x, y)] += change;
+            int key = GetIndex(x, y);
+            this.map[key] = this.map.ContainsKey(key) ? this.map[key] + change : change;
         }
 
         /// <summary>
@@ -62,7 +64,8 @@ namespace Terrain.Map {
         {
             x = Mathf.Min(Mathf.Max(0, x), this.dimX - 1);
             y = Mathf.Min(Mathf.Max(0, y), this.dimY - 1);
-            return this.map[GetIndex(x, y)];
+            int key = GetIndex(x, y);
+            return this.map.ContainsKey(key) ? this.map[GetIndex(x, y)] : 0;
         }
 
         /// <summary>
@@ -92,10 +95,10 @@ namespace Terrain.Map {
         /// </summary>
         /// <param name="targetMap"> Map to add changes to. </param>
         public void ApplyChangesToMap(IHeightMap targetMap) {
-            for (int x = 0; x < this.dimX; x++) {
-                for (int y = 0; y < this.dimY; y++) {
-                    targetMap.AddHeight(x, y, GetHeight(x, y));
-                }
+            foreach (int i in this.map.Keys) {
+                int x = i % this.dimY;
+                int y = i / this.dimY;
+                targetMap.AddHeight(x, y, GetHeight(x, y));
             }
         }
 
@@ -104,11 +107,15 @@ namespace Terrain.Map {
         /// </summary>
         /// <param name="scalar">Scalar value to multiply and change all values in the map by.</param>
         public void Multiply(float scalar) {
-            for (int x = 0; x < this.dimX; x++) {
-                for (int y = 0; y < this.dimY; y++) {
-                    this.SetHeight(x, y, this.GetHeight(x, y) * scalar);
-                }
-            }   
+            ParallelEnumerable.Range(0, this.dimX * this.dimY).ForAll(
+                i => Shield.InTransaction(
+                    () => {
+                        int x = i % this.dimY;
+                        int y = i / this.dimY;
+                        this.SetHeight(x, y, this.GetHeight(x, y) * scalar);
+                    }
+                )
+            );
         }
 
         /// <summary>
@@ -119,11 +126,15 @@ namespace Terrain.Map {
         public IChangeMap ApplyKernel(float[,] kernel) {
             ChangeMap applied = new ChangeMap(this.dimX, this.dimY);
 
-            for (int x = 0; x < this.dimX; x++) {
-                for (int y = 0; y < this.dimY; y++) {
-                    applied.SetHeight(x, y, this.Kernel(x, y, kernel));
-                }
-            }
+            ParallelEnumerable.Range(0, this.dimX * this.dimY).ForAll(
+                i => Shield.InTransaction(
+                    () => {
+                        int x = i % this.dimY;
+                        int y = i / this.dimY;
+                        applied.SetHeight(x, y, this.Kernel(x, y, kernel));
+                    }
+                )
+            );
 
             return applied;
         }
