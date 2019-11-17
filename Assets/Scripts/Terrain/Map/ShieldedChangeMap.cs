@@ -69,6 +69,13 @@ namespace Terrain.Map {
         }
 
         /// <summary>
+        /// Clears this map of all changes
+        /// </summary>
+        public void Clear() {
+            this.map.Clear();
+        }
+
+        /// <summary>
         /// Checks if a coordinate is in the bounds of the heightmap.
         /// </summary>
         /// <param name="x">X position in the height map</param>
