@@ -32,7 +32,8 @@ namespace Terrain.Erosion {
         /// <param name="iterations">Number of droplets to create</param>
         /// <param name="erosionParams">Parameters for erosion</param>
         /// <param name="prng">Random number generator for droplet spawning and decisions</param>
-        void DoErosion(IHeightMap map, Vector2Int start, Vector2Int end, int iterations,
+        /// <returns>A change map of all the changes that need to be made to the TM</returns>
+        IChangeMap DoErosion(IHeightMap map, Vector2Int start, Vector2Int end, int iterations,
             HydroErosionParams erosionParams, System.Random prng);
 
     }

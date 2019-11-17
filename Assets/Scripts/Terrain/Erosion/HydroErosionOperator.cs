@@ -190,8 +190,27 @@ namespace Terrain.Erosion {
         /// <param name="end">Maximum location for spawning droplets (X,Y) position</param>
         /// <param name="iterations">Number of droplets to create</param>
         public void ErodeHeightMap(IHeightMap map, Vector2Int start, Vector2Int end, int iterations) {
+            // Initialize the parmeters.
             Initialize();
-            this.erosion.DoErosion(map, start, end, iterations, this.erosionParams, this.prng);
+            // Get the changes applied to the map
+            IChangeMap changes = this.erosion.DoErosion(map, start, end, iterations, this.erosionParams, this.prng);
+
+            // If bluring changes, do steps to blur map
+            if (this.erosionParams.blurValue > 0) {
+                // Calculate the blurred map by applying the blur brush kernel to the map
+                IChangeMap blurredMap = changes.ApplyKernel(this.erosionParams.blurBrush);
+                // Multiply the original map and blurred map by ratios
+                blurredMap.Multiply(this.erosionParams.blurValue);
+                changes.Multiply(1 - this.erosionParams.blurValue);
+
+                // Apply changes to the original height map
+                blurredMap.ApplyChangesToMap(map);
+                changes.ApplyChangesToMap(map);
+            }
+            // If not bluring changes, just ignore that complexity
+            else {
+                changes.ApplyChangesToMap(map);
+            }
         }
     }
 }
