@@ -6,6 +6,8 @@ namespace Terrain.Erosion {
     /// </summary>
     public enum HydroErosionType {
         Serial,
+        StateTransactionalMemory,
+        ParallelSpinLocks
     }
 
     /// <summary>
@@ -13,15 +15,19 @@ namespace Terrain.Erosion {
     /// </summary>
     static class HydroErosionTypeMethods {
         /// <summary>
-        /// Gets the type of component based on the HydroErosionType.
+        /// Gets a constructed hydro erosion based on the HydroErosionType.
         /// </summary>
-        /// <param name="meshGenType">HydroErosionType being returned.</param>
-        /// <returns>Some type that extends AbstractMeshGenerator</returns>
-        public static System.Type GetMeshGenType(this HydroErosionType meshGenType) {
-            switch (meshGenType) {
+        /// <param name="hydroErosionType">HydroErosionType being returned.</param>
+        /// <returns>An instance of the type of erosion being used.</returns>
+        public static IHydroErosion ConstructErosion(this HydroErosionType hydroErosionType) {
+            switch (hydroErosionType) {
+                case HydroErosionType.ParallelSpinLocks:
+                    return new PSLHydroErosion();
+                case HydroErosionType.StateTransactionalMemory:
+                    return new STMHydroErosion();
                 case HydroErosionType.Serial:
                 default:
-                    return typeof(SerialHydroErosion);
+                    return new SerialHydroErosion();
             }
         }
     }

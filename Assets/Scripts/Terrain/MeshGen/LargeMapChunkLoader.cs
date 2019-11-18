@@ -7,7 +7,7 @@ namespace Terrain.MeshGen {
     /// Loads a map from a LargeHeightMap into the world.
     /// </summary>
     [RequireComponent(typeof(LargeHeightMap))]
-    [RequireComponent(typeof(AbstractHydroErosion))]
+    [RequireComponent(typeof(HydroErosionOperator))]
     public class LargeMapChunkLoader : MonoBehaviour {
         
         /// <summary>
@@ -79,7 +79,7 @@ namespace Terrain.MeshGen {
                 if (this.elapsed > this.erodeInterval) {
                     this.elapsed %= this.erodeInterval;
 
-                    AbstractHydroErosion erosion = GetComponent<AbstractHydroErosion>();
+                    HydroErosionOperator erosion = GetComponent<HydroErosionOperator>();
                     erosion.ErodeHeightMap(this.heightMap, 
                         new Vector2Int(0, 0), new Vector2Int(this.heightMap.mapSize, this.heightMap.mapSize),
                         this.dropletsPerInterval);
