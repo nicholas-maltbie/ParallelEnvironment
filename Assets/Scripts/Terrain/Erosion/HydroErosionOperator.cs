@@ -161,6 +161,11 @@ namespace Terrain.Erosion {
         public bool debugPerformance;
 
         /// <summary>
+        /// Compute shader for hydro erosion.
+        /// </summary>
+        public ComputeShader computeShader;
+
+        /// <summary>
         /// Initializes the erosion parameters and prng
         /// </summary>
         private void Initialize() {
@@ -177,7 +182,7 @@ namespace Terrain.Erosion {
                     this.sedimentCapacityFactor, this.evaporationRate, this.minSlope,
                     this.minCapacity, this.maxDropletLifetime, this.depositionRate,
                     this.erosionRate, this.erodeRadius, this.blurValue, this.blurRadius,
-                    this.debugPerformance);
+                    this.debugPerformance, this.computeShader);
                 this.erosion = this.erosionType.ConstructErosion();
             }
         }

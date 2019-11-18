@@ -1,0 +1,47 @@
+﻿// Each #kernel tells which function to compile; you can have many kernels
+#pragma kernel CSMain
+
+// Parameters for hydro erosion
+float inertia;
+float initialWater;
+float initialVelocity;
+float gravity;
+float includeVelocity;
+float sedimentCapacityFactor;
+float evaporationRate;
+float minSlope;
+float minCapacity;
+float depositionRate;
+float erodeRate;
+int maxDropletLifetime;
+int erodeRadius;
+// brush for erosion
+Buffer<float> erodeBrush;
+// Buffer for map height
+int mapDimX;
+int mapDimY;
+Buffer<float> heightMap;
+// Output buffer
+RWStructuredBuffer<float> erosionMap;
+
+// Gets the index in the height map of a x,y coordinate
+int GetIndex(int2 pos) {
+    return pos.x + pos.y * mapDimX;
+}
+
+// Gets the height of the map at a given position
+// Takes in a position with values x and y in grid
+// Find the closest valid location in the map 
+float GetHeight(int2 pos) {
+    pos.x = min(max(pos.x, 0), mapDimX);
+    pos.y = min(max(pos.y, 0), mapDimY);
+    int key = GetIndex(pos);
+    return heightMap[key] + erosionMap[key];
+}
+
+
+[numthreads(8,1,1)]
+void CSMain (uint3 id : SV_DispatchThreadID)
+{
+    
+}
