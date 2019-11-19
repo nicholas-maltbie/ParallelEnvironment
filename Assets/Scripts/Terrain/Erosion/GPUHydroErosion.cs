@@ -23,16 +23,16 @@ namespace Terrain.Erosion {
 
             int numThreads = iterations / 8;
 
-            int mapSizeX = end.x - start.x;
-            int mapSizeY = end.y - start.y;
+            int mapDimX = end.x - start.x;
+            int mapDimY = end.y - start.y;
 
             // Compute slice of the height map
-            float[] heightMapSlice = new float[mapSizeX * mapSizeY];
-            ParallelEnumerable.Range(0, mapSizeX * mapSizeY).ForAll(
+            float[] heightMapSlice = new float[mapDimX * mapDimY];
+            ParallelEnumerable.Range(0, mapDimX * mapDimY).ForAll(
                 i => {
-                    int x = i % mapSizeY;
-                    int y = i % mapSizeX;
-                    heightMapSlice[x + y * mapSizeX] = heightMap.GetHeight(x + start.x, y + start.y);
+                    int x = i % mapDimY;
+                    int y = i % mapDimX;
+                    heightMapSlice[x + y * mapDimX] = heightMap.GetHeight(x + start.x, y + start.y);
                 }
             );
 
@@ -44,7 +44,7 @@ namespace Terrain.Erosion {
             for (int i = 0; i < iterations; i++) {
                 int randomX = prng.Next (start.x, end.x);
                 int randomY = prng.Next (start.y, end.y);
-                randomIndices[i] = randomY * mapSizeY + randomX;
+                randomIndices[i] = randomY * mapDimX + randomX;
             }
 
             // Send random indices to compute shader
@@ -53,13 +53,13 @@ namespace Terrain.Erosion {
             erosionShander.SetBuffer (kernelIdx, "randomIndices", randomIndexBuffer);
 
             // Set height map
-            ComputeBuffer heightMapBuffer = new ComputeBuffer (mapSizeX * mapSizeY, sizeof(float));
+            ComputeBuffer heightMapBuffer = new ComputeBuffer (mapDimX * mapDimY, sizeof(float));
             heightMapBuffer.SetData(heightMapSlice);
             erosionShander.SetBuffer(kernelIdx, "heightMap", heightMapBuffer);
 
             // Set map information
-            erosionShander.SetInt("mapSizeX", mapSizeX);
-            erosionShander.SetInt("mapSizeY", mapSizeY);
+            erosionShander.SetInt("mapDimX", mapDimX);
+            erosionShander.SetInt("mapDimY", mapDimY);
 
             // Set erosion brush
             ComputeBuffer erodeBrushBuffer = new ComputeBuffer (erosionParams.erodeBrush.Length, sizeof(float));
@@ -67,8 +67,8 @@ namespace Terrain.Erosion {
             erosionShander.SetBuffer(kernelIdx, "erodeBrush", erodeBrushBuffer);
 
             // Set erosion changes buffer
-            ComputeBuffer erosionChangesBuffer = new ComputeBuffer (mapSizeX * mapSizeY, sizeof(float));
-            float[] changes = new float[mapSizeX * mapSizeY];
+            ComputeBuffer erosionChangesBuffer = new ComputeBuffer (mapDimX * mapDimY, sizeof(float));
+            float[] changes = new float[mapDimX * mapDimY];
             erosionChangesBuffer.SetData(changes);
             erosionShander.SetBuffer(kernelIdx, "erosionMap", erosionChangesBuffer);
 
@@ -93,7 +93,7 @@ namespace Terrain.Erosion {
 
             for (int i = 0; i < changes.Length; i++) {
                 if (changes[i] > 0) {
-                    Debug.Log((i % mapSizeY) + ", " + (i / mapSizeY) + ", " + changes[i]);
+                    Debug.Log((i % mapDimY) + ", " + (i / mapDimY) + ", " + changes[i]);
                 }
             }
 
@@ -107,7 +107,7 @@ namespace Terrain.Erosion {
                 float deltaMillis = System.DateTime.Now.Ticks / TimeSpan.TicksPerMillisecond - startMillis;
                 Debug.Log("Total Millis: " + deltaMillis + ", Millis Per Droplet: " + deltaMillis / iterations);
             }
-            return new GPUChangeMap(mapSizeX, mapSizeY, changes);
+            return new GPUChangeMap(mapDimX, mapDimY, changes);
         }
     }
 }
