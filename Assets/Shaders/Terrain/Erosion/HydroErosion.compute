@@ -1,0 +1,54 @@
+﻿#include "Assets/Shaders/Terrain/Map/HeightMap.hlsl"
+
+// Each #kernel tells which function to compile; you can have many kernels
+#pragma kernel CSMain
+
+float inertia;
+float initialWater;
+float initialVelocity;
+float gravity;
+float sedimentCapacityFactor;
+float evaporationRate;
+float minSlope;
+float minCapacity;
+float depositionRate;
+float erodeRate;
+int maxDropletLifetime;
+int erodeRadius;
+bool includeVelocity;
+
+// brush for erosion
+StructuredBuffer<float> erodeBrush;
+// Buffer for map height
+uint mapDimX;
+uint mapDimY;
+RWStructuredBuffer<float> heightMap;
+// Location of each droplet for a run of the iterations
+StructuredBuffer<uint> randomIndices;
+// Output buffer
+RWStructuredBuffer<float> erosionMap;
+
+[numthreads(8,1,1)]
+void CSMain (uint3 id : SV_DispatchThreadID)
+{
+    // setup the height map
+    cHeightMap baseMap;
+    cHeightMap changeMap;
+
+    baseMap.size = int2(mapDimX, mapDimY);
+    changeMap.size = int2(mapDimX, mapDimY);
+    baseMap.map = heightMap;
+    changeMap.map = erosionMap;
+
+    // Finalized height map
+    cLayeredMap layers;
+    layers.mBot = baseMap;
+    layers.mTop = changeMap;
+
+    // Get the starting position of this droplet
+    uint index = randomIndices[id.x];
+    
+    int2 pos = int2(index % mapDimY, index / mapDimY);
+
+    layers.AddHeight(pos, 10);
+};
