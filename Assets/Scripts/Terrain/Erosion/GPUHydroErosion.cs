@@ -62,7 +62,13 @@ namespace Terrain.Erosion {
             erosionShander.SetInt("mapDimY", mapDimY);
 
             // Set erosion brush
-            ComputeBuffer erodeBrushBuffer = new ComputeBuffer (erosionParams.erodeBrush.Length, sizeof(float));
+            float[] erodeBrush1D = new float[erosionParams.erodeBrush.GetLength(0) * erosionParams.erodeBrush.GetLength(1)];
+            for (int x = 0; x < erosionParams.erodeBrush.GetLength(0); x++) {
+                for (int y = 0; y < erosionParams.erodeBrush.GetLength(1); y++) {
+                    erodeBrush1D[x + y * erosionParams.erodeBrush.GetLength(1)] = erosionParams.erodeBrush[x, y];
+                }
+            }
+            ComputeBuffer erodeBrushBuffer = new ComputeBuffer (erodeBrush1D.Length, sizeof(float));
             erodeBrushBuffer.SetData(erosionParams.erodeBrush);
             erosionShander.SetBuffer(kernelIdx, "erodeBrush", erodeBrushBuffer);
 
@@ -92,7 +98,7 @@ namespace Terrain.Erosion {
             erosionChangesBuffer.GetData(changes);
 
             for (int i = 0; i < changes.Length; i++) {
-                if (changes[i] > 0) {
+                if (changes[i] != 0) {
                     Debug.Log((i % mapDimY) + ", " + (i / mapDimY) + ", " + changes[i]);
                 }
             }

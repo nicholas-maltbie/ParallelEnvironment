@@ -12,7 +12,7 @@ namespace Terrain.Erosion {
         /// </summary>
         private Vector2 pos;
         /// <summary>
-        /// Amount of water that the droplet is carying
+        /// Amount of water that the droplet is carrying
         /// </summary>
         private float water;
         /// <summary>
@@ -36,7 +36,7 @@ namespace Terrain.Erosion {
         /// </summary>
         private float sediment;
         /// <summary>
-        /// Parameters for controling droplet behaviour
+        /// Parameters for controlling droplet behaviour
         /// </summary>
         private HydroErosionParams erosionParams;
         /// <summary>
