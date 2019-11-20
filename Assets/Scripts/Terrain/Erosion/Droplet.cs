@@ -178,7 +178,7 @@ namespace Terrain.Erosion {
         /// <param name="deltaH">Change in height from previous movement</param>
         /// <param name="velocity">Current velocity of droplet</param>
         /// <param name="waterFactor">Amount of water in droplet</param>
-        /// /// <param name="parameters">Erosion parameters for controlling how erosion works</param>
+        /// <param name="parameters">Erosion parameters for controlling how erosion works</param>
         /// <returns>The computed capacity of the droplet or Minimum capacity fi it is less than
         /// than the computed value.</returns>
         public float ComputeCapacity(float deltaH) {

@@ -30,8 +30,10 @@ RWStructuredBuffer<float> heightMap;
 StructuredBuffer<uint> randomIndices;
 // Output buffer
 RWStructuredBuffer<float> erosionMap;
+// Debug buffer
+RWStructuredBuffer<float> debug;
 
-[numthreads(8,1,1)]
+[numthreads(1,1,1)]
 void CSMain (uint3 id : SV_DispatchThreadID)
 {
     // Setup struct for erosion parameters (too many things to pass)
@@ -67,8 +69,21 @@ void CSMain (uint3 id : SV_DispatchThreadID)
 
     // Get the starting position of this droplet
     uint index = randomIndices[id.x];
-    int2 pos = int2(index % mapDimY, index / mapDimY);
+    float2 pos = float2(index % mapDimY, index / mapDimY);
 
-    //layers.AddHeight(pos, 100);
-    Erode(layers, pos, 1, erodeParams.erodeRadius, erodeParams.erodeBrush);
+    Droplet droplet;
+    droplet.pos = pos;
+    droplet.water = erodeParams.initialWater;
+    droplet.vel = erodeParams.initialVelocity;
+    droplet.dir = float2(0, 0);
+    droplet.steps = 0;
+    droplet.sediment = 0;
+    droplet.erosionParams = erodeParams;
+    droplet.map = layers;
+    droplet.debug = debug;
+
+    // Do steps until the droplet dies
+    //while(!droplet.HasDied()) {
+        droplet.DoStep();
+    //}
 };

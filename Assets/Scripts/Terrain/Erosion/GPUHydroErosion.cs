@@ -21,7 +21,7 @@ namespace Terrain.Erosion {
             
             long startMillis = System.DateTime.Now.Ticks / TimeSpan.TicksPerMillisecond;
 
-            int numThreads = iterations / 8;
+            int numThreads = iterations;
 
             int mapDimX = end.x - start.x;
             int mapDimY = end.y - start.y;
@@ -42,8 +42,8 @@ namespace Terrain.Erosion {
             // Setup random positions for each droplet
             int[] randomIndices = new int[iterations];
             for (int i = 0; i < iterations; i++) {
-                int randomX = prng.Next (start.x, end.x);
-                int randomY = prng.Next (start.y, end.y);
+                int randomX = 50;//prng.Next (start.x, end.x);
+                int randomY = 50;//prng.Next (start.y, end.y);
                 randomIndices[i] = randomY * mapDimX + randomX;
             }
 
@@ -78,6 +78,11 @@ namespace Terrain.Erosion {
             erosionChangesBuffer.SetData(changes);
             erosionShander.SetBuffer(kernelIdx, "erosionMap", erosionChangesBuffer);
 
+            ComputeBuffer debugBuffer = new ComputeBuffer (erosionParams.maxDropletLifetime, sizeof(float));
+            float[] debug = new float[erosionParams.maxDropletLifetime];
+            debugBuffer.SetData(debug);
+            erosionShander.SetBuffer(kernelIdx, "debug", debugBuffer);
+
             // Setup erosion parameters
             erosionShander.SetFloat("inertia", erosionParams.inertia);
             erosionShander.SetFloat("initialWater", erosionParams.initialWater);
@@ -96,11 +101,12 @@ namespace Terrain.Erosion {
             // Run the command and get results
             erosionShander.Dispatch(erosionShander.FindKernel("CSMain"), numThreads, 1, 1);
             erosionChangesBuffer.GetData(changes);
+            debugBuffer.GetData(debug);
 
-            for (int i = 0; i < changes.Length; i++) {
-                if (changes[i] != 0) {
-                    Debug.Log((i % mapDimY) + ", " + (i / mapDimY) + ", " + changes[i]);
-                }
+            Debug.Log(heightMap.CalculateGradient(new Vector2(50, 50)));
+
+            for (int i = 0; i < debug.Length; i++) {
+                Debug.Log("debug[" + i + "]: " + debug[i]);
             }
 
             // release buffers

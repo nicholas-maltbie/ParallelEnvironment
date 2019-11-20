@@ -8,12 +8,13 @@
 /// is out of bounds.
 /// </summary>
 /// <param name="map">Map to apply changes to.</param>
-/// <param name="pos">position on the map with (x,y) components</param>
+/// <param name="x">X position in grid</param>
+/// <param name="y">Y position in grid</param>
 /// <param name="change">Amount to add to the map</param>
 /// <returns>The amount added to the map. Will be zero if the location is out of bounds</returns>
-float ChangeHeightMap(iHeightMap map, int2 pos, float change) {
-    if (map.IsInBounds(pos)) {
-        map.AddHeight(pos, change);
+float ChangeHeightMap(iHeightMap map, int x, int y, float change) {
+    if (map.IsInBounds(x, y)) {
+        map.AddHeight(x, y, change);
         return change;
     }
     return 0;
@@ -28,38 +29,33 @@ float ChangeHeightMap(iHeightMap map, int2 pos, float change) {
 /// <param name="radius">Radius of the brush</param>
 /// <param name="brush">Brush to use when applying erosion</param>
 /// <returns>The total amount of soil eroded (might be slightly less than amountToErode</returns>
-float Erode(iHeightMap map, float2 pos, float amountToErode, int radius, StructuredBuffer<float> brush) {
-    // Calculate the grid location (rounded down)
-    int2 loc = int2(floor(pos.x), floor(pos.y));
-    
+float Erode(iHeightMap map, int2 loc, float amountToErode, int radius, StructuredBuffer<float> brush) {
     int brushSize = radius * 2 + 1;
     
     float totalWeights = 0;
-    float sd = radius / 3.0f;
-    for (int x_w = -radius; x_w <= radius; x_w++) {
-        for (int y = -radius; y <= radius; y++) {
-            if (!map.IsInBounds(int2(x_w + loc.x, y + loc.y))) {
-                continue;
+    float sd = radius / 3.0;
+    int x, y;
+    for (x = -radius; x <= radius; x++) {
+        for (y = -radius; y <= radius; y++) {
+            if (map.IsInBounds(x + loc.x, y + loc.y)) {
+                totalWeights += brush[x + radius + ((y + radius) * brushSize)];
             }
-            totalWeights += brush[x_w + radius + ((y + radius) * brushSize)];
         }
     }
 
     float eroded = 0;
-    for (int x = -radius; x <= radius; x++) {
-        for (int y = -radius; y <= radius; y++) {
+    for (x = -radius; x <= radius; x++) {
+        for (y = -radius; y <= radius; y++) {
             float weighedErodeAmount = brush[x + radius + ((y + radius) * brushSize)] / totalWeights * amountToErode;
-            if (!map.IsInBounds(int2(x + loc.x, y + loc.y))) {
-                continue;
+            if (map.IsInBounds(x + loc.x, y + loc.y)) {
+                float currentHeight = map.GetHeight(x + loc.x, y + loc.y);
+                float deltaSediment = weighedErodeAmount;
+                if (weighedErodeAmount > currentHeight) {
+                    deltaSediment = currentHeight;
+                }
+                map.AddHeight(x + loc.x, y + loc.y, -deltaSediment);
+                eroded += deltaSediment;
             }
-            float currentHeight = map.GetHeight(int2(x + loc.x, y + loc.y));
-            float deltaSediment = weighedErodeAmount;
-            if (weighedErodeAmount > currentHeight) {
-                deltaSediment = currentHeight;
-            }
-            printf(x);
-            map.AddHeight(int2(x + loc.x, y + loc.y), -deltaSediment);
-            eroded += deltaSediment;
         }
     }
     return eroded;
@@ -77,17 +73,18 @@ float Erode(iHeightMap map, float2 pos, float amountToErode, int radius, Structu
 /// of the grid.</returns>
 float Deposit(iHeightMap map, float2 pos, float amountToDeposit) {
     // Calculate the grid location (rounded down)
-    int2 loc = int2((int) pos.x, (int) pos.y);
+    int locX = (int)pos.x;
+    int locY = (int)pos.y;
 
     // Find the offest in the X and Y axis from that location
-    float offsetX = pos.x - loc.x;
-    float offsetY = pos.y - loc.y;
+    float offsetX = pos.x - locX;
+    float offsetY = pos.y - locY;
 
     float deposited = 0;
-    deposited += ChangeHeightMap(map, loc, amountToDeposit * (1 - offsetX) * (1 - offsetY));
-    deposited += ChangeHeightMap(map, int2(loc.x + 1, loc.y), amountToDeposit * offsetX * (1 - offsetY));
-    deposited += ChangeHeightMap(map, int2(loc.x, loc.y + 1), amountToDeposit * (1 - offsetX) * offsetY);
-    deposited += ChangeHeightMap(map, int2(loc.x + 1, loc.y + 1), amountToDeposit * offsetX * offsetY);
+    deposited += ChangeHeightMap(map, locX, locY, amountToDeposit * (1 - offsetX) * (1 - offsetY));
+    deposited += ChangeHeightMap(map, locX + 1, locY, amountToDeposit * offsetX * (1 - offsetY));
+    deposited += ChangeHeightMap(map, locX, locY + 1, amountToDeposit * (1 - offsetX) * offsetY);
+    deposited += ChangeHeightMap(map, locX + 1, locY + 1, amountToDeposit * offsetX * offsetY);
 
     return deposited;
 }
@@ -129,10 +126,10 @@ float ApproximateHeight(iHeightMap map, float2 pos) {
     float offsetY = pos.y - loc.y;
 
     // Calculate heights of the four nodes of the droplet's cell
-    float heightNW = map.GetHeight(int2(loc.x, loc.y));
-    float heightNE = map.GetHeight(int2(loc.x + 1, loc.y));
-    float heightSW = map.GetHeight(int2(loc.x, loc.y + 1));
-    float heightSE = map.GetHeight(int2(loc.x + 1, loc.y + 1));
+    float heightNW = map.GetHeight(loc.x, loc.y);
+    float heightNE = map.GetHeight(loc.x + 1, loc.y);
+    float heightSW = map.GetHeight(loc.x, loc.y + 1);
+    float heightSE = map.GetHeight(loc.x + 1, loc.y + 1);
 
     return 
         heightNW * (1 - offsetX) * (1 - offsetY) +
@@ -146,21 +143,21 @@ float ApproximateHeight(iHeightMap map, float2 pos) {
 /// the actual height between grid cells.
 /// </summary>
 /// <param name="map">Map with height information.</param>
-/// <param name="pos">X,Y position on the map.</param>
 /// <returns>A BiLinear interpolation of the height at a given x and y position.</returns>
-float2 CalculateGradient(iHeightMap map, float2 pos) {
+float2 CalculateGradient(iHeightMap map, float posX, float posY) {
     // Calculate the grid location (rounded down)
-    int2 loc = int2((int) pos.x, (int) pos.y);
+    int locX = (int) posX;
+    int locY = (int) posY;
 
     // Find the offest in the X and Y axis from that location
-    float offsetX = pos.x - loc.x;
-    float offsetY = pos.y - loc.y;
+    float offsetX = posX - locX;
+    float offsetY = posY - locY;
 
     // Calculate heights of the four nodes of the droplet's cell
-    float heightNW = map.GetHeight(int2(loc.x, loc.y));
-    float heightNE = map.GetHeight(int2(loc.x + 1, loc.y));
-    float heightSW = map.GetHeight(int2(loc.x, loc.y + 1));
-    float heightSE = map.GetHeight(int2(loc.x + 1, loc.y + 1));
+    float heightNW = map.GetHeight(locX, locY);
+    float heightNE = map.GetHeight(locX + 1, locY);
+    float heightSW = map.GetHeight(locX, locY + 1);
+    float heightSE = map.GetHeight(locX + 1, locY + 1);
 
     // Calculate droplet's direction of flow with bilinear interpolation of height difference along the edges
     float gradientX = (heightNE - heightNW) * (1 - offsetY) + (heightSE - heightSW) * offsetY;

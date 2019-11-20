@@ -8,21 +8,24 @@ interface iHeightMap {
     /// <summary>
     /// Gets the height of the map at a given x, y coordinate.
     /// </summary>
-    /// <param name="pos">Coordinate in the grid with (x,y) components</param>
+    /// <param name="x">X position in grid</param>
+    /// <param name="y">Y position in grid</param>
     /// <returns>Height at specified position as a float.</returns>
-    float GetHeight(int2 pos);
+    float GetHeight(int x, int y);
     /// <summary>
     /// Adds to a map at the given coordinate by value of change
     /// </summary>
-    /// <param name="pos">Coordinate in the grid with (x,y) components</param>
+    /// <param name="x">X position in grid</param>
+    /// <param name="y">Y position in grid</param>
     /// <param name="change">Height to add at position x and y.</param>
-    void AddHeight(int2 pos, float change);
+    void AddHeight(int x, int y, float change);
     /// <summary>
     /// Checks if a coordinate is in the bounds of the heightmap.
     /// </summary>
-    /// <param name="pos">Coordinate in the grid with (x,y) components</param>
+    /// <param name="x">X position in grid</param>
+    /// <param name="y">Y position in grid</param>
     /// <returns>True if the specified coordinate is in the bounds of the height map, false otherwise.</returns>
-    bool IsInBounds(int2 pos);
+    bool IsInBounds(int x, int y);
 };
 
 /// <summary>
@@ -41,23 +44,23 @@ class cHeightMap : iHeightMap {
     /// <summary>
     /// Gest the index in the height map of a specified location.
     /// </summary>
-    /// <param name="pos">Coordinate in the grid with (x,y) components</param>
+    /// <param name="x">X position in grid</param>
+    /// <param name="y">Y position in grid</param>
     /// <returns>The index in the height map that corresponds to the specified coordinates</returns>
-    int GetIndex(int2 pos) {
-        return pos.x + pos.y * size.y;
+    int GetIndex(int x, int y) {
+        return x + y * size.y;
+    }
+    
+    float GetHeight(int x, int y) {
+        return map[GetIndex(min(max(0, x), size.x - 1), min(max(0, y), size.y - 1))];
     }
 
-    float GetHeight(int2 pos) {
-        int2 bound = int2(min(max(0, pos.x), size.x - 1), min(max(0, pos.y), size.y - 1));
-        return map[GetIndex(bound)];
+    void AddHeight(int x, int y, float change) {
+        map[GetIndex(x, y)] += change;
     }
 
-    void AddHeight(int2 pos, float change) {
-        map[GetIndex(pos)] += change;
-    }
-
-    bool IsInBounds(int2 pos) {
-        return pos.x >= 0 && pos.x < size.x && pos.y >= 0 && pos.y < size.y;
+    bool IsInBounds(int x, int y) {
+        return x >= 0 && x < size.x && y >= 0 && y < size.y;
     }
 };
 
@@ -75,16 +78,16 @@ class cLayeredMap : iHeightMap {
     /// </summary>
     cHeightMap mBot;
 
-    float GetHeight(int2 pos) {
-        return mTop.GetHeight(pos) + mBot.GetHeight(pos);
+    float GetHeight(int x, int y) {
+        return mTop.GetHeight(x, y) + mBot.GetHeight(x, y);
     }
 
-    void AddHeight(int2 pos, float change) {
-        mTop.AddHeight(pos, change);
+    void AddHeight(int x, int y, float change) {
+        mTop.AddHeight(x, y, change);
     }
 
-    bool IsInBounds(int2 pos) {
-        return mTop.IsInBounds(pos) && mBot.IsInBounds(pos);
+    bool IsInBounds(int x, int y) {
+        return mTop.IsInBounds(x, y) &  mBot.IsInBounds(x, y);
     }
 };
 
