@@ -29,7 +29,7 @@ namespace Terrain.Erosion {
             float gravity, bool includeVelocity, float sedimentCapacityFactor, 
             float evaporationRate, float minSlope, float minCapacity, int maxDropletLifetime, float depositionRate,
             float erodeRate, int erodeRadius, float blurValue, int blurRadius,
-            bool debugPerformance, ComputeShader computeShader) {
+            bool debugPerformance, ComputeShader computeShader, GameObject debugSphere) {
             this.inertia = inertia;
             this.initialWater = initialWater;
             this.initialVelocity = initialVelocity;
@@ -49,6 +49,7 @@ namespace Terrain.Erosion {
             this.blurBrush = InitGaussianBrush(blurRadius, blurRadius / 3.0f);
             this.debugPerformance = debugPerformance;
             this.computeShader = computeShader;
+            this.debugSphere = debugSphere;
         }
 
 
@@ -192,5 +193,7 @@ namespace Terrain.Erosion {
         /// Compute shader with ability to do hydro erosion.
         /// </summary>
         public readonly ComputeShader computeShader;
+
+        public readonly GameObject debugSphere;
     }
 }

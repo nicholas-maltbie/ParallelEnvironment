@@ -16,7 +16,7 @@ float ChangeHeightMap(iHeightMap map, int x, int y, float change) {
     if (map.IsInBounds(x, y)) {
         map.AddHeight(x, y, change);
         return change;
-    }
+    };
     return 0;
 }
 

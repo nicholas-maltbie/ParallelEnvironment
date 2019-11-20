@@ -165,6 +165,8 @@ namespace Terrain.Erosion {
         /// </summary>
         public ComputeShader computeShader;
 
+        public GameObject debugSphere;
+
         /// <summary>
         /// Initializes the erosion parameters and prng
         /// </summary>
@@ -182,7 +184,7 @@ namespace Terrain.Erosion {
                     this.sedimentCapacityFactor, this.evaporationRate, this.minSlope,
                     this.minCapacity, this.maxDropletLifetime, this.depositionRate,
                     this.erosionRate, this.erodeRadius, this.blurValue, this.blurRadius,
-                    this.debugPerformance, this.computeShader);
+                    this.debugPerformance, this.computeShader, this.debugSphere);
                 this.erosion = this.erosionType.ConstructErosion();
             }
         }

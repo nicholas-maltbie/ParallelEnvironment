@@ -36,6 +36,7 @@ class cHeightMap : iHeightMap {
     /// Buffer for the height map that can be changed.
     /// </summary>
     RWStructuredBuffer<float> map;
+    RWStructuredBuffer<uint> locks;
     /// <summary>
     /// Size of the map (x and y components)
     /// </summary>
@@ -48,7 +49,7 @@ class cHeightMap : iHeightMap {
     /// <param name="y">Y position in grid</param>
     /// <returns>The index in the height map that corresponds to the specified coordinates</returns>
     int GetIndex(int x, int y) {
-        return x + y * size.y;
+        return x + y * size.x;
     }
     
     float GetHeight(int x, int y) {
@@ -56,13 +57,32 @@ class cHeightMap : iHeightMap {
     }
 
     void AddHeight(int x, int y, float change) {
-        map[GetIndex(x, y)] += change;
+        bool keepWaiting = true;
+        int lockIdx = GetIndex(x, y);
+        while(keepWaiting) {
+            uint originalValue;
+            InterlockedCompareExchange(locks[lockIdx], 0, 1, originalValue);
+            if(originalValue == 0) {
+                map[GetIndex(x, y)] += change;
+                InterlockedExchange(locks[lockIdx], 0, originalValue);
+                // exit loop
+                keepWaiting = false;
+            }
+        }
     }
 
     bool IsInBounds(int x, int y) {
         return x >= 0 && x < size.x && y >= 0 && y < size.y;
     }
 };
+
+cHeightMap MakeHeightMap(RWStructuredBuffer<float> map, RWStructuredBuffer<uint> locks, int2 size) {
+    cHeightMap dataMap;
+    dataMap.map = map;
+    dataMap.size = size;
+    dataMap.locks = locks;
+    return dataMap;
+}
 
 /// <summary>
 /// Layered map is a combination of two cHeightMaps and allows for 

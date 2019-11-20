@@ -1,6 +1,7 @@
 ﻿
-#include "Assets/Shaders/Terrain/Erosion/Droplet.hlsl"
+//#include "Assets/Shaders/Terrain/Erosion/Droplet.hlsl"
 #include "Assets/Shaders/Terrain/Erosion/HydroErosionParams.hlsl"
+#include "Assets/Shaders/Terrain/Erosion/ErosionUtils.hlsl"
 #include "Assets/Shaders/Terrain/Map/HeightMap.hlsl"
 
 // Each #kernel tells which function to compile; you can have many kernels
@@ -26,6 +27,7 @@ StructuredBuffer<float> erodeBrush;
 uint mapDimX;
 uint mapDimY;
 RWStructuredBuffer<float> heightMap;
+RWStructuredBuffer<uint> locks;
 // Location of each droplet for a run of the iterations
 StructuredBuffer<uint> randomIndices;
 // Output buffer
@@ -33,7 +35,7 @@ RWStructuredBuffer<float> erosionMap;
 // Debug buffer
 RWStructuredBuffer<float> debug;
 
-[numthreads(1,1,1)]
+[numthreads(1024,1,1)]
 void CSMain (uint3 id : SV_DispatchThreadID)
 {
     // Setup struct for erosion parameters (too many things to pass)
@@ -54,24 +56,68 @@ void CSMain (uint3 id : SV_DispatchThreadID)
     erodeParams.erodeBrush = erodeBrush;
 
     // setup the height map
-    cHeightMap baseMap;
-    cHeightMap changeMap;
-
-    baseMap.size = int2(mapDimX, mapDimY);
-    changeMap.size = int2(mapDimX, mapDimY);
-    baseMap.map = heightMap;
-    changeMap.map = erosionMap;
+    cHeightMap baseMap = MakeHeightMap(heightMap, locks, int2(mapDimX, mapDimY));
+    cHeightMap changeMap = MakeHeightMap(erosionMap, locks, int2(mapDimX, mapDimY));
 
     // Finalized height map
     cLayeredMap layers;
     layers.mBot = baseMap;
     layers.mTop = changeMap;
 
+    float2 dir = float2(0, 0);
+
     // Get the starting position of this droplet
     uint index = randomIndices[id.x];
     float2 pos = float2(index % mapDimY, index / mapDimY);
 
-    Droplet droplet;
+    float water = erodeParams.initialWater;
+    float vel = erodeParams.initialVelocity;
+    float sediment = 0;
+
+    int step;
+    for (step = 0; step < erodeParams.maxDropletLifetime; step++) {
+        //debug[3 * step] = pos.x;
+        //debug[3 * step + 1] = pos.y;
+        float2 grad = CalculateGradient(layers, pos.x, pos.y);
+
+        dir = dir * erodeParams.inertia - grad * (1 - erodeParams.inertia);
+        float magnitude = sqrt(dir.x * dir.x + dir.y * dir.y);
+        dir /= magnitude;
+
+        float2 posNew = pos + dir;
+
+        // Calculate the change in height
+        float heightOld = ApproximateHeight(layers, pos);
+        float heightNew = ApproximateHeight(layers, posNew);
+        float deltaH = heightNew - heightOld;
+
+        float slopeFactor = max(abs(deltaH), erodeParams.minSlope);
+        float velFactor = max(1, erodeParams.includeVelocity ? vel : 1);
+        float capacity = slopeFactor * velFactor * water * erodeParams.sedimentCapacityFactor;
+        capacity = max(capacity, erodeParams.minCapacity);
+
+        // if droplet moved off the map or stopped moving, kill it
+        if (water == 0 || !layers.IsInBounds(floor(posNew.x), floor(posNew.y))) {
+            pos = posNew;
+            return;
+        }
+        
+        // If the droplet is carrying too much sediment, it will drop its sediment
+        if (deltaH >= 0 || sediment > capacity) {
+            sediment -= DepositSediment(layers, deltaH, sediment, capacity, pos, erodeParams);
+        }
+        // If the droplet is following downhill and has excess capacity, it will erode terrain
+        else {
+            float amountToErode = min((capacity - sediment) * erodeParams.erodeRate, -deltaH);
+            sediment += Erode(layers, pos, amountToErode, erodeParams.erodeRadius, erodeParams.erodeBrush);
+        }
+
+        pos = posNew;
+        water *= (1 - erodeParams.evaporationRate);
+        vel = sqrt(max(0, vel * vel + -deltaH * erodeParams.gravity));
+    }
+
+    /*Droplet droplet;
     droplet.pos = pos;
     droplet.water = erodeParams.initialWater;
     droplet.vel = erodeParams.initialVelocity;
@@ -85,5 +131,7 @@ void CSMain (uint3 id : SV_DispatchThreadID)
     // Do steps until the droplet dies
     //while(!droplet.HasDied()) {
         droplet.DoStep();
-    //}
+    //}*/
+
+
 };

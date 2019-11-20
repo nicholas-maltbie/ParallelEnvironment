@@ -92,7 +92,7 @@ class Droplet {
 
         // Compute new direction as combination of old direction and gradient
         // Add some inertia for fun
-        dir = dir * erosionParams.inertia - grad.x * (1 - erosionParams.inertia);
+        dir = dir * erosionParams.inertia - grad * (1 - erosionParams.inertia);
 
         // Select a random direction if dir is zero
         if (dir.x == 0 && dir.y == 0) {
