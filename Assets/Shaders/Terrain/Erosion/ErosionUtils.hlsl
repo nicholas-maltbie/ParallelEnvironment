@@ -108,7 +108,7 @@ float DepositSediment(iHeightMap map, float deltaH, float sediment, float capaci
     float capacityBasedDeposit = (sediment - capacity) * parameters.depositionRate;
     // Select slope or capacity based on if moving uphill
     float amountToDeposit = (deltaH > 0) ? slopeBasedDeposit : capacityBasedDeposit;
-    return Deposit(map, pos, amountToDeposit);
+    return Deposit(map, pos, min (abs(deltaH), amountToDeposit));
 }
 
 /// <summary>

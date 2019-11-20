@@ -401,11 +401,11 @@ MonoBehaviour:
   sedimentCapacityFactor: 4
   evaporationRate: 0.0125
   minSlope: 0
-  minCapacity: 0
+  minCapacity: 0.01
   maxDropletLifetime: 32
   depositionRate: 0.01
   erosionRate: 0.1
-  erodeRadius: 4
+  erodeRadius: 6
   blurValue: 0
   blurRadius: 2
   erosionType: 3
