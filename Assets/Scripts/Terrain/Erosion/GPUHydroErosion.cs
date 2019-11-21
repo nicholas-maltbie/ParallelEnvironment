@@ -20,7 +20,7 @@ namespace Terrain.Erosion {
             
             long startMillis = System.DateTime.Now.Ticks / TimeSpan.TicksPerMillisecond;
 
-            int numThreads = Mathf.Max(iterations / 1024, 1);
+            int numThreads = Mathf.Max(iterations / 128, 1);
 
             int mapDimX = end.x - start.x;
             int mapDimY = end.y - start.y;
@@ -33,7 +33,7 @@ namespace Terrain.Erosion {
                 }
             }
 
-            ComputeShader erosionShander = erosionParams.computeShader;
+            ComputeShader erosionShander = erosionParams.erosionShader;
             int kernelIdx = erosionShander.FindKernel("Erode");
 
             // Setup random positions for each droplet
@@ -110,7 +110,7 @@ namespace Terrain.Erosion {
                 float deltaMillis = System.DateTime.Now.Ticks / TimeSpan.TicksPerMillisecond - startMillis;
                 Debug.Log("Total Millis: " + deltaMillis + ", Millis Per Droplet: " + deltaMillis / iterations);
             }
-            return new GPUChangeMap(mapDimX, mapDimY, changes);
+            return new GPUChangeMap(mapDimX, mapDimY, changes, erosionParams.kernelShader);
         }
     }
 }

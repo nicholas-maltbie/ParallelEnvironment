@@ -1,3 +1,4 @@
+using System;
 using Terrain.Map;
 using UnityEngine;
 
@@ -163,9 +164,12 @@ namespace Terrain.Erosion {
         /// <summary>
         /// Compute shader for hydro erosion.
         /// </summary>
-        public ComputeShader computeShader;
+        public ComputeShader erosionShader;
 
-        public GameObject debugSphere;
+        /// <summary>
+        /// Compute shader for applying a kernel to a map.
+        /// </summary>
+        public ComputeShader kernelShader;
 
         /// <summary>
         /// Initializes the erosion parameters and prng
@@ -184,7 +188,7 @@ namespace Terrain.Erosion {
                     this.sedimentCapacityFactor, this.evaporationRate, this.minSlope,
                     this.minCapacity, this.maxDropletLifetime, this.depositionRate,
                     this.erosionRate, this.erodeRadius, this.blurValue, this.blurRadius,
-                    this.debugPerformance, this.computeShader, this.debugSphere);
+                    this.debugPerformance, this.erosionShader, this.kernelShader);
                 this.erosion = this.erosionType.ConstructErosion();
             }
         }
@@ -201,9 +205,11 @@ namespace Terrain.Erosion {
             Initialize();
             // Get the changes applied to the map
             IChangeMap changes = this.erosion.DoErosion(map, start, end, iterations, this.erosionParams, this.prng);
-
+            
+            long startMillis = System.DateTime.Now.Ticks / TimeSpan.TicksPerMillisecond;
             // If bluring changes, do steps to blur map
             if (this.erosionParams.blurValue > 0) {
+
                 // Calculate the blurred map by applying the blur brush kernel to the map
                 IChangeMap blurredMap = changes.ApplyKernel(this.erosionParams.blurBrush);
                 // Multiply the original map and blurred map by ratios
@@ -217,6 +223,12 @@ namespace Terrain.Erosion {
             // If not bluring changes, just ignore that complexity
             else {
                 changes.ApplyChangesToMap(map);
+            }
+
+            
+            if (erosionParams.debugPerformance) {
+                float deltaMillis = System.DateTime.Now.Ticks / TimeSpan.TicksPerMillisecond - startMillis;
+                Debug.Log("Time to apply changes: Total Millis: " + deltaMillis);
             }
         }
     }

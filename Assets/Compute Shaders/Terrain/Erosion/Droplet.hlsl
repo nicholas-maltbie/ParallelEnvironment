@@ -96,7 +96,7 @@ class Droplet {
             float capacity = ComputeCapacity(deltaH);
 
             // if droplet moved off the map or stopped moving, kill it
-            if (water == 0 || !layers.IsInBounds(floor(posNew.x), floor(posNew.y))) {
+            if (water == 0 || !layers.IsInBounds(floor(pos.x), floor(pos.y))) {
                 sediment -= DepositSediment(layers, deltaH, sediment, capacity, pos, erodeParams);
                 pos = posNew;
                 step = erodeParams.maxDropletLifetime;

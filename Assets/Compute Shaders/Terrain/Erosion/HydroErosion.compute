@@ -35,7 +35,7 @@ StructuredBuffer<uint> randomIndices;
 // Output buffer
 RWStructuredBuffer<float> erosionMap;
 
-[numthreads(1024,1,1)]
+[numthreads(128,1,1)]
 void Erode (uint3 id : SV_DispatchThreadID)
 {
     // Setup struct for erosion parameters (too many things to pass)

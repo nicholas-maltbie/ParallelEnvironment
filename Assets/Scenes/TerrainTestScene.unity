@@ -376,9 +376,9 @@ MonoBehaviour:
   chunkSize: 16
   terrainShader: {fileID: 4800000, guid: d86c328af692b2e468a1111f86c00722, type: 3}
   terrainMaterial: {fileID: 2100000, guid: 9eef9a28c76784d4b8c9218515be9037, type: 2}
-  erodeInterval: 0.1
-  dropletsPerInterval: 10000
-  totalDroplets: 1000000
+  erodeInterval: 1
+  dropletsPerInterval: 100000
+  totalDroplets: 500000
   meshGenType: 0
 --- !u!114 &1427697602
 MonoBehaviour:
@@ -406,10 +406,9 @@ MonoBehaviour:
   depositionRate: 0.3
   erosionRate: 0.3
   erodeRadius: 4
-  blurValue: 0
-  blurRadius: 2
+  blurValue: 0.15
+  blurRadius: 3
   erosionType: 3
-  debugPerformance: 0
-  computeShader: {fileID: 7200000, guid: 72be550dae120b1408f37fbdbde081e7, type: 3}
-  debugSphere: {fileID: 3928810723249354619, guid: 6f1ab9abc6b92a840a42b25129e7979c,
-    type: 3}
+  debugPerformance: 1
+  erosionShader: {fileID: 7200000, guid: 72be550dae120b1408f37fbdbde081e7, type: 3}
+  kernelShader: {fileID: 7200000, guid: c6ce6ad97b46c204db89996eca73e90b, type: 3}

@@ -11,6 +11,10 @@ namespace Terrain.Map {
         /// Dimensions of the map in the x and y axis
         /// </summary>
         private int dimX, dimY;
+        /// <summary>
+        /// Kernel shader to apply a kernel to a this change map
+        /// </summary>
+        private ComputeShader kernelShader;
 
         /// <summary>
         /// Creates a change map with a given set of dimensions.
@@ -18,10 +22,12 @@ namespace Terrain.Map {
         /// <param name="dimX">Size of the map along the X axis</param>
         /// <param name="dimY">Size of teh map along the Y axis</param>
         /// <param name="map">Map of information from GPU operations</param>
-        public GPUChangeMap(int dimX, int dimY, float[] map) {
+        /// <param name="kernelShader">Kernel shader to apply a kernel to a this change map</param>
+        public GPUChangeMap(int dimX, int dimY, float[] map, ComputeShader kernelShader) {
             this.map = map;
             this.dimX = dimX;
             this.dimY = dimY;
+            this.kernelShader = kernelShader;
         }
         
         /// <summary>
@@ -113,13 +119,49 @@ namespace Terrain.Map {
         /// <param name="kernel">Kernel</param>
         /// <returns>Duplicate map with kernel applied to every cell</returns>
         public IChangeMap ApplyKernel(float[,] kernel) {
-            ChangeMap applied = new ChangeMap(this.dimX, this.dimY);
+            int kernelSize = kernel.GetLength(0);
+            float[] appliedMap = new float[this.dimX * this.dimY];
+            float[] kernel1D = new float[kernelSize * kernelSize];
 
-            for (int x = 0; x < this.dimX; x++) {
-                for (int y = 0; y < this.dimY; y++) {
-                    applied.SetHeight(x, y, this.Kernel(x, y, kernel));
+            int kernelIdx = this.kernelShader.FindKernel("Brush");
+            for(int x = 0; x < kernelSize; x++) {
+                for (int y = 0; y < kernelSize; y++) {
+                    kernel1D[x + y * kernelSize] = kernel[x,y];
                 }
             }
+            ComputeBuffer kernelBuffer = new ComputeBuffer (kernelSize * kernelSize, sizeof(float));
+            kernelBuffer.SetData(kernel1D);
+            this.kernelShader.SetBuffer(kernelIdx, "kernel", kernelBuffer);
+            
+            // Set input buffer
+            ComputeBuffer inputBuffer = new ComputeBuffer (this.dimX * this.dimY, sizeof(float));
+            inputBuffer.SetData(this.map);
+            this.kernelShader.SetBuffer(kernelIdx, "input", inputBuffer);
+            // Set output buffer
+            ComputeBuffer outputBuffer = new ComputeBuffer (this.dimX * this.dimY, sizeof(float));
+            outputBuffer.SetData(appliedMap);
+            this.kernelShader.SetBuffer(kernelIdx, "output", outputBuffer);
+
+            // Setup blur parameters
+            this.kernelShader.SetFloat("dimX", this.dimX);
+            this.kernelShader.SetFloat("dimY", this.dimY);
+            this.kernelShader.SetInt("kernelRadius", kernelSize / 2);
+
+            // Run the command
+            this.kernelShader.Dispatch(kernelIdx,
+                Mathf.CeilToInt(this.dimX * this.dimY / 128.0f),
+                1,
+                1);
+
+            // Get the results
+            outputBuffer.GetData(appliedMap);
+
+            // Recycle memory
+            kernelBuffer.Release();
+            inputBuffer.Release();
+            outputBuffer.Release();
+
+            GPUChangeMap applied = new GPUChangeMap(this.dimX, this.dimY, appliedMap, this.kernelShader);
 
             return applied;
         }

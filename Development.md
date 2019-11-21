@@ -145,6 +145,7 @@ Using the following extensions for VSCode. For information about installing exte
 * [C# XML Documentation Comments](https://marketplace.visualstudio.com/items?itemName=k--kato.docomment) by Keisuke Kato. 
 * [Code Spell Checker](https://marketplace.visualstudio.com/items?itemName=streetsidesoftware.code-spell-checker) by Street Side
     Software (because Nick can't spell and properly spelled comments are great).
+* [Shader languages support for VS Code](https://marketplace.visualstudio.com/items?itemName=slevesque.shader) by slevesque 
 
 # Coding Style
 
