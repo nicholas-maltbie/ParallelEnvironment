@@ -34,7 +34,7 @@ namespace Terrain.Erosion {
             }
 
             ComputeShader erosionShander = erosionParams.computeShader;
-            int kernelIdx = 0;
+            int kernelIdx = erosionShander.FindKernel("Erode");
 
             // Setup random positions for each droplet
             int[] randomIndices = new int[iterations];
@@ -80,11 +80,6 @@ namespace Terrain.Erosion {
             erosionChangesBuffer.SetData(changes);
             erosionShander.SetBuffer(kernelIdx, "erosionMap", erosionChangesBuffer);
 
-            ComputeBuffer debugBuffer = new ComputeBuffer (erosionParams.maxDropletLifetime * 3, sizeof(float));
-            float[] debug = new float[erosionParams.maxDropletLifetime * 3];
-            debugBuffer.SetData(debug);
-            erosionShander.SetBuffer(kernelIdx, "debug", debugBuffer);
-
             // Setup erosion parameters
             erosionShander.SetFloat("inertia", erosionParams.inertia);
             erosionShander.SetFloat("initialWater", erosionParams.initialWater);
@@ -101,18 +96,8 @@ namespace Terrain.Erosion {
             erosionShander.SetBool("includeVelocity", erosionParams.includeVelocity);
 
             // Run the command and get results
-            erosionShander.Dispatch(erosionShander.FindKernel("CSMain"), numThreads, 1, 1);
+            erosionShander.Dispatch(kernelIdx, numThreads, 1, 1);
             erosionChangesBuffer.GetData(changes);
-            debugBuffer.GetData(debug);
-
-            /*for (int i = 0; i < debug.Length; i+= 3) {
-                float x = debug[i];
-                float y = debug[i + 1];
-                float h = heightMap.ApproximateHeight(new Vector2(x, y));
-                float deltaH = debug[i + 2];
-
-                GameObject debugObj = GameObject.Instantiate(erosionParams.debugSphere, new Vector3(x, h, y), Quaternion.Euler(0, 0, 0));
-            }*/
 
             // release buffers
             erodeBrushBuffer.Release();
@@ -120,7 +105,6 @@ namespace Terrain.Erosion {
             erosionChangesBuffer.Release();
             randomIndexBuffer.Release();
             locksBuffer.Release();
-            debugBuffer.Release();
 
             if (erosionParams.debugPerformance) {
                 float deltaMillis = System.DateTime.Now.Ticks / TimeSpan.TicksPerMillisecond - startMillis;
