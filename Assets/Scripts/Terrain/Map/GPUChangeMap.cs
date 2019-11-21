@@ -115,6 +115,7 @@ namespace Terrain.Map {
 
         /// <summary>
         /// Gets a duplicate ChangeMap with the kernel applied to every element in the matrix.
+        /// This will utilize the GPU to make the changes.
         /// </summary>
         /// <param name="kernel">Kernel</param>
         /// <returns>Duplicate map with kernel applied to every cell</returns>
