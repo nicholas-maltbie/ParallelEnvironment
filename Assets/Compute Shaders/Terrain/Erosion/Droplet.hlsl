@@ -97,11 +97,10 @@ class Droplet {
 
             // if droplet moved off the map or stopped moving, kill it
             if (water == 0 || !layers.IsInBounds(floor(posNew.x), floor(posNew.y))) {
-                if (sediment > 0) {
-                    Deposit(layers, pos, min(abs(deltaH), sediment));
-                }
+                sediment -= DepositSediment(layers, deltaH, sediment, capacity, pos, erodeParams);
                 pos = posNew;
-                return;
+                step = erodeParams.maxDropletLifetime;
+                continue;
             }
             
             // If the droplet is carrying too much sediment, it will drop its sediment

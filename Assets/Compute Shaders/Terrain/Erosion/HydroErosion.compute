@@ -1,4 +1,6 @@
-﻿
+﻿# ifndef __HYDRO_EROSION_HLSL__
+# define __HYDRO_EROSION_HLSL__
+
 #include "Assets/Compute Shaders/Terrain/Erosion/Droplet.hlsl"
 #include "Assets/Compute Shaders/Terrain/Erosion/HydroErosionParams.hlsl"
 #include "Assets/Compute Shaders/Terrain/Erosion/ErosionUtils.hlsl"
@@ -127,10 +129,8 @@ void CSMain (uint3 id : SV_DispatchThreadID)
     droplet.erodeParams = erodeParams;
     droplet.layers = layers;
 
-    // Do steps until the droplet dies
-    //while(!droplet.HasDied()) {
+    // Simulate Droplet
     droplet.Simulate();
-    //}*/
-
 
 };
+#endif //__HYDRO_EROSION_HLSL__

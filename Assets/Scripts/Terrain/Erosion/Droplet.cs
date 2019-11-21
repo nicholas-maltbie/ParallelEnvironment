@@ -146,7 +146,9 @@ namespace Terrain.Erosion {
             float capacity = ComputeCapacity(deltaH);
 
             // if droplet moved off the map or stopped moving, kill it
-            if (this.water == 0 || !map.IsInBounds(Mathf.FloorToInt(posNew.x), Mathf.FloorToInt(posNew.y))) {
+            if (this.water == 0 || !this.map.IsInBounds(Mathf.FloorToInt(posNew.x), Mathf.FloorToInt(posNew.y))) {
+                this.sediment -= this.map.DepositSediment(deltaH, this.sediment, capacity,
+                    this.pos, this.erosionParams);
                 this.pos = posNew;
                 return;
             }
