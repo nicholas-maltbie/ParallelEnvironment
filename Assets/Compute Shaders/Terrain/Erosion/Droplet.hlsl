@@ -44,21 +44,6 @@ class Droplet {
     cLayeredMap layers;
 
     /// <summary>
-    /// Checks if this droplet HasDied yet. Will die when it has taken too many steps,
-    /// all its water has evaporated, or when it moves out of bounds of the map.
-    /// The droplet is in a superposition of being both alive and dead until this
-    /// method has been invoked. Just like the cat I left in that box... Oh No, 
-    /// I'm coming for you Whiskers!
-    /// </summary>
-    /// <returns>True if the droplet has died, false if it is still live.</returns>
-    bool HasDied() {
-        bool tooOld = step > erodeParams.maxDropletLifetime;
-        bool outOfBounds = !layers.IsInBounds((int)pos.x, (int)pos.y);
-        bool outOfWater = water == 0;
-        return tooOld || outOfBounds || outOfWater;
-    }
-
-    /// <summary>
     /// Compute the capacity of a droplet using factors like include velocity, min slope, and capacity
     /// factor. This says how much a droplet can carry.
     /// </summary>
