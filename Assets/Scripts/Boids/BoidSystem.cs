@@ -8,7 +8,7 @@ using Unity.Transforms;
 using UnityEngine;
 
 // Mike's GDC Talk on 'A Data Oriented Approach to Using Component Systems'
-// is a great reference for disecting the Boids sample code:
+// is a great reference for dissecting the Boids sample code:
 // https://youtu.be/p65Yt20pw0g?t=1446
 // It explains a slightly older implementation of this sample but almost all the
 // information is still relevant.
@@ -39,7 +39,7 @@ namespace Boids
         /// `CopyPositions` and `CopyHeadings` are both for extracting the relevant position, heading component
         /// to NativeArrays so that they can be randomly accessed by the `MergeCells` and `Steer` jobs
         /// </summary>
-        [BurstCompile]
+        // [BurstCompile]// <--- Free Speed!!!!
         struct CopyPositions : IJobForEachWithEntity<LocalToWorld>
         {
             public NativeArray<float3> positions;
@@ -50,7 +50,7 @@ namespace Boids
             }
         }
 
-        [BurstCompile]
+        // [BurstCompile]// <--- Free Speed!!!!
         struct CopyHeadings : IJobForEachWithEntity<LocalToWorld>
         {
             public NativeArray<float3> headings;
@@ -66,7 +66,7 @@ namespace Boids
         /// to the same value for a given cell radius so that the information can be randomly accessed by
         /// the `MergeCells` and `Steer` jobs.
         /// </summary>
-        [BurstCompile]
+        // [BurstCompile]// <--- Free Speed!!!!
         [RequireComponentTag(typeof(Boid))]
         struct HashPositions : IJobForEachWithEntity<LocalToWorld>
         {
@@ -87,7 +87,7 @@ namespace Boids
         /// 2) find the nearest obstacle and target to each boid cell
         /// 3) track which array entry contains the accumulated values for each Boid's cell
         /// </summary>
-        [BurstCompile]
+        // [BurstCompile]// <--- Free Speed!!!!
         struct MergeCells : IJobNativeMultiHashMapMergedSharedKeyIndices
         {
             public NativeArray<int>                 cellIndices;
@@ -154,10 +154,10 @@ namespace Boids
 
         /// <summary>
         /// This reads the previously calculated boid information for all the Boids of each cell to update
-        // the `localToWorld` of each of the boids based on their newly calculated headings using
-        // the standard boids flocking algorithm.
+        /// the `localToWorld` of each of the boids based on their newly calculated headings using
+        /// the standard boids flocking algorithm.
         /// </summary>
-        [BurstCompile]
+        // [BurstCompile] // <--- Free Speed!!!!
         [RequireComponentTag(typeof(Boid))]
         struct Steer : IJobForEachWithEntity<LocalToWorld>
         {
@@ -303,7 +303,7 @@ namespace Boids
                 var copyObstaclePositionsJobHandle = copyObstaclePositionsJob.Schedule(m_ObstacleQuery, inputDeps);
 
                 // Cannot call [DeallocateOnJobCompletion] on Hashmaps yet, so adding resolved hashes to the list
-                // so that theyre usable in the upcoming cell jobs and also have a straight forward cleanup.
+                // so that they're usable in the upcoming cell jobs and also have a straight forward cleanup.
                 m_PrevFrameHashmaps.Add(hashMap);
 
                 // setting up the jobs for position and cell count

@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using Samples.Boids;
+using Boids;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
