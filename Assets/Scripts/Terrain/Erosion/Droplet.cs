@@ -185,7 +185,7 @@ namespace Terrain.Erosion {
             float slopeFactor = Mathf.Max(Mathf.Abs(deltaH), this.erosionParams.minSlope);
             float velFactor = Mathf.Max(1, this.erosionParams.includeVelocity ? this.vel : 1);
             float capacity = slopeFactor * velFactor * this.water * this.erosionParams.sedimentCapacityFactor;
-            return Mathf.Max(capacity, this.erosionParams.minCapacity);
+            return Mathf.Max(Mathf.Min(capacity, Mathf.Abs(deltaH)), this.erosionParams.minCapacity);
         }
     }
 }

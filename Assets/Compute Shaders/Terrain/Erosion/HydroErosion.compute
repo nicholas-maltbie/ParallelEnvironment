@@ -1,8 +1,8 @@
 ﻿
-//#include "Assets/Shaders/Terrain/Erosion/Droplet.hlsl"
-#include "Assets/Shaders/Terrain/Erosion/HydroErosionParams.hlsl"
-#include "Assets/Shaders/Terrain/Erosion/ErosionUtils.hlsl"
-#include "Assets/Shaders/Terrain/Map/HeightMap.hlsl"
+#include "Assets/Compute Shaders/Terrain/Erosion/Droplet.hlsl"
+#include "Assets/Compute Shaders/Terrain/Erosion/HydroErosionParams.hlsl"
+#include "Assets/Compute Shaders/Terrain/Erosion/ErosionUtils.hlsl"
+#include "Assets/Compute Shaders/Terrain/Map/HeightMap.hlsl"
 
 // Each #kernel tells which function to compile; you can have many kernels
 #pragma kernel CSMain
@@ -74,7 +74,7 @@ void CSMain (uint3 id : SV_DispatchThreadID)
     float vel = erodeParams.initialVelocity;
     float sediment = 0;
 
-    int step;
+    /*int step;
     for (step = 0; step < erodeParams.maxDropletLifetime; step++) {
         //debug[3 * step] = pos.x;
         //debug[3 * step + 1] = pos.y;
@@ -115,22 +115,21 @@ void CSMain (uint3 id : SV_DispatchThreadID)
         pos = posNew;
         water *= (1 - erodeParams.evaporationRate);
         vel = sqrt(max(0, vel * vel + -deltaH * erodeParams.gravity));
-    }
+    }*/
 
-    /*Droplet droplet;
+    Droplet droplet;
     droplet.pos = pos;
     droplet.water = erodeParams.initialWater;
     droplet.vel = erodeParams.initialVelocity;
     droplet.dir = float2(0, 0);
-    droplet.steps = 0;
+    droplet.step = 0;
     droplet.sediment = 0;
-    droplet.erosionParams = erodeParams;
-    droplet.map = layers;
-    droplet.debug = debug;
+    droplet.erodeParams = erodeParams;
+    droplet.layers = layers;
 
     // Do steps until the droplet dies
     //while(!droplet.HasDied()) {
-        droplet.DoStep();
+    droplet.Simulate();
     //}*/
 
 

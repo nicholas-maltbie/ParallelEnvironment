@@ -34,7 +34,7 @@ interface iHeightMap {
 class cHeightMap : iHeightMap {
     /// <summary>
     /// Buffer for the height map that can be changed.
-    /// </summary>
+    /// </summary>cHeightMap
     RWStructuredBuffer<float> map;
     RWStructuredBuffer<uint> locks;
     /// <summary>

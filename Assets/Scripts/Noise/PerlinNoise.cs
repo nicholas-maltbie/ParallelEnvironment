@@ -126,8 +126,8 @@ namespace Noise {
             // Calculate the "unit cube" that the point asked will be located in
             // The left bound is ( |_x_|,|_y_|,|_z_| ) and the right bound is that
             // plus 1.  Next we calculate the location (from 0.0 to 1.0) in that cube.
-            Vector3Int posInt = new Vector3Int((int)vec.x, (int)vec.y, (int)vec.z);
-            Vector3 posFrac = new Vector3(vec.x - (int)vec.x, vec.y - (int)vec.y, vec.z - (int)vec.z);
+            Vector3Int posInt = new Vector3Int(Mathf.FloorToInt(vec.x), Mathf.FloorToInt(vec.y), Mathf.FloorToInt(vec.z));
+            Vector3 posFrac = new Vector3(vec.x - Mathf.FloorToInt(vec.x), vec.y - Mathf.FloorToInt(vec.y), vec.z - Mathf.FloorToInt(vec.z));
 
             // Compute faded values for smoothing
             Vector3 vecFade = new Vector3(Fade(posFrac.x), Fade(posFrac.y), Fade(posFrac.z));

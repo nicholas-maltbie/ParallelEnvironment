@@ -1,7 +1,7 @@
 # ifndef __EROSION_UTILS_HLSL__
 # define __EROSION_UTILS_HLSL__
 
-#include "Assets/Shaders/Terrain/Map/HeightMap.hlsl"
+#include "Assets/Compute Shaders/Terrain/Map/HeightMap.hlsl"
 
 /// <summary>
 /// Adds a value to the height map and add to a specific location. Will do nothing if the specified location
@@ -13,11 +13,12 @@
 /// <param name="change">Amount to add to the map</param>
 /// <returns>The amount added to the map. Will be zero if the location is out of bounds</returns>
 float ChangeHeightMap(iHeightMap map, int x, int y, float change) {
+    float delta = 0;
     if (map.IsInBounds(x, y)) {
         map.AddHeight(x, y, change);
-        return change;
-    };
-    return 0;
+        delta = change;
+    }
+    return delta;
 }
 
 /// <summary>
@@ -73,10 +74,10 @@ float Erode(iHeightMap map, int2 loc, float amountToErode, int radius, Structure
 /// of the grid.</returns>
 float Deposit(iHeightMap map, float2 pos, float amountToDeposit) {
     // Calculate the grid location (rounded down)
-    int locX = (int)pos.x;
-    int locY = (int)pos.y;
+    int locX = floor(pos.x);
+    int locY = floor(pos.y);
 
-    // Find the offest in the X and Y axis from that location
+    // Find the offset in the X and Y axis from that location
     float offsetX = pos.x - locX;
     float offsetY = pos.y - locY;
 
@@ -119,7 +120,7 @@ float DepositSediment(iHeightMap map, float deltaH, float sediment, float capaci
 /// <returns>Weighted height by how close the position is to the edges of its cell</returns>
 float ApproximateHeight(iHeightMap map, float2 pos) {
     // Calculate the grid location (rounded down)
-    int2 loc = int2((int) pos.x, (int) pos.y);
+    int2 loc = int2(floor(pos.x), floor(pos.y));
 
     // Find the offest in the X and Y axis from that location
     float offsetX = pos.x - loc.x;
@@ -146,8 +147,8 @@ float ApproximateHeight(iHeightMap map, float2 pos) {
 /// <returns>A BiLinear interpolation of the height at a given x and y position.</returns>
 float2 CalculateGradient(iHeightMap map, float posX, float posY) {
     // Calculate the grid location (rounded down)
-    int locX = (int) posX;
-    int locY = (int) posY;
+    int locX = floor(posX);
+    int locY = floor(posY);
 
     // Find the offest in the X and Y axis from that location
     float offsetX = posX - locX;

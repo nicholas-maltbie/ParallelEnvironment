@@ -196,13 +196,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 284106465}
-  m_LocalRotation: {x: 0.19459417, y: 0.758544, z: -0.26163688, w: 0.5641722}
-  m_LocalPosition: {x: -56.3, y: 169.1, z: 147.8}
+  m_LocalRotation: {x: 0.33141357, y: 0.46193978, z: -0.19134171, w: 0.8001032}
+  m_LocalPosition: {x: 0, y: 256, z: 64}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 38.061, y: 106.719, z: 0}
+  m_LocalEulerAnglesHint: {x: 45, y: 60, z: 0}
 --- !u!1 &1118175517
 GameObject:
   m_ObjectHideFlags: 0
@@ -359,7 +359,7 @@ MonoBehaviour:
   repeat: 0
   persistence: 0.35
   frequencyGrowth: 2
-  seed: 1
+  seed: 10
   scaleFactor: 100
 --- !u!114 &1427697601
 MonoBehaviour:
@@ -376,9 +376,9 @@ MonoBehaviour:
   chunkSize: 16
   terrainShader: {fileID: 4800000, guid: d86c328af692b2e468a1111f86c00722, type: 3}
   terrainMaterial: {fileID: 2100000, guid: 9eef9a28c76784d4b8c9218515be9037, type: 2}
-  erodeInterval: 1
-  dropletsPerInterval: 100000
-  totalDroplets: 200000
+  erodeInterval: 0.1
+  dropletsPerInterval: 1000
+  totalDroplets: 1000000
   meshGenType: 0
 --- !u!114 &1427697602
 MonoBehaviour:
@@ -397,18 +397,18 @@ MonoBehaviour:
   initialWater: 1
   initialVelocity: 1
   gravity: 4
-  includeVelocity: 0
+  includeVelocity: 1
   sedimentCapacityFactor: 4
   evaporationRate: 0.0125
   minSlope: 0
   minCapacity: 0.01
-  maxDropletLifetime: 32
-  depositionRate: 0.01
-  erosionRate: 0.1
-  erodeRadius: 6
+  maxDropletLifetime: 64
+  depositionRate: 0.3
+  erosionRate: 0.3
+  erodeRadius: 4
   blurValue: 0
   blurRadius: 2
-  erosionType: 3
+  erosionType: 2
   debugPerformance: 1
   computeShader: {fileID: 7200000, guid: 72be550dae120b1408f37fbdbde081e7, type: 3}
   debugSphere: {fileID: 3928810723249354619, guid: 6f1ab9abc6b92a840a42b25129e7979c,
