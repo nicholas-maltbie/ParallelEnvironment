@@ -384,7 +384,7 @@ MonoBehaviour:
   totalDroplets: 100000
   gpuMapShader: {fileID: 7200000, guid: 31cbe552d0f1c3c458ab7687a8247d71, type: 3}
   meshGenType: 1
-  debugPerformance: 1
+  debugPerformance: 0
 --- !u!114 &1427697602
 MonoBehaviour:
   m_ObjectHideFlags: 0
