@@ -6,6 +6,7 @@ namespace Terrain.MeshGen {
     /// </summary>
     public enum MeshGenType {
         Serial,
+        Parallel
     }
 
     /// <summary>
@@ -19,6 +20,8 @@ namespace Terrain.MeshGen {
         /// <returns>Some type that extends AbstractMeshGenerator</returns>
         public static System.Type GetMeshGenType(this MeshGenType meshGenType) {
             switch (meshGenType) {
+                case MeshGenType.Parallel:
+                    return typeof(ParallelMeshGenerator);
                 case MeshGenType.Serial:
                 default:
                     return typeof(SerialMeshGenerator);

@@ -1,6 +1,7 @@
 using UnityEngine;
 using Terrain.Map;
 using Terrain.Erosion;
+using System;
 
 namespace Terrain.MeshGen {
     /// <summary>
@@ -55,17 +56,49 @@ namespace Terrain.MeshGen {
         public int totalDroplets = 60000;
 
         /// <summary>
+        /// Map Shader to 
+        /// </summary>
+        public ComputeShader gpuMapShader;
+
+        /// <summary>
+        /// Mesh generation parameters as a struct
+        /// </summary>
+        private MeshGenParams meshGenParams;
+
+        /// <summary>
         /// Type of mesh generator being used in this chunk loader.
         /// </summary>
         public MeshGenType meshGenType;
 
         /// <summary>
+        /// Should performance be debugged
+        /// </summary>
+        public bool debugPerformance;
+
+        /// <summary>
+        /// Initialize the components for this height map.
+        /// </summary>
+        private void Initialize() {
+            this.heightMap = GetComponent<LargeHeightMap>();
+            long startMillis = System.DateTime.Now.Ticks / TimeSpan.TicksPerMillisecond;
+            this.heightMap.GenerateHeightMap();
+
+            if (this.debugPerformance) {
+                float deltaMillis = System.DateTime.Now.Ticks / TimeSpan.TicksPerMillisecond - startMillis;
+                Debug.Log("Time to generate Height Map: " + deltaMillis + " ms");
+            }
+            this.meshGenParams = new MeshGenParams(
+                this.chunkSize,
+                this.gpuMapShader,
+                this.terrainShader,
+                this.terrainMaterial
+            );
+        }
+
+        /// <summary>
         /// Initializes the chunks and loads height map.
         /// </summary>
         public void Start() {
-            this.heightMap = GetComponent<LargeHeightMap>();
-            this.heightMap.GenerateHeightMap();
-
             SetupChunks();
         }
 
@@ -94,8 +127,14 @@ namespace Terrain.MeshGen {
         /// Updates the mesh for all chunks in the map.
         /// </summary>
         private void UpdateMeshes() {
+            long startMillis = System.DateTime.Now.Ticks / TimeSpan.TicksPerMillisecond;
             foreach (AbstractMeshGenerator gen in gameObject.GetComponentsInChildren<AbstractMeshGenerator>()) {
                 gen.UpdateGeometry();
+            }
+
+            if (this.debugPerformance) {
+                float deltaMillis = System.DateTime.Now.Ticks / TimeSpan.TicksPerMillisecond - startMillis;
+                Debug.Log("Time to Update Chunks: " + deltaMillis + " ms");
             }
         }
 
@@ -103,10 +142,17 @@ namespace Terrain.MeshGen {
         /// Sets up the chunks. Creates a chunk at each offset value.
         /// </summary>
         private void SetupChunks() {
+            Initialize();
+            long startMillis = System.DateTime.Now.Ticks / TimeSpan.TicksPerMillisecond;
             for (int chunkX = 0; chunkX < Mathf.CeilToInt(this.heightMap.mapSize / this.chunkSize); chunkX++) {
                 for (int chunkY = 0; chunkY < Mathf.CeilToInt(this.heightMap.mapSize / this.chunkSize); chunkY++) {
                     LoadChunk(chunkX, chunkY);
                 }
+            }
+
+            if (this.debugPerformance) {
+                float deltaMillis = System.DateTime.Now.Ticks / TimeSpan.TicksPerMillisecond - startMillis;
+                Debug.Log("Time to Load Chunks: " + deltaMillis + " ms");
             }
         }
 
@@ -128,8 +174,8 @@ namespace Terrain.MeshGen {
             AbstractMeshGenerator meshGen = chunk.AddComponent(meshGenType.GetMeshGenType()) as AbstractMeshGenerator;
             // Make chunk one larger than actual size to include borders between chunks
             // Generate mesh
-            meshGen.SetupMesh(this.heightMap, new Vector2Int(offX, offY), this.chunkSize + 1,
-                this.terrainShader, this.terrainMaterial);
+            meshGen.SetupMesh(this.heightMap, new Vector2Int(offX, offY),
+                this.chunkSize + 1, this.meshGenParams);
             
             chunk.transform.parent = transform;
             chunk.transform.position = new Vector3(offX, 0, offY);

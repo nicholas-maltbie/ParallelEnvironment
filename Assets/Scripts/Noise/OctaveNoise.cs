@@ -54,8 +54,7 @@ namespace Noise {
         /// <param name="position">Position in 3d space to calculate noise for</param>
         /// <returns>Returns the combination of multiple octaves of noise normalized
         /// to the range of [0.0, 1.0] </returns>
-        public float GetNoise(Vector3 position)
-        {
+        public float GetNoise(Vector3 position) {
             float total = 0;
             float frequency = 1;
             float amplitude = 1;

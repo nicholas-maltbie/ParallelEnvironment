@@ -1,0 +1,30 @@
+# ifndef __OCTAVE_PERLIN_NOISE_HLSL__
+# define __OCTAVE_PERLIN_NOISE_HLSL__
+
+#include "Assets/Compute Shaders/Noise/iNoise.hlsl"
+#include "Assets/Compute Shaders/Noise/cPerlinNoise.hlsl"
+
+#pragma kernel OctavePerlinMap
+
+uint mapSize;
+uint permutationSize;
+uint repeat;
+int octaves;
+float persistence;
+float frequencyGrowth;
+float scaleFactor;
+
+StructuredBuffer<int> permutation;
+RWStructuredBuffer<float> results;
+
+[numthreads(32,1,1)]
+void OctavePerlinMap (uint3 id : SV_DispatchThreadID) {
+    int x = id.x % mapSize;
+    int y = id.x / mapSize;
+    float3 vecPoint = float3(x / scaleFactor, y / scaleFactor, 1);
+    cPerlinNoise noise = CreatePerlinNoise(permutation, permutationSize, repeat);
+
+    results[id.x] = GetOctaveNoise(noise, vecPoint, octaves, persistence, frequencyGrowth);
+}
+
+#endif //__OCTAVE_PERLIN_NOISE_HLSL__

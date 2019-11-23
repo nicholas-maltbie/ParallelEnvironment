@@ -340,7 +340,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b30598a712640e147b754cc2feb34116, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mapSize: 256
+  mapSize: 1024
   minHeight: 0
   maxHeight: 256
 --- !u!114 &1427697600
@@ -356,11 +356,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   octaves: 8
-  repeat: 0
+  permutationSize: 256
   persistence: 0.35
   frequencyGrowth: 2
   seed: 1
   scaleFactor: 100
+  executionMethod: 1
+  perlinNoiseShader: {fileID: 7200000, guid: 31cbe552d0f1c3c458ab7687a8247d71, type: 3}
+  debugPerformance: 0
 --- !u!114 &1427697601
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -373,13 +376,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d81563a8bd06bbb4a94bd48106281d69, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  chunkSize: 16
+  chunkSize: 255
   terrainShader: {fileID: 4800000, guid: d86c328af692b2e468a1111f86c00722, type: 3}
   terrainMaterial: {fileID: 2100000, guid: 9eef9a28c76784d4b8c9218515be9037, type: 2}
   erodeInterval: 0.1
-  dropletsPerInterval: 250
-  totalDroplets: 120000
-  meshGenType: 0
+  dropletsPerInterval: 1000
+  totalDroplets: 100000
+  gpuMapShader: {fileID: 7200000, guid: 31cbe552d0f1c3c458ab7687a8247d71, type: 3}
+  meshGenType: 1
+  debugPerformance: 1
 --- !u!114 &1427697602
 MonoBehaviour:
   m_ObjectHideFlags: 0
