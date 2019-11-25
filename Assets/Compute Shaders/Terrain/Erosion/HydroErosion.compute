@@ -1,0 +1,87 @@
+﻿# ifndef __HYDRO_EROSION_HLSL__
+# define __HYDRO_EROSION_HLSL__
+
+#include "Assets/Compute Shaders/Terrain/Erosion/Droplet.hlsl"
+#include "Assets/Compute Shaders/Terrain/Erosion/HydroErosionParams.hlsl"
+#include "Assets/Compute Shaders/Terrain/Erosion/ErosionUtils.hlsl"
+#include "Assets/Compute Shaders/Terrain/Map/HeightMap.hlsl"
+
+// Each #kernel tells which function to compile; you can have many kernels
+#pragma kernel Erode
+
+float inertia;
+float initialWater;
+float initialVelocity;
+float gravity;
+float sedimentCapacityFactor;
+float evaporationRate;
+float minSlope;
+float minCapacity;
+float depositionRate;
+float erodeRate;
+int maxDropletLifetime;
+int erodeRadius;
+bool includeVelocity;
+
+// brush for erosion
+StructuredBuffer<float> erodeBrush;
+// Buffer for map height
+uint mapDimX;
+uint mapDimY;
+RWStructuredBuffer<float> heightMap;
+RWStructuredBuffer<uint> locks;
+// Location of each droplet for a run of the iterations
+StructuredBuffer<uint> randomIndices;
+// Output buffer
+RWStructuredBuffer<float> erosionMap;
+
+[numthreads(128,1,1)]
+void Erode (uint3 id : SV_DispatchThreadID)
+{
+    // Setup struct for erosion parameters (too many things to pass)
+    HydroErosionParams erodeParams;
+    erodeParams.inertia = inertia;
+    erodeParams.initialWater = initialWater;
+    erodeParams.initialVelocity = initialVelocity;
+    erodeParams.gravity = gravity;
+    erodeParams.includeVelocity = includeVelocity;
+    erodeParams.sedimentCapacityFactor = sedimentCapacityFactor;
+    erodeParams.evaporationRate = evaporationRate;
+    erodeParams.minSlope = minSlope;
+    erodeParams.minCapacity = minCapacity;
+    erodeParams.maxDropletLifetime = maxDropletLifetime;
+    erodeParams.depositionRate = depositionRate;
+    erodeParams.erodeRate = erodeRate;
+    erodeParams.erodeRadius = erodeRadius;
+    erodeParams.erodeBrush = erodeBrush;
+
+    // setup the height map
+    cHeightMap baseMap = MakeHeightMap(heightMap, locks, int2(mapDimX, mapDimY));
+    cHeightMap changeMap = MakeHeightMap(erosionMap, locks, int2(mapDimX, mapDimY));
+
+    // Finalized height map
+    cLayeredMap layers;
+    layers.mBot = baseMap;
+    layers.mTop = changeMap;
+
+    float2 dir = float2(0, 0);
+
+    // Get the starting position of this droplet
+    uint index = randomIndices[id.x];
+    float2 pos = float2(index % mapDimY, index / mapDimY);
+
+    Droplet droplet;
+    droplet.pos = pos;
+    droplet.water = erodeParams.initialWater;
+    droplet.vel = erodeParams.initialVelocity;
+    droplet.dir = float2(0, 0);
+    droplet.step = 0;
+    droplet.sediment = 0;
+    droplet.erodeParams = erodeParams;
+    droplet.layers = layers;
+
+    // Simulate Droplet
+    droplet.Simulate();
+
+};
+#endif //__HYDRO_EROSION_HLSL__

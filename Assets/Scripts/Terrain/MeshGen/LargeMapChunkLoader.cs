@@ -56,11 +56,6 @@ namespace Terrain.MeshGen {
         public int totalDroplets = 60000;
 
         /// <summary>
-        /// Map Shader to 
-        /// </summary>
-        public ComputeShader gpuMapShader;
-
-        /// <summary>
         /// Mesh generation parameters as a struct
         /// </summary>
         private MeshGenParams meshGenParams;
@@ -89,7 +84,6 @@ namespace Terrain.MeshGen {
             }
             this.meshGenParams = new MeshGenParams(
                 this.chunkSize,
-                this.gpuMapShader,
                 this.terrainShader,
                 this.terrainMaterial
             );

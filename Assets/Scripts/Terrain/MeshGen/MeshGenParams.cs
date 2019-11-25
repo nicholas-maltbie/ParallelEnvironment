@@ -8,13 +8,11 @@ namespace Terrain.MeshGen {
         /// Creates a set of mesh generation parameters
         /// </summary>
         /// <param name="chunkSize">Size of each chunk</param>
-        /// <param name="meshGenGPU">GPU component to generate parts of mesh on GPU</param>
         /// <param name="terrainShader">Shader to color terrain</param>
         /// <param name="terrainMaterial">Material to apply to each chunk of terrain when chunks of terrain are generated</param>
-        public MeshGenParams(int chunkSize, ComputeShader meshGenGPU, Shader terrainShader, Material terrainMaterial) {
+        public MeshGenParams(int chunkSize, Shader terrainShader, Material terrainMaterial) {
             this.chunkSize = chunkSize;
             this.terrainShader = terrainShader;
-            this.meshGenGPU = meshGenGPU;
             this.terrainMaterial = terrainMaterial;
         }
 
@@ -31,9 +29,5 @@ namespace Terrain.MeshGen {
         /// Size of each chunk in the generated mesh
         /// </summary>
         public readonly int chunkSize;
-        /// <summary>
-        /// GPU Compute shader to generate parts of mesh
-        /// </summary>
-        public readonly ComputeShader meshGenGPU;
     }
 }

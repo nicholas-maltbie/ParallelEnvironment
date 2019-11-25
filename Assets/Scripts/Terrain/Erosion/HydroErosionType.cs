@@ -7,7 +7,8 @@ namespace Terrain.Erosion {
     public enum HydroErosionType {
         Serial,
         StateTransactionalMemory,
-        ParallelSpinLocks
+        ParallelSpinLocks,
+        GPUSpinLocks
     }
 
     /// <summary>
@@ -21,6 +22,8 @@ namespace Terrain.Erosion {
         /// <returns>An instance of the type of erosion being used.</returns>
         public static IHydroErosion ConstructErosion(this HydroErosionType hydroErosionType) {
             switch (hydroErosionType) {
+                case HydroErosionType.GPUSpinLocks:
+                    return new GPUHydroErosion();
                 case HydroErosionType.ParallelSpinLocks:
                     return new PSLHydroErosion();
                 case HydroErosionType.StateTransactionalMemory:
