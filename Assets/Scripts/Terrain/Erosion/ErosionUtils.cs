@@ -39,8 +39,8 @@ namespace Terrain.Erosion {
         /// <returns>The total amount of soil eroded (might be slightly less than amountToErode</returns>
         public static float Erode(this IHeightMap map, Vector2 pos, float amountToErode, int radius, float[,] brush) {
             // Calculate the grid location (rounded down)
-            int locX = (int) pos.x;
-            int locY = (int) pos.y;
+            int locX = Mathf.FloorToInt(pos.x);
+            int locY = Mathf.FloorToInt( pos.y);
             
             float totalWeights = 0;
             float sd = radius / 3.0f;
@@ -81,8 +81,8 @@ namespace Terrain.Erosion {
         /// of the grid.</returns>
         public static float Deposit(this IHeightMap map, Vector2 pos, float amountToDeposit) {
             // Calculate the grid location (rounded down)
-            int locX = (int) pos.x;
-            int locY = (int) pos.y;
+            int locX = Mathf.FloorToInt(pos.x);
+            int locY = Mathf.FloorToInt(pos.y);
 
             // Find the offest in the X and Y axis from that location
             float offsetX = pos.x - locX;
@@ -105,8 +105,8 @@ namespace Terrain.Erosion {
         /// <returns>Weighted height by how close the position is to the edges of its cell</returns>
         public static float ApproximateHeight(this IHeightMap map, Vector2 pos) {
             // Calculate the grid location (rounded down)
-            int locX = (int) pos.x;
-            int locY = (int) pos.y;
+            int locX = Mathf.FloorToInt(pos.x);
+            int locY = Mathf.FloorToInt(pos.y);
 
             // Find the offest in the X and Y axis from that location
             float offsetX = pos.x - locX;
@@ -134,8 +134,8 @@ namespace Terrain.Erosion {
         /// <returns>A BiLinear interpolation of the height at a given x and y position.</returns>
         public static Vector2 CalculateGradient(this IHeightMap map, Vector2 pos) {
             // Calculate the grid location (rounded down)
-            int locX = (int) pos.x;
-            int locY = (int) pos.y;
+            int locX = Mathf.FloorToInt(pos.x);
+            int locY = Mathf.FloorToInt(pos.y);
 
             // Find the offest in the X and Y axis from that location
             float offsetX = pos.x - locX;

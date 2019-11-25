@@ -32,7 +32,7 @@ namespace Terrain.Erosion {
                     Droplet.SimulateDroplet(droplet);
                 });
             };
-
+            
             // Iteration for each raindrop
             ParallelEnumerable.Range(0, iterations).ForAll(raindrop);
 

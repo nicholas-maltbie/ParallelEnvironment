@@ -23,12 +23,13 @@ namespace Terrain.Erosion {
         /// <param name="erodeRadius">Erosion radius of a droplet</param>
         /// <param name="blurValue">Amount of bluring for terrain after changes</param>
         /// <param name="blurRadius">Radius of blurring terrain after changes</param>
-        /// <param name="debugPerformance">Should performance be debugged to console</param>
+        /// <param name="erosionShader">Compute shader for hydro erosion</param>
+        /// <param name="kernelShader">Compute shader for applying a kernel</param>
         public HydroErosionParams(float inertia, float initialWater, float initialVelocity, 
             float gravity, bool includeVelocity, float sedimentCapacityFactor, 
             float evaporationRate, float minSlope, float minCapacity, int maxDropletLifetime, float depositionRate,
             float erodeRate, int erodeRadius, float blurValue, int blurRadius,
-            bool debugPerformance) {
+            bool debugPerformance, ComputeShader erosionShader, ComputeShader kernelShader) {
             this.inertia = inertia;
             this.initialWater = initialWater;
             this.initialVelocity = initialVelocity;
@@ -47,6 +48,8 @@ namespace Terrain.Erosion {
             this.erodeBrush = InitGaussianBrush(erodeRadius, erodeRadius / 3.0f);
             this.blurBrush = InitGaussianBrush(blurRadius, blurRadius / 3.0f);
             this.debugPerformance = debugPerformance;
+            this.erosionShader = erosionShader;
+            this.kernelShader = kernelShader;
         }
 
 
@@ -185,5 +188,15 @@ namespace Terrain.Erosion {
         /// Print debug information about performance
         /// </summary>
         public readonly bool debugPerformance;
+    
+        /// <summary>
+        /// Compute shader with ability to do hydro erosion.
+        /// </summary>
+        public readonly ComputeShader erosionShader;
+
+        /// <summary>
+        /// Compute shader with ability to apply a kernel to an array.
+        /// </summary>
+        public readonly ComputeShader kernelShader;
     }
 }

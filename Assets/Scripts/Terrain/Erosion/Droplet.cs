@@ -12,7 +12,7 @@ namespace Terrain.Erosion {
         /// </summary>
         private Vector2 pos;
         /// <summary>
-        /// Amount of water that the droplet is carying
+        /// Amount of water that the droplet is carrying
         /// </summary>
         private float water;
         /// <summary>
@@ -36,7 +36,7 @@ namespace Terrain.Erosion {
         /// </summary>
         private float sediment;
         /// <summary>
-        /// Parameters for controling droplet behaviour
+        /// Parameters for controlling droplet behaviour
         /// </summary>
         private HydroErosionParams erosionParams;
         /// <summary>
@@ -146,7 +146,9 @@ namespace Terrain.Erosion {
             float capacity = ComputeCapacity(deltaH);
 
             // if droplet moved off the map or stopped moving, kill it
-            if (this.water == 0 || !map.IsInBounds(Mathf.FloorToInt(posNew.x), Mathf.FloorToInt(posNew.y))) {
+            if (this.water == 0 || !this.map.IsInBounds(Mathf.FloorToInt(posNew.x), Mathf.FloorToInt(posNew.y))) {
+                this.sediment -= this.map.DepositSediment(deltaH, this.sediment, capacity,
+                    this.pos, this.erosionParams);
                 this.pos = posNew;
                 return;
             }
@@ -178,14 +180,14 @@ namespace Terrain.Erosion {
         /// <param name="deltaH">Change in height from previous movement</param>
         /// <param name="velocity">Current velocity of droplet</param>
         /// <param name="waterFactor">Amount of water in droplet</param>
-        /// /// <param name="parameters">Erosion parameters for controlling how erosion works</param>
+        /// <param name="parameters">Erosion parameters for controlling how erosion works</param>
         /// <returns>The computed capacity of the droplet or Minimum capacity fi it is less than
         /// than the computed value.</returns>
         public float ComputeCapacity(float deltaH) {
             float slopeFactor = Mathf.Max(Mathf.Abs(deltaH), this.erosionParams.minSlope);
             float velFactor = Mathf.Max(1, this.erosionParams.includeVelocity ? this.vel : 1);
             float capacity = slopeFactor * velFactor * this.water * this.erosionParams.sedimentCapacityFactor;
-            return Mathf.Max(capacity, this.erosionParams.minCapacity);
+            return Mathf.Max(Mathf.Min(capacity, Mathf.Abs(deltaH)), this.erosionParams.minCapacity);
         }
     }
 }
