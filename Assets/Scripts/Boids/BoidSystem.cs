@@ -13,8 +13,15 @@ using UnityEngine;
 // It explains a slightly older implementation of this sample but almost all the
 // information is still relevant.
 
-// The targets (2 red fish) and obstacle (1 shark) move based on the ActorAnimation tab
-// in the Unity UI, so that they are moving based on key-framed animation.
+/// <summary>
+/// This is a system, that controls Boid Entities using their component data.
+/// This system is responsible for all behavior of boids, such as steering.
+/// 
+/// In an Entity-Component-System architecture, the system's 
+/// are responsible for handling general components.
+/// In this case the BoidSystem  operates on Entities with 
+/// Boid Components, Target componenets, and obstacle componenets.
+/// </summary>
 namespace Boids
 {
     [UpdateInGroup(typeof(SimulationSystemGroup))]
@@ -39,7 +46,7 @@ namespace Boids
         /// `CopyPositions` and `CopyHeadings` are both for extracting the relevant position, heading component
         /// to NativeArrays so that they can be randomly accessed by the `MergeCells` and `Steer` jobs
         /// </summary>
-        // [BurstCompile]// <--- Free Speed!!!!
+        [BurstCompile]// <--- Free Speed!!!!
         struct CopyPositions : IJobForEachWithEntity<LocalToWorld>
         {
             public NativeArray<float3> positions;
@@ -50,7 +57,7 @@ namespace Boids
             }
         }
 
-        // [BurstCompile]// <--- Free Speed!!!!
+        [BurstCompile]// <--- Free Speed!!!!
         struct CopyHeadings : IJobForEachWithEntity<LocalToWorld>
         {
             public NativeArray<float3> headings;
@@ -66,7 +73,7 @@ namespace Boids
         /// to the same value for a given cell radius so that the information can be randomly accessed by
         /// the `MergeCells` and `Steer` jobs.
         /// </summary>
-        // [BurstCompile]// <--- Free Speed!!!!
+        [BurstCompile]// <--- Free Speed!!!!
         [RequireComponentTag(typeof(Boid))]
         struct HashPositions : IJobForEachWithEntity<LocalToWorld>
         {
@@ -87,7 +94,7 @@ namespace Boids
         /// 2) find the nearest obstacle and target to each boid cell
         /// 3) track which array entry contains the accumulated values for each Boid's cell
         /// </summary>
-        // [BurstCompile]// <--- Free Speed!!!!
+        [BurstCompile]// <--- Free Speed!!!!
         struct MergeCells : IJobNativeMultiHashMapMergedSharedKeyIndices
         {
             public NativeArray<int>                 cellIndices;
@@ -157,7 +164,7 @@ namespace Boids
         /// the `localToWorld` of each of the boids based on their newly calculated headings using
         /// the standard boids flocking algorithm.
         /// </summary>
-        // [BurstCompile] // <--- Free Speed!!!!
+        [BurstCompile] // <--- Free Speed!!!!
         [RequireComponentTag(typeof(Boid))]
         struct Steer : IJobForEachWithEntity<LocalToWorld>
         {
