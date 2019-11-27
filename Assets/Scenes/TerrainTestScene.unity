@@ -196,13 +196,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 284106465}
-  m_LocalRotation: {x: 0.19459417, y: 0.758544, z: -0.26163688, w: 0.5641722}
-  m_LocalPosition: {x: -56.3, y: 169.1, z: 147.8}
+  m_LocalRotation: {x: 0.33141357, y: 0.46193978, z: -0.19134171, w: 0.8001032}
+  m_LocalPosition: {x: 0, y: 256, z: 64}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 38.061, y: 106.719, z: 0}
+  m_LocalEulerAnglesHint: {x: 45, y: 60, z: 0}
 --- !u!1 &1118175517
 GameObject:
   m_ObjectHideFlags: 0
@@ -303,9 +303,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1427697598}
-  - component: {fileID: 1427697601}
   - component: {fileID: 1427697600}
   - component: {fileID: 1427697599}
+  - component: {fileID: 1427697601}
   - component: {fileID: 1427697602}
   m_Layer: 0
   m_Name: Terrain
@@ -359,7 +359,7 @@ MonoBehaviour:
   repeat: 0
   persistence: 0.35
   frequencyGrowth: 2
-  seed: 1
+  seed: 10
   scaleFactor: 100
 --- !u!114 &1427697601
 MonoBehaviour:
@@ -370,15 +370,16 @@ MonoBehaviour:
   m_GameObject: {fileID: 1427697597}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 236d38fa340fd3040bf5e43543c02ed6, type: 3}
+  m_Script: {fileID: 11500000, guid: d81563a8bd06bbb4a94bd48106281d69, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   chunkSize: 16
   terrainShader: {fileID: 4800000, guid: d86c328af692b2e468a1111f86c00722, type: 3}
   terrainMaterial: {fileID: 2100000, guid: 9eef9a28c76784d4b8c9218515be9037, type: 2}
-  erodeInterval: 0.1
-  dropletsPerInterval: 100
-  totalDroplets: 120000
+  erodeInterval: 1
+  dropletsPerInterval: 100000
+  totalDroplets: 500000
+  meshGenType: 0
 --- !u!114 &1427697602
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -388,22 +389,26 @@ MonoBehaviour:
   m_GameObject: {fileID: 1427697597}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b6e0f5e65ada16947beca80624b1d1d4, type: 3}
+  m_Script: {fileID: 11500000, guid: f2e87c85f1249ce31819e63a39a09c03, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  seed: 1
+  seed: 0
   inertia: 0.1
   initialWater: 1
   initialVelocity: 1
-  gravity: 1
-  includeVelocity: 0
+  gravity: 4
+  includeVelocity: 1
   sedimentCapacityFactor: 4
   evaporationRate: 0.0125
-  minSlope: 0.01
-  minCapacity: 0.01
+  minSlope: 0
+  minCapacity: 0
   maxDropletLifetime: 32
-  depositionRate: 0.01
-  erosionRate: 0.1
+  depositionRate: 0.3
+  erosionRate: 0.3
   erodeRadius: 4
-  blurValue: 0
-  blurRadius: 4
+  blurValue: 0.15
+  blurRadius: 3
+  erosionType: 3
+  debugPerformance: 1
+  erosionShader: {fileID: 7200000, guid: 72be550dae120b1408f37fbdbde081e7, type: 3}
+  kernelShader: {fileID: 7200000, guid: c6ce6ad97b46c204db89996eca73e90b, type: 3}

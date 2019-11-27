@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+<<<<<<< HEAD:Assets/Scripts/Terrain/Erosion/GPUHydroErosion.cs.meta
+guid: 0bfb5a8fbcd1a454182b3e6177bbdab3
+=======
+guid: f2e87c85f1249ce31819e63a39a09c03
+>>>>>>> master:Assets/Scripts/Terrain/Erosion/HydroErosionOperator.cs.meta
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

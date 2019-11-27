@@ -1,0 +1,53 @@
+# ifndef __APPLY_BRUSH_HLSL__
+# define __APPLY_BRUSH_HLSL__
+
+// Each #kernel tells which function to compile; you can have many kernels
+#pragma kernel Brush
+
+// Buffer for input and output arrays
+int dimX;
+int dimY;
+RWStructuredBuffer<float> input;
+RWStructuredBuffer<float> output;
+// Kernel for changes
+int kernelRadius;
+StructuredBuffer<float> kernel;
+
+bool IsInBounds(int x, int y) {
+    return x >= 0 && x < dimX && y >= 0 && y < dimY;
+}
+
+[numthreads(128,1,1)]
+void Brush (uint3 id : SV_DispatchThreadID)
+{
+    int x = id.x % dimX;
+    int y = id.x / dimX;
+    int kernelSize = kernelRadius * 2 + 1;
+
+    float totalWeights = 0;
+    
+    int kx, ky;
+    for (kx = 0; kx < kernelSize; kx++) {
+        for (ky = 0; ky < kernelSize; ky++) {
+            if (!IsInBounds(x + kx - kernelRadius, y + ky - kernelRadius)) {
+                continue;
+            }
+            totalWeights += kernel[kx + ky * kernelSize];
+        }
+    }
+
+    float wSum = 0;
+    for (kx = 0; kx < kernelSize; kx++) {
+        for (ky = 0; ky < kernelSize; ky++) {
+            if (!IsInBounds(x + kx - kernelRadius, y + ky - kernelRadius)) {
+                continue;
+            }
+            int index = x + kx - kernelRadius + (y + ky - kernelRadius) * dimX;
+            wSum += kernel[kx + ky * kernelSize] / totalWeights * input[index];
+        }
+    }
+    
+    output[x + y * dimX] = wSum;
+}
+
+#endif //__APPLY_BRUSH_HLSL__

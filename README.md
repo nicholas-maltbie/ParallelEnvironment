@@ -3,7 +3,7 @@
 Final Project for CS6068:  Parallel Computing. FS 2019
 
 Group:
-* Samual Buzas
+* Samuel Buzas
 * Saylee Dharne
 * Nicholas Maltbie
 
