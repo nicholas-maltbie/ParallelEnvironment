@@ -16,14 +16,9 @@ namespace Terrain.MeshGen {
         private int mapSize;
 
         /// <summary>
-        /// Shader to apply for once the mesh is generated.
-        /// AS OF RIGHT NOW THIS IS NOT USED
+        /// Parameters to control generation of meshes
         /// </summary>
-        private Shader terrainShader;
-        /// <summary>
-        /// Material to apply for once the mesh is generated
-        /// </summary>
-        private Material terrainMaterial;
+        private MeshGenParams meshParams;
 
         /// <summary>
         /// Offset of this component on the (x,y) axis for reading values from height map.
@@ -52,9 +47,6 @@ namespace Terrain.MeshGen {
         /// the mesh used in the mesh filter
         /// </summary>
         private Mesh heightMapMesh;
-
-        /// <summary>
-        /// </summary>
         
         /// <summary>
         /// Creates mesh from specified height map.
@@ -62,15 +54,12 @@ namespace Terrain.MeshGen {
         /// <param name="heightMap">Height map to use when creating the mesh.</param>
         /// <param name="offset">Offset of this mesh from the global origin in the heightMap component</param>
         /// <param name="mapSize">Size of the map (must be in range [1,256])</param>
-        /// <param name="terrainShader">Shader used to render the heightmap</param>
-        /// <param name="terrainMaterial">Material used to apply to the height map</param>
-        public void SetupMesh(IHeightMap heightMap, Vector2Int offset, int mapSize,
-            Shader terrainShader, Material terrainMaterial) {
+        /// <param name="meshParams">Parameters for controling mesh generation</param>
+        public void SetupMesh(IHeightMap heightMap, Vector2Int offset, int mapSize, MeshGenParams meshParams) {
             this.heightMap = heightMap;
             this.offset = offset;
             this.mapSize = mapSize;
-            this.terrainShader = terrainShader;
-            this.terrainMaterial = terrainMaterial;
+            this.meshParams = meshParams;
 
             // Create the mesh container and add required components
             this.meshContainer = new GameObject();
@@ -83,7 +72,15 @@ namespace Terrain.MeshGen {
             CreateMeshFromHeightMap();
 
             //Material terrainMaterial = new Material(terrainShader);
-            this.meshRenderer.material = terrainMaterial;
+            this.meshRenderer.material = this.meshParams.terrainMaterial;
+        }
+
+        /// <summary>
+        /// Gets the parameters for controlling creating this mesh.
+        /// </summary>
+        /// <returns></returns>
+        protected MeshGenParams GetParams() {
+            return this.meshParams;
         }
 
         /// <summary>

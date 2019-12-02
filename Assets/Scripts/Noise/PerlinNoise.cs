@@ -57,31 +57,37 @@ namespace Noise {
         /// </summary>
         /// <param name="repeat">Bounds noise to a repeating square of size repeat by repeat. If this 
         /// value is set to zero, there is no repeat.</param>
-        /// /// <param name="seed">Seed value for random permutation. if set to zero a arbitrary seed will be used.</param>
-        public PerlinNoise(int repeat, int seed) {
-            int[] randomPermutation = new int[256];
+        /// <param name="seed">Seed value for random permutation. if set to zero a arbitrary seed will be used.</param>
+        /// <param name="permutationSize">Size of the permutation of random numbers</param>
+        public PerlinNoise(int repeat, int seed, int permutationSize) {
+            this.permutation = MakePermutation(permutationSize, seed);
+            this.repeat = repeat;
+        }
 
-            for (int i = 0; i < 256; i++) {
-                randomPermutation[i] = i;
+        /// <summary>
+        /// Generat a permutation of numbers for perlin noise.
+        /// </summary>
+        /// <param name="permutationSize">Size of permutation to generate</param>
+        /// <param name="seed">Seed value for random number generator to shuffle permutation</param>
+        /// <returns>An array of value between (0, permutationSize]</returns>
+        public static int[] MakePermutation(int permutationSize, int seed) {
+            int[] permutation = new int[permutationSize];
+
+            for (int i = 0; i < permutationSize; i++) {
+                permutation[i] = i + 1;
             }
             
             // Shuffle the permutation if a random seed is used.
             System.Random random = seed == 0 ? new System.Random() : new System.Random(seed);
-            int n = randomPermutation.Length;
+            int n = permutation.Length;
             for (int i = n - 1; i > 1; i--) {
                 int rnd = random.Next(i+1);
-                int value = randomPermutation[rnd];
-                randomPermutation[rnd] = randomPermutation[i];
-                randomPermutation[i] = value;
+                int value = permutation[rnd];
+                permutation[rnd] = permutation[i];
+                permutation[i] = value;
             }
 
-            // Double the permutation for overflow
-            this.permutation = new int[512];
-            for(int x=0;x<512;x++) {
-                this.permutation[x] = randomPermutation[x % 256];
-            }
-
-            this.repeat = repeat;
+            return permutation;
         }
 
         /// <summary>
@@ -106,6 +112,16 @@ namespace Noise {
             return Perlin(vec);
         }
 
+        /// <summary>
+        /// Helper function to get the linear interpolation 
+        /// of two positions.
+        /// </summary>
+        /// <param name="pos">Position in the grid.</param>
+        /// <param name="fraction">Fractional position in the grid</param>
+        /// <param name="corner1">First corner of interpolation</param>
+        /// <param name="corner2">Second corner of interpolation</param>
+        /// <param name="fade">Amount to fade between corners</param>
+        /// <returns>The interpolation between two gradients</returns>
         private float GetLerpOfCorner(Vector3Int pos, Vector3 fraction, Vector3Int corner1, Vector3Int corner2, float fade) {
             float corner1gradient = Grad (GetHashOfPosition(pos + corner1), fraction - corner1),
                 corner2gradient = Grad (GetHashOfPosition(pos + corner2), fraction - corner2);
@@ -126,8 +142,14 @@ namespace Noise {
             // Calculate the "unit cube" that the point asked will be located in
             // The left bound is ( |_x_|,|_y_|,|_z_| ) and the right bound is that
             // plus 1.  Next we calculate the location (from 0.0 to 1.0) in that cube.
-            Vector3Int posInt = new Vector3Int(Mathf.FloorToInt(vec.x), Mathf.FloorToInt(vec.y), Mathf.FloorToInt(vec.z));
-            Vector3 posFrac = new Vector3(vec.x - Mathf.FloorToInt(vec.x), vec.y - Mathf.FloorToInt(vec.y), vec.z - Mathf.FloorToInt(vec.z));
+            Vector3Int posInt = new Vector3Int(
+                Mathf.FloorToInt(vec.x),
+                Mathf.FloorToInt(vec.y),
+                Mathf.FloorToInt(vec.z));
+            Vector3 posFrac = new Vector3(
+                vec.x - Mathf.FloorToInt(vec.x),
+                vec.y - Mathf.FloorToInt(vec.y),
+                vec.z - Mathf.FloorToInt(vec.z));
 
             // Compute faded values for smoothing
             Vector3 vecFade = new Vector3(Fade(posFrac.x), Fade(posFrac.y), Fade(posFrac.z));
