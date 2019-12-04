@@ -62,6 +62,7 @@
         "Mathf",
         "Saylee",
         "boids",
+        "boid",
         "heightmap",
         "lerp",
         "prng",
