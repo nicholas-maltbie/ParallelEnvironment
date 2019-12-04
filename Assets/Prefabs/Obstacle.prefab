@@ -107,11 +107,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: af757166c531a10db8e9291e236cdb7c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  CellRadius: 5
+  CellRadius: 1
   SeparationWeight: 1
   AlignmentWeight: 1
-  TargetWeight: 2
-  ObstacleAversionDistance: 1
+  TargetWeight: 15
+  ObstacleAversionDistance: 0
   MoveSpeed: 10
 --- !u!114 &2468434841570612972
 MonoBehaviour:

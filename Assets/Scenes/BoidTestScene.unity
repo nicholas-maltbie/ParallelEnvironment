@@ -165,7 +165,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Prefab: {fileID: 8742163089467446749, guid: 178ca20fa6a77204ea97b8d2447352f4, type: 3}
   Radius: 50
-  Count: 3
+  Count: 1
 --- !u!4 &220855560
 Transform:
   m_ObjectHideFlags: 0
@@ -399,7 +399,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Prefab: {fileID: 2996283789226776, guid: 6b3d700e62d2ea3eaa326b2733340d78, type: 3}
   Radius: 20
-  Count: 5
+  Count: 1
 --- !u!4 &1758770587
 Transform:
   m_ObjectHideFlags: 0
