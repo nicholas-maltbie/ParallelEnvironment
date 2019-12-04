@@ -5,6 +5,10 @@ using UnityEngine;
 
 namespace Boids
 {
+    ///<summary>
+    /// Component to hold data necessary to spawn the given prefab in a sphere.
+    ///This Component can be attached to an empty game object along with the convert to entity script. 
+    ///</summary>
     [Serializable]
     public struct SpawnRandomInSphere : ISharedComponentData
     {
