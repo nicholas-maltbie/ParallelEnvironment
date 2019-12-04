@@ -36,6 +36,10 @@ void Brush (uint3 id : SV_DispatchThreadID)
         }
     }
 
+    if (totalWeights == 0) {
+        totalWeights = 1;
+    }
+
     float wSum = 0;
     for (kx = 0; kx < kernelSize; kx++) {
         for (ky = 0; ky < kernelSize; ky++) {

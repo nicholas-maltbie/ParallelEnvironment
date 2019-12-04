@@ -44,6 +44,10 @@ float Erode(iHeightMap map, int2 loc, float amountToErode, int radius, Structure
         }
     }
 
+    if (totalWeights == 0) {
+        totalWeights = 1;
+    }
+
     float eroded = 0;
     for (x = -radius; x <= radius; x++) {
         for (y = -radius; y <= radius; y++) {

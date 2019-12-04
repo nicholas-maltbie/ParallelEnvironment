@@ -181,7 +181,7 @@ namespace Terrain.Erosion {
             }
 
             // Setup erosion parameters
-            if (!setupParams) {
+            //if (!setupParams) {
                 this.setupParams = true;
                 this.erosionParams = new HydroErosionParams(this.inertia, this.initialWater, 
                     this.initialVelocity, this.gravity, this.includeVelocity,
@@ -190,7 +190,7 @@ namespace Terrain.Erosion {
                     this.erosionRate, this.erodeRadius, this.blurValue, this.blurRadius,
                     this.debugPerformance, this.erosionShader, this.kernelShader);
                 this.erosion = this.erosionType.ConstructErosion();
-            }
+            //}
         }
 
         /// <summary>

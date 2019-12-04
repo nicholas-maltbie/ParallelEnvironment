@@ -1,5 +1,6 @@
 
 using UnityEngine;
+using System.Linq;
 
 namespace Terrain.Map {
     public class GPUChangeMap : IChangeMap {
@@ -94,11 +95,14 @@ namespace Terrain.Map {
         /// </summary>
         /// <param name="targetMap"> Map to add changes to. </param>
         public void ApplyChangesToMap(IHeightMap targetMap) {
-            for (int x = 0; x < this.dimX; x++) {
-                for (int y = 0; y < this.dimY; y++) {
-                    targetMap.AddHeight(x, y, GetHeight(x, y));
+            ParallelEnumerable.Range(0, this.dimX * this.dimY).ForAll( 
+                i => {
+                    int x = i % this.dimX;
+                    int y = i / this.dimX;
+                    float change = float.IsNaN(GetHeight(x, y)) ? 0 : GetHeight(x, y);
+                    targetMap.AddHeight(x, y, change);
                 }
-            }
+            );
         }
 
         /// <summary>
