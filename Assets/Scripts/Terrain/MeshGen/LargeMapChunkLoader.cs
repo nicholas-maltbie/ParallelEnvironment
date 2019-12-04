@@ -82,8 +82,6 @@ namespace Terrain.MeshGen {
             }
         }
 
-        Vector2Int prevSize = Vector2Int.zero;
-
         /// <summary>
         /// Sets up the chunks. Creates a chunk at each offset value.
         /// </summary>
@@ -101,8 +99,6 @@ namespace Terrain.MeshGen {
                     LoadChunk(chunkX, chunkY);
                 }
             }
-
-            prevSize = new Vector2Int(sizeX, sizeY);
 
             if (this.debugPerformance) {
                 float deltaMillis = System.DateTime.Now.Ticks / TimeSpan.TicksPerMillisecond - startMillis;

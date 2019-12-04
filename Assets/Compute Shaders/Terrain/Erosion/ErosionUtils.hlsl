@@ -154,7 +154,7 @@ float2 CalculateGradient(iHeightMap map, float posX, float posY) {
     int locX = floor(posX);
     int locY = floor(posY);
 
-    // Find the offest in the X and Y axis from that location
+    // Find the offset in the X and Y axis from that location
     float offsetX = posX - locX;
     float offsetY = posY - locY;
 
