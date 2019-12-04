@@ -30,10 +30,13 @@ uint mapDimX;
 uint mapDimY;
 RWStructuredBuffer<float> heightMap;
 RWStructuredBuffer<uint> locks;
-// Location of each droplet for a run of the iterations
-StructuredBuffer<uint> randomIndices;
 // Output buffer
 RWStructuredBuffer<float> erosionMap;
+
+float random(float2 p) {
+    float2 K1 = float2 ( 23.14069263277926, 2.665144142690225 );
+    return frac(cos(dot(p,K1)) * 12345.6789);
+}
 
 [numthreads(128,1,1)]
 void Erode (uint3 id : SV_DispatchThreadID)
@@ -67,8 +70,10 @@ void Erode (uint3 id : SV_DispatchThreadID)
     float2 dir = float2(0, 0);
 
     // Get the starting position of this droplet
-    uint index = randomIndices[id.x];
-    float2 pos = float2(index % mapDimY, index / mapDimY);
+    uint index = id.x;
+    float2 pVal = float2(index % mapDimY, (index / mapDimY) % mapDimY);
+    float2 pVal2 = float2((index / mapDimY) % mapDimY, index % mapDimY);
+    float2 pos = float2(random(pVal) * mapDimX, random(pVal2) * mapDimY);
 
     Droplet droplet;
     droplet.pos = pos;

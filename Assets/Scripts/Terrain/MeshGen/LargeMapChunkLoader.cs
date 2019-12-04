@@ -34,28 +34,6 @@ namespace Terrain.MeshGen {
         public Material terrainMaterial;
 
         /// <summary>
-        /// Elapsed time since last ersion.
-        /// </summary>
-        private float elapsed = 0;
-        /// <summary>
-        /// Current number of droplets created.
-        /// </summary>
-        private int progress = 0;
-
-        /// <summary>
-        /// Interval between eroding
-        /// </summary>
-        public float erodeInterval = 0.1f;
-        /// <summary>
-        /// Number of droplets to create per interval
-        /// </summary>
-        public int dropletsPerInterval = 100;
-        /// <summary>
-        /// Total number of droplets to create
-        /// </summary>
-        public int totalDroplets = 60000;
-
-        /// <summary>
         /// Mesh generation parameters as a struct
         /// </summary>
         private MeshGenParams meshGenParams;
@@ -90,34 +68,6 @@ namespace Terrain.MeshGen {
         }
 
         /// <summary>
-        /// Initializes the chunks and loads height map.
-        /// </summary>
-        public void Start() {
-            SetupChunks();
-        }
-
-        /// <summary>
-        /// Update to do every iteration for erosion.
-        /// </summary>
-        void Update() {
-            if (this.progress < this.totalDroplets) {
-                this.elapsed += Time.deltaTime;
-
-                if (this.elapsed > this.erodeInterval) {
-                    this.elapsed %= this.erodeInterval;
-
-                    HydroErosionOperator erosion = GetComponent<HydroErosionOperator>();
-                    erosion.ErodeHeightMap(this.heightMap, 
-                        new Vector2Int(0, 0), new Vector2Int(this.heightMap.mapSize, this.heightMap.mapSize),
-                        this.dropletsPerInterval);
-                    this.progress += this.dropletsPerInterval;
-
-                    UpdateMeshes();
-                }
-            }
-        }
-
-        /// <summary>
         /// Updates the mesh for all chunks in the map.
         /// </summary>
         private void UpdateMeshes() {
@@ -135,11 +85,17 @@ namespace Terrain.MeshGen {
         /// <summary>
         /// Sets up the chunks. Creates a chunk at each offset value.
         /// </summary>
-        private void SetupChunks() {
+        public void SetupChunks() {
             Initialize();
+
+            foreach (AbstractMeshGenerator child in GetComponentsInChildren<AbstractMeshGenerator>()) {
+                DestroyImmediate(child.gameObject);
+            }
+            int sizeX = Mathf.CeilToInt(this.heightMap.mapSize / this.chunkSize);
+            int sizeY = Mathf.CeilToInt(this.heightMap.mapSize / this.chunkSize);
             long startMillis = System.DateTime.Now.Ticks / TimeSpan.TicksPerMillisecond;
-            for (int chunkX = 0; chunkX < Mathf.CeilToInt(this.heightMap.mapSize / this.chunkSize); chunkX++) {
-                for (int chunkY = 0; chunkY < Mathf.CeilToInt(this.heightMap.mapSize / this.chunkSize); chunkY++) {
+            for (int chunkX = 0; chunkX < sizeX; chunkX++) {
+                for (int chunkY = 0; chunkY < sizeY; chunkY++) {
                     LoadChunk(chunkX, chunkY);
                 }
             }
@@ -148,6 +104,19 @@ namespace Terrain.MeshGen {
                 float deltaMillis = System.DateTime.Now.Ticks / TimeSpan.TicksPerMillisecond - startMillis;
                 Debug.Log("Time to Load Chunks: " + deltaMillis + " ms");
             }
+        }
+
+        /// <summary>
+        /// Does a specificed number of erosion iterations
+        /// </summary>
+        /// <param name="iterations">Number of droplets</param>
+        public void DoErosion(int iterations) {
+            HydroErosionOperator erosion = GetComponent<HydroErosionOperator>();
+            erosion.ErodeHeightMap(this.heightMap, 
+                new Vector2Int(0, 0), new Vector2Int(
+                    this.heightMap.mapSize, this.heightMap.mapSize), iterations);
+
+            UpdateMeshes();
         }
 
         /// <summary>

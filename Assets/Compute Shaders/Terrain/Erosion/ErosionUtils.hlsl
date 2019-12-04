@@ -44,6 +44,10 @@ float Erode(iHeightMap map, int2 loc, float amountToErode, int radius, Structure
         }
     }
 
+    if (totalWeights == 0) {
+        totalWeights = 1;
+    }
+
     float eroded = 0;
     for (x = -radius; x <= radius; x++) {
         for (y = -radius; y <= radius; y++) {
@@ -150,7 +154,7 @@ float2 CalculateGradient(iHeightMap map, float posX, float posY) {
     int locX = floor(posX);
     int locY = floor(posY);
 
-    // Find the offest in the X and Y axis from that location
+    // Find the offset in the X and Y axis from that location
     float offsetX = posX - locX;
     float offsetY = posY - locY;
 

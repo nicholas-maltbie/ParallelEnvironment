@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using Terrain.Map;
 using UnityEngine;
 
@@ -27,27 +28,16 @@ namespace Terrain.Erosion {
 
             // Compute slice of the height map
             float[] heightMapSlice = new float[mapDimX * mapDimY];
-            for(int x = start.x; x < end.x; x++) {
-                for (int y = start.y; y < end.y; y++) {
+            ParallelEnumerable.Range(0, mapDimX * mapDimY).ForAll(
+                i => {
+                    int x = i % mapDimX;
+                    int y = i / mapDimX;
                     heightMapSlice[x + y * mapDimX] = heightMap.GetHeight(x, y);
                 }
-            }
+            );
 
             ComputeShader erosionShander = erosionParams.erosionShader;
             int kernelIdx = erosionShander.FindKernel("Erode");
-
-            // Setup random positions for each droplet
-            int[] randomIndices = new int[iterations];
-            for (int i = 0; i < iterations; i++) {
-                int randomX = prng.Next (start.x, end.x);
-                int randomY = prng.Next (start.y, end.y);
-                randomIndices[i] = randomY * mapDimX + randomX;
-            }
-
-            // Send random indices to compute shader
-            ComputeBuffer randomIndexBuffer = new ComputeBuffer (randomIndices.Length, sizeof (int));
-            randomIndexBuffer.SetData (randomIndices);
-            erosionShander.SetBuffer (kernelIdx, "randomIndices", randomIndexBuffer);
 
             // Set height map
             ComputeBuffer heightMapBuffer = new ComputeBuffer (mapDimX * mapDimY, sizeof(float));
@@ -103,7 +93,6 @@ namespace Terrain.Erosion {
             erodeBrushBuffer.Release();
             heightMapBuffer.Release();
             erosionChangesBuffer.Release();
-            randomIndexBuffer.Release();
             locksBuffer.Release();
 
             if (erosionParams.debugPerformance) {
