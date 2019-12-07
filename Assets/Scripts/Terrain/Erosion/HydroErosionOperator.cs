@@ -148,10 +148,6 @@ namespace Terrain.Erosion {
         /// </summary>
         public HydroErosionType erosionType;
         /// <summary>
-        /// Have erosion parameters been setup yet
-        /// </summary>
-        private bool setupParams;
-        /// <summary>
         /// Module used to apply erosion to the terrain.
         /// </summary>
         private IHydroErosion erosion;
@@ -180,17 +176,13 @@ namespace Terrain.Erosion {
                 this.prng = this.seed == 0 ? new System.Random() : new System.Random(seed);
             }
 
-            // Setup erosion parameters
-            //if (!setupParams) {
-                this.setupParams = true;
-                this.erosionParams = new HydroErosionParams(this.inertia, this.initialWater, 
-                    this.initialVelocity, this.gravity, this.includeVelocity,
-                    this.sedimentCapacityFactor, this.evaporationRate, this.minSlope,
-                    this.minCapacity, this.maxDropletLifetime, this.depositionRate,
-                    this.erosionRate, this.erodeRadius, this.blurValue, this.blurRadius,
-                    this.debugPerformance, this.erosionShader, this.kernelShader);
-                this.erosion = this.erosionType.ConstructErosion();
-            //}
+            this.erosionParams = new HydroErosionParams(this.inertia, this.initialWater, 
+                this.initialVelocity, this.gravity, this.includeVelocity,
+                this.sedimentCapacityFactor, this.evaporationRate, this.minSlope,
+                this.minCapacity, this.maxDropletLifetime, this.depositionRate,
+                this.erosionRate, this.erodeRadius, this.blurValue, this.blurRadius,
+                this.debugPerformance, this.erosionShader, this.kernelShader);
+            this.erosion = this.erosionType.ConstructErosion();
         }
 
         /// <summary>
