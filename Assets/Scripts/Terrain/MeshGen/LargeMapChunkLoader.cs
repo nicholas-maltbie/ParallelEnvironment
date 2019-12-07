@@ -2,8 +2,17 @@ using UnityEngine;
 using Terrain.Map;
 using Terrain.Erosion;
 using System;
+using System.Linq;
 
 namespace Terrain.MeshGen {
+    /// <summary>
+    /// Methdos for loading chunks
+    /// </summary>
+    public enum ChunkLoadingMethod {
+        Parallel,
+        Serial
+    }
+
     /// <summary>
     /// Loads a map from a LargeHeightMap into the world.
     /// </summary>
@@ -44,6 +53,11 @@ namespace Terrain.MeshGen {
         public MeshGenType meshGenType;
 
         /// <summary>
+        /// Method for loading chunks
+        /// </summary>
+        public ChunkLoadingMethod chunkLoadingMethod;
+
+        /// <summary>
         /// Should performance be debugged
         /// </summary>
         public bool debugPerformance;
@@ -72,8 +86,28 @@ namespace Terrain.MeshGen {
         /// </summary>
         private void UpdateMeshes() {
             long startMillis = System.DateTime.Now.Ticks / TimeSpan.TicksPerMillisecond;
-            foreach (AbstractMeshGenerator gen in gameObject.GetComponentsInChildren<AbstractMeshGenerator>()) {
-                gen.UpdateGeometry();
+            switch (chunkLoadingMethod) {
+                case ChunkLoadingMethod.Parallel:
+                    AbstractMeshGenerator[] gens = gameObject.GetComponentsInChildren<AbstractMeshGenerator>();
+                    Vector3[][] updatedVertices = new Vector3[gens.Length][];
+                    Vector3[][] updatedNormals = new Vector3[gens.Length][];
+                    ParallelEnumerable.Range(0, gens.Length).ForAll(
+                        i => {
+                            updatedVertices[i] = gens[i].GetMeshVertices();
+                            updatedNormals[i]  = gens[i].GetMeshNormals();
+                        }
+                    );
+                    for (int i = 0; i < gens.Length; i++) {
+                        gens[i].UpdateGeometry(updatedVertices[i], updatedNormals[i]);
+                    }
+                    break;
+                case ChunkLoadingMethod.Serial:
+                default:
+                    foreach (AbstractMeshGenerator gen in
+                        gameObject.GetComponentsInChildren<AbstractMeshGenerator>()) {
+                        gen.UpdateGeometry();
+                    }
+                    break;
             }
 
             if (this.debugPerformance) {

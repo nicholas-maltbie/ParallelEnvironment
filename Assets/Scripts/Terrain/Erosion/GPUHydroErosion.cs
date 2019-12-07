@@ -84,6 +84,8 @@ namespace Terrain.Erosion {
             erosionShander.SetInt("maxDropletLifetime", erosionParams.maxDropletLifetime);
             erosionShander.SetInt("erodeRadius", erosionParams.erodeRadius);
             erosionShander.SetBool("includeVelocity", erosionParams.includeVelocity);
+            erosionShander.SetInt("offset", prng.Next() % (mapDimX * mapDimY));
+            erosionShander.SetInt("step", prng.Next() % (mapDimX));
 
             // Run the command and get results
             erosionShander.Dispatch(kernelIdx, numThreads, 1, 1);
