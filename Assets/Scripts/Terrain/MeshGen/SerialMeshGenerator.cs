@@ -45,7 +45,7 @@ namespace Terrain.MeshGen {
             return uvMapping;
         }
 
-        protected override Vector3[] GetMeshVertices()
+        public override Vector3[] GetMeshVertices()
         {
             // Map of vectors for vertices in mesh
             Vector3[] vertices = new Vector3[GetMapSize() * GetMapSize()];
@@ -62,7 +62,7 @@ namespace Terrain.MeshGen {
             return vertices;
         }
 
-        protected override Vector3[] GetMeshNormals()
+        public override Vector3[] GetMeshNormals()
         {
             // Vector of normals for each vertex
             Vector3[] normals = new Vector3[GetMapSize() * GetMapSize()];

@@ -23,7 +23,7 @@ namespace Terrain.MeshGen {
             return norm.normalized;
         }
 
-        protected override Vector3[] GetMeshNormals()
+        public override Vector3[] GetMeshNormals()
         {
             // Vector of normals for each vertex
             Vector3[] normals = new Vector3[GetMapSize() * GetMapSize()];
@@ -77,7 +77,7 @@ namespace Terrain.MeshGen {
             return triangles;
         }
 
-        protected override Vector3[] GetMeshVertices()
+        public override Vector3[] GetMeshVertices()
         {
             Vector3[] vertices = new Vector3[GetMapSize() * GetMapSize()];
             // Create vertices based on noise map

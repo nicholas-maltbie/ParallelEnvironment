@@ -115,6 +115,15 @@ namespace Terrain.MeshGen {
             this.heightMapMesh.normals = GetMeshNormals();
         }
 
+        /// <summary>
+        /// Updates the mesh vertices and normals using a pre computed mesh
+        /// </summary>
+        /// <param name="vertices">Updated vertices</param>
+        /// <param name="normals">Updated normal mapping</param>
+        public void UpdateGeometry(Vector3[] vertices, Vector3[] normals) {
+            this.heightMapMesh.normals = normals;
+            this.heightMapMesh.vertices = vertices;
+        }
         
         /// <summary>
         /// Creates a height map mesh from the given height map generator field.
@@ -152,7 +161,7 @@ namespace Terrain.MeshGen {
         /// to a 3d coordinate following the height map of this class.
         /// </summary>
         /// <returns>A vector3 array of mapSize * mapSize of the coordinates of each mesh.</returns>
-        abstract protected Vector3[] GetMeshVertices();
+        abstract public Vector3[] GetMeshVertices();
 
         /// <summary>
         /// Get the normal mapping for each vertex. This determines how light interacts
@@ -161,7 +170,7 @@ namespace Terrain.MeshGen {
         /// </summary>
         /// <returns>A vector3 array of mapSize * mapSize that has the normal
         /// direction to the surface at each vertex in the mesh.</returns>
-        abstract protected Vector3[] GetMeshNormals();
+        abstract public Vector3[] GetMeshNormals();
 
         /// <summary>
         /// This should return the triangles. There should be 3x the number
