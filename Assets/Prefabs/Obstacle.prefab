@@ -110,9 +110,9 @@ MonoBehaviour:
   CellRadius: 1
   SeparationWeight: 1
   AlignmentWeight: 1
-  TargetWeight: 15
+  TargetWeight: 25
   ObstacleAversionDistance: 0
-  MoveSpeed: 10
+  MoveSpeed: 25
 --- !u!114 &2468434841570612972
 MonoBehaviour:
   m_ObjectHideFlags: 0
